@@ -24,6 +24,9 @@ class ClockScreen extends StatefulWidget {
 class _ClockScreenState extends State<ClockScreen> with WindowListener {
   final _timeService = TimeService();
   String? _lastLoadedThemeId;
+  String? _lastConfigThemeId;
+  double? _lastScale;
+  double? _lastOpacity;
 
   @override
   void initState() {
@@ -197,14 +200,29 @@ class _ClockScreenState extends State<ClockScreen> with WindowListener {
   Widget build(BuildContext context) {
     return Consumer2<ConfigService, ThemeService>(
       builder: (context, configService, themeService, child) {
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-          _updateWindow(configService);
-        });
+        final config = configService.config;
+        
+        // 只在配置真正改变时才更新窗口
+        if (_lastConfigThemeId != config.themeId || _lastScale != config.scale) {
+          _lastConfigThemeId = config.themeId;
+          _lastScale = config.scale;
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            _updateWindow(configService);
+          });
+        }
+        
+        // 只在透明度改变时才更新
+        if (_lastOpacity != config.opacity) {
+          _lastOpacity = config.opacity;
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            windowManager.setOpacity(config.opacity.clamp(0.1, 1.0));
+          });
+        }
 
         // 只在主题切换时加载字体和记录日志
-        _loadThemeFontsIfNeeded(themeService, configService.config.themeId);
+        _loadThemeFontsIfNeeded(themeService, config.themeId);
         
-        final theme = themeService.resolve(configService.config.themeId);
+        final theme = themeService.resolve(config.themeId);
 
         Widget clock = StreamBuilder<DateTime>(
           key: const ValueKey('time_stream_builder'), // 添加稳定key防止重建
@@ -225,11 +243,6 @@ class _ClockScreenState extends State<ClockScreen> with WindowListener {
             );
           },
         );
-
-        // 设置窗口透明度（真正的系统级透明度，可以看到底下的应用）
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-          windowManager.setOpacity(configService.config.opacity.clamp(0.1, 1.0));
-        });
 
         return Scaffold(
           backgroundColor: Colors.transparent,

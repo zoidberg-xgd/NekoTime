@@ -64,19 +64,16 @@ class _DigitGifV2State extends State<DigitGifV2> with AutomaticKeepAliveClientMi
     final format = widget.imageFormat ?? 'gif';
     final assetPath = '$imagePath/${widget.digit}.$format';
 
-    LogService().debug('🔍 Checking asset exists: $assetPath');
-
     // 检查是否在AssetBundle中（内置资源和打包的主题）
     if (imagePath.startsWith('assets/') || imagePath.startsWith('themes/')) {
       try {
         await rootBundle.load(assetPath);
-        LogService().debug('  ✅ Asset exists: $assetPath');
         setState(() {
           _assetExists = true;
           _isCheckingAsset = false;
         });
       } catch (e) {
-        LogService().error('  ❌ Asset NOT found: $assetPath, error: $e');
+        LogService().error('Asset NOT found: $assetPath', error: e);
         setState(() {
           _assetExists = false;
           _isCheckingAsset = false;
@@ -149,7 +146,6 @@ class _DigitGifV2State extends State<DigitGifV2> with AutomaticKeepAliveClientMi
 
     // 如果资源不存在，直接显示文本
     if (!_assetExists) {
-      LogService().debug('  📝 Using text for digit: ${widget.digit}');
       return SizedBox(
         width: digitWidth,
         height: height,
@@ -172,8 +168,6 @@ class _DigitGifV2State extends State<DigitGifV2> with AutomaticKeepAliveClientMi
     final format = widget.imageFormat ?? 'gif';
     final assetPath = '$imagePath/${widget.digit}.$format';
 
-    LogService().debug('  🖼️ Loading image for digit: ${widget.digit}');
-
     return SizedBox(
       width: digitWidth,
       height: height,
@@ -186,7 +180,7 @@ class _DigitGifV2State extends State<DigitGifV2> with AutomaticKeepAliveClientMi
         gaplessPlayback: true,
         // 即使预检查通过，还是保留errorBuilder作为最后防线
         errorBuilder: (context, error, stack) {
-          LogService().error('💥 Image.asset error despite precheck: ${widget.digit}');
+          LogService().error('Image.asset error for digit: ${widget.digit}', error: error, stackTrace: stack);
           return Text(
             widget.digit,
             style: TextStyle(
