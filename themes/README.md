@@ -1,70 +1,218 @@
-# 自定义主题（主题包）
+# NekoTime 主题目录
 
-应用支持以“主题包”的方式加载主题：在 `themes/` 目录下创建子文件夹，每个文件夹内包含一个 `theme.json` 和可选的 `assets/` 静态资源。也兼容旧版：放在 `themes/` 根目录的独立 `.json` 文件仍会被加载。
+本目录用于存放自定义主题。NekoTime 支持模块化的主题包系统，你可以轻松创建和分享主题。
 
-## 目录结构示例
+## 目录位置
+
+主题目录位于应用支持目录下：
+
+- **macOS**: `~/Library/Application Support/digital_clock/themes/`
+- **Windows**: `%APPDATA%\digital_clock\themes\`
+- **Linux**: `~/.local/share/digital_clock/themes/`
+
+**提示**：可在应用设置对话框底部查看完整路径。
+
+## 主题结构
+
+### 标准主题包结构
+
 ```
-/themes/
-  your_theme_id/
-    theme.json
-    assets/
-      bg.jpg
-      overlay.png
-      CustomFont.ttf
+themes/
+└── my_theme/                  # 主题文件夹（以主题 ID 命名）
+    ├── theme.json             # 主题配置文件（必需）
+    ├── digits/                # 数字图片文件夹
+    │   ├── 0.gif
+    │   ├── 1.gif
+    │   ├── ...
+    │   └── 9.gif
+    └── assets/                # 其他资源（可选）
+        ├── background.jpg
+        ├── overlay.png
+        └── CustomFont.ttf
 ```
 
-## theme.json 示例
+### 内置主题
+
+- **builtin/** - 应用内置主题（打包在应用中）
+  - **frosted_glass/** - 默认的毛玻璃主题
+
+### 示例主题
+
+- **example_mod/** - 示例主题模板，展示完整配置选项
+
+## 配置文件
+
+### theme.json 基础结构
+
 ```json
 {
-  "id": "your_theme_id",
-  "name": "你的主题名",
+  "id": "my_theme",
+  "name": "My Theme",
   "version": "1.0.0",
   "apiVersion": 1,
-  "kind": "solid",
-  "borderRadius": 16,
-  "padding": { "preset": "cozy", "horizontal": 16, "vertical": 8 },
-  "layout": { "alignment": "center" },
-  "backgroundColor": "#101218",
-  "backgroundOpacityMultiplier": 0.6,
-  "tintColor": "#3D5AFE",
-  "tintOpacityMultiplier": 0.08,
-  "blur": { "sigmaX": 12, "sigmaY": 12 },
-  "backgroundImage": "assets/bg.jpg",
-  "overlayImage": "assets/overlay.png",
-  "fontFamily": "CustomFont",
-  "fonts": [ "assets/CustomFont.ttf" ],
-  "digit": { "spacing": 8 }
+  "kind": "blur",
+  "borderRadius": 12,
+  "padding": {
+    "preset": "compact"
+  },
+  "digit": {
+    "spacing": 2,
+    "gifPath": "digits",
+    "format": "gif"
+  }
 }
 ```
 
-## 字段说明（Manifest Schema）
-- 基础
-  - `id`：主题唯一 ID（建议与文件夹名一致）
-  - `name`：显示名称
-  - `version`：主题自身版本（可选）
-  - `apiVersion`：主题 API 版本（可选，用于兼容性控制）
-  - `kind`：`transparent` | `blur` | `solid`
-- 布局与间距
-  - `padding`：
-    - 数值：`horizontal`、`vertical`
-    - 或预设：`preset` 支持 `none` | `compact` | `cozy` | `comfortable`
-  - `layout.alignment`：`left` | `center` | `right`
-  - `digit.spacing`（或 `digitSpacing`）：数字间距（像素）
-- 视觉
-  - `backgroundColor`、`backgroundOpacityMultiplier`
-  - `tintColor`、`tintOpacityMultiplier`
-  - `blur.sigmaX`、`blur.sigmaY`（仅 `kind = blur` 有效）
-  - `backgroundImage`：背景图片（相对主题包目录）
-  - `overlayImage`：前景叠加图（覆盖在内容之上）
-- 字体
-  - `fontFamily`：字体族名
-  - `fonts`：字体文件列表（相对路径），运行时动态加载
+### 必需字段
 
-## 使用步骤
-1. 打开应用设置对话框，查看底部提示的 `themes/` 目录路径。
-2. 将你的主题包文件夹（含 `theme.json` 与 `assets/`）复制到该目录。
-3. 点击“重新加载主题”，在列表中选择你的主题。
+| 字段 | 说明 | 示例 |
+|------|------|------|
+| `id` | 主题唯一标识符 | `"my_awesome_theme"` |
+| `name` | 显示名称 | `"My Awesome Theme"` |
 
-## 兼容说明（旧版）
-- 仍支持将单个 `.json` 放在 `themes/` 根目录（不带子文件夹）。此时资源路径以该 `.json` 所在目录为基准解析。
-- 建议优先使用“主题包”结构，便于组织资源与分享。
+### 主题类型 (kind)
+
+- `transparent` - 完全透明背景
+- `blur` - 毛玻璃模糊效果
+- `solid` - 纯色或图片背景
+
+## 快速开始
+
+### 1. 创建主题文件夹
+
+```bash
+# macOS/Linux
+mkdir -p ~/Library/Application\ Support/digital_clock/themes/my_theme
+
+# Windows
+mkdir %APPDATA%\digital_clock\themes\my_theme
+```
+
+### 2. 创建配置文件
+
+在主题文件夹中创建 `theme.json`：
+
+```json
+{
+  "id": "my_theme",
+  "name": "My First Theme",
+  "kind": "transparent",
+  "padding": {
+    "preset": "compact"
+  }
+}
+```
+
+### 3. 添加数字图片（可选）
+
+创建 `digits/` 文件夹，放入 `0.gif` 到 `9.gif` 文件，并在配置中添加：
+
+```json
+{
+  "digit": {
+    "gifPath": "digits",
+    "format": "gif"
+  }
+}
+```
+
+### 4. 重新加载主题
+
+1. 打开应用托盘菜单
+2. 点击 **"Reload Themes"**
+3. 选择你的主题
+
+## 详细文档
+
+- **[THEME_GUIDE.md](THEME_GUIDE.md)** - 完整的主题开发指南
+- **[example_mod/README.md](example_mod/README.md)** - 示例主题说明
+
+## 配置提示
+
+### 紧凑显示
+
+```json
+{
+  "borderRadius": 12,
+  "padding": { "preset": "compact" },
+  "digit": { "spacing": 0 }
+}
+```
+
+### 毛玻璃效果
+
+```json
+{
+  "kind": "blur",
+  "blur": { "sigmaX": 16, "sigmaY": 16 },
+  "tintOpacityMultiplier": 0.15
+}
+```
+
+### 自定义颜色
+
+```json
+{
+  "backgroundColor": "#202020",
+  "backgroundOpacityMultiplier": 0.5,
+  "tintColor": "#FF6B6B",
+  "tintOpacityMultiplier": 0.2
+}
+```
+
+## 故障排除
+
+### 主题未显示
+
+1. 检查 `theme.json` 是否为有效 JSON
+2. 确认 `id` 和 `name` 字段存在
+3. 查看应用日志（设置 → View Logs）
+
+### 数字不显示
+
+1. 检查 `digit.gifPath` 路径是否正确
+2. 确认图片文件命名为 `0.gif` ~ `9.gif`
+3. 尝试指定 `digit.format` 字段
+
+### 字体未生效
+
+1. 确认字体文件路径正确
+2. 检查 `fontFamily` 名称拼写
+3. 字体仅应用于冒号 `:`
+
+## 兼容性说明
+
+### 旧版主题支持
+
+应用仍然支持旧版单文件主题（直接放在 `themes/` 根目录的 `.json` 文件）。但推荐使用新的主题包结构以便更好地组织资源。
+
+### 迁移指南
+
+旧版主题：
+```
+themes/
+├── my_theme.json
+└── gif/
+    └── ...
+```
+
+新版主题：
+```
+themes/
+└── my_theme/
+    ├── theme.json
+    └── digits/
+        └── ...
+```
+
+## 分享主题
+
+如果你创建了精美的主题，欢迎分享：
+
+1. 将主题文件夹打包为 `.zip`
+2. 在 GitHub/论坛发布
+3. 提供 README 和预览截图
+
+---
+
+**更多帮助**：查看 [主题开发指南](THEME_GUIDE.md)
