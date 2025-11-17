@@ -291,6 +291,6 @@ flatpak-builder build-dir com.example.digital_clock.yml
 
 ---
 
-**测试日期**：2025-01-18  
+**测试日期**：2025-11-18  
 **适用版本**：v2.1.0+  
 **测试平台**：Ubuntu 22.04, Fedora 39, Arch Linux

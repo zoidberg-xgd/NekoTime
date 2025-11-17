@@ -5,6 +5,9 @@
 build/
 **/GeneratedPluginRegistrant.*
 **/Flutter/ephemeral/
+.flutter-plugins
+.flutter-plugins-dependencies
+*.iml
 
 # iOS/macOS
 **/Pods/
@@ -24,7 +27,6 @@ DerivedData/
 # IDE
 .vscode/
 .idea/
-*.iml
 
 # Logs
 *.log
