@@ -10,6 +10,7 @@ version:
 project_type: app
 
 # Tracks metadata for the flutter migrate command
+# Desktop-only project: macOS, Windows, Linux
 migration:
   platforms:
     - platform: root

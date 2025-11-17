@@ -40,14 +40,11 @@ flutter:
     - themes/builtin/frosted_glass/digits/
 
 flutter_launcher_icons:
-  # 使用同一张源图片为多平台生成图标
+  # 桌面平台图标生成配置
   image_path: "assets/icons/app_icon_source.png"
-  android: true
-  ios: true
   macos:
     generate: true
   windows:
     generate: true
   linux:
     generate: true
-  remove_alpha_ios: true

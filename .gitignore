@@ -37,3 +37,5 @@ pubspec.lock
 
 # Build outputs / Distribution
 dist/
+android/
+ios/
