@@ -10,7 +10,9 @@ NekoTime 支持在 macOS、Windows 和 Linux 三个桌面平台上运行。
 | **Windows** | ✅ 完全支持 | Acrylic | Windows 10+ 原生 Acrylic 效果 |
 | **Linux** | ✅ 完全支持 | 原生透明 | 依赖窗口管理器（KDE/GNOME/等） |
 
-📘 **Linux 详细兼容性**：查看 [LINUX_COMPATIBILITY.md](LINUX_COMPATIBILITY.md) 了解不同桌面环境的支持情况。
+📘 **平台详细兼容性**：
+- **Windows**：查看 [WINDOWS_COMPATIBILITY.md](WINDOWS_COMPATIBILITY.md) 了解 Windows 版本支持和详细配置
+- **Linux**：查看 [LINUX_COMPATIBILITY.md](LINUX_COMPATIBILITY.md) 了解不同桌面环境的支持情况
 
 ## 🚀 平台构建
 
