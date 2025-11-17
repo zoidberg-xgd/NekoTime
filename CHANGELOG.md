@@ -7,6 +7,14 @@ NekoTime 的所有重要变更都将记录在此文件中。
 
 ## [未发布]
 
+## [2.2.1] - 2025-11-18
+
+### 修复
+- **CI 兼容性**：修复 Flutter 3.24.5 版本兼容性问题
+  - 使用手动 ARGB32 转换替代 `toARGB32()` 方法
+  - 确保在旧版本 Flutter 中也能正常编译
+  - 修复 CI 构建失败问题
+
 ## [2.2.0] - 2025-11-18
 
 ### 变更
@@ -174,7 +182,8 @@ themes/
 
 **项目仓库**：https://github.com/zoidberg-xgd/NekoTime
 
-[未发布]: https://github.com/zoidberg-xgd/NekoTime/compare/v2.2.0...HEAD
+[未发布]: https://github.com/zoidberg-xgd/NekoTime/compare/v2.2.1...HEAD
+[2.2.1]: https://github.com/zoidberg-xgd/NekoTime/compare/v2.2.0...v2.2.1
 [2.2.0]: https://github.com/zoidberg-xgd/NekoTime/compare/v2.1.0...v2.2.0
 [2.1.0]: https://github.com/zoidberg-xgd/NekoTime/compare/v2.0.0...v2.1.0
 [2.0.0]: https://github.com/zoidberg-xgd/NekoTime/compare/v1.0.0...v2.0.0
