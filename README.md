@@ -37,8 +37,58 @@ NekoTime 是一款跨平台的桌面悬浮时钟，采用 Flutter 开发，支�
 
 ### 环境要求
 
+**通用要求**：
 - **Flutter SDK** 3.0+
 - 按照 [Flutter 官方文档](https://docs.flutter.dev/get-started/install) 配置对应平台开发环境
+
+**平台特定依赖**：
+
+<details>
+<summary><b>macOS</b></summary>
+
+- macOS 10.14 或更高版本
+- Xcode 12.0 或更高版本
+- CocoaPods
+
+```bash
+# 安装 CocoaPods（如未安装）
+sudo gem install cocoapods
+```
+</details>
+
+<details>
+<summary><b>Windows</b></summary>
+
+- Windows 10 1809 或更高版本（建议 Windows 10 1903+ 以获得最佳透明效果）
+- Visual Studio 2019 或更高版本（包含 C++ 桌面开发工具）
+- 启用开发者模式
+</details>
+
+<details>
+<summary><b>Linux</b></summary>
+
+**Ubuntu/Debian**：
+```bash
+sudo apt-get update
+sudo apt-get install -y \
+    clang cmake ninja-build pkg-config \
+    libgtk-3-dev liblzma-dev \
+    libayatana-appindicator3-dev
+```
+
+**Fedora**：
+```bash
+sudo dnf install -y \
+    clang cmake ninja-build \
+    gtk3-devel lzma-devel \
+    libayatana-appindicator-gtk3-devel
+```
+
+**Arch Linux**：
+```bash
+sudo pacman -S base-devel gtk3 cmake ninja
+```
+</details>
 
 ### 运行应用
 
