@@ -47,9 +47,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get layerDesktop => 'Desktop';
 
   @override
-  String get layerNormal => 'Normal';
-
-  @override
   String get layerTop => 'Always on Top';
 
   @override

@@ -7,7 +7,6 @@
 
 import 'package:neko_time/core/models/clock_config.dart';
 import 'package:neko_time/core/models/theme_definition.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
@@ -18,7 +17,7 @@ void main() {
         themeId: ThemeDefinition.defaultThemeId,
         scale: 1.0,
         opacity: 1.0,
-        layer: ClockLayer.normal,
+        layer: ClockLayer.desktop,
         lockPosition: false,
         locale: 'en',
       );
@@ -26,7 +25,7 @@ void main() {
       expect(config.themeId, equals(ThemeDefinition.defaultThemeId));
       expect(config.scale, equals(1.0));
       expect(config.opacity, equals(1.0));
-      expect(config.layer, equals(ClockLayer.normal));
+      expect(config.layer, equals(ClockLayer.desktop));
       expect(config.lockPosition, isFalse);
       expect(config.locale, equals('en'));
     });
@@ -42,9 +41,8 @@ void main() {
 
     test('ClockLayer enum', () {
       // Test ClockLayer enum values
-      expect(ClockLayer.values.length, equals(3));
+      expect(ClockLayer.values.length, equals(2));
       expect(ClockLayer.values, contains(ClockLayer.desktop));
-      expect(ClockLayer.values, contains(ClockLayer.normal));
       expect(ClockLayer.values, contains(ClockLayer.top));
     });
   });

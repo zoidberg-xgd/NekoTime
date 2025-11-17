@@ -170,12 +170,6 @@ abstract class AppLocalizations {
   /// **'Desktop'**
   String get layerDesktop;
 
-  /// No description provided for @layerNormal.
-  ///
-  /// In en, this message translates to:
-  /// **'Normal'**
-  String get layerNormal;
-
   /// No description provided for @layerTop.
   ///
   /// In en, this message translates to:

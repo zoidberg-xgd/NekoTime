@@ -47,9 +47,6 @@ class AppLocalizationsZh extends AppLocalizations {
   String get layerDesktop => '桌面层';
 
   @override
-  String get layerNormal => '标准层';
-
-  @override
   String get layerTop => '置顶层';
 
   @override

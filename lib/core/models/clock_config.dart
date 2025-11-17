@@ -5,8 +5,7 @@ import 'package:neko_time/core/models/theme_definition.dart';
 // 定义时钟层级
 enum ClockLayer {
   desktop, // 桌面层 (可被其他窗口遮挡)
-  normal, // 普通窗口层
-  top, // 置顶层
+  top, // 置顶层 (始终在最前)
 }
 
 class ClockConfig {

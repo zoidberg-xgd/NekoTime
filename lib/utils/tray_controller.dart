@@ -186,11 +186,6 @@ mixin TrayController<T extends StatefulWidget> on State<T> {
           onClicked: (_) => configService.setLayer(ClockLayer.desktop),
         ),
         MenuItemLabel(
-          label:
-              '${check(config.layer == ClockLayer.normal)}${l10n.layerNormal}',
-          onClicked: (_) => configService.setLayer(ClockLayer.normal),
-        ),
-        MenuItemLabel(
           label: '${check(config.layer == ClockLayer.top)}${l10n.layerTop}',
           onClicked: (_) => configService.setLayer(ClockLayer.top),
         ),

@@ -114,12 +114,12 @@ class _DigitGifV2State extends State<DigitGifV2>
                 // 多层阴影，确保高可见性
                 Shadow(
                   blurRadius: 8.0,
-                  color: Colors.black.withOpacity(0.9),
+                  color: Colors.black.withValues(alpha: 0.9),
                   offset: const Offset(0, 0),
                 ),
                 Shadow(
                   blurRadius: 12.0,
-                  color: Colors.black.withOpacity(0.7),
+                  color: Colors.black.withValues(alpha: 0.7),
                   offset: const Offset(0, 0),
                 ),
                 Shadow(

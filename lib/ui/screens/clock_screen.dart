@@ -79,11 +79,11 @@ class _ClockScreenState extends State<ClockScreen> with WindowListener {
         );
     }
 
-    final backgroundOverlay = theme.backgroundColor?.withOpacity(
-      theme.backgroundOpacityMultiplier * opacity,
+    final backgroundOverlay = theme.backgroundColor?.withValues(
+      alpha: theme.backgroundOpacityMultiplier * opacity,
     );
-    final tintOverlay = theme.tintColor?.withOpacity(
-      theme.tintOpacityMultiplier * opacity,
+    final tintOverlay = theme.tintColor?.withValues(
+      alpha: theme.tintOpacityMultiplier * opacity,
     );
 
     Alignment align;
@@ -140,8 +140,8 @@ class _ClockScreenState extends State<ClockScreen> with WindowListener {
             ),
             child: Container(
               decoration: BoxDecoration(
-                color: (tintOverlay ?? backgroundOverlay)?.withOpacity(
-                        ((tintOverlay ?? backgroundOverlay)?.opacity ?? 0.0) *
+                color: (tintOverlay ?? backgroundOverlay)?.withValues(
+                        alpha: ((tintOverlay ?? backgroundOverlay)?.a ?? 0.0) *
                             0.8) ??
                     Colors.transparent,
                 image: bgImage,

@@ -40,16 +40,7 @@ class ConfigService extends ChangeNotifier {
   // Helper to apply window settings based on current config
   void _applyWindowSettings() {
     if (Platform.isMacOS || Platform.isWindows || Platform.isLinux) {
-      bool isAlwaysOnTop = false;
-      switch (_config.layer) {
-        case ClockLayer.desktop:
-        case ClockLayer.normal:
-          isAlwaysOnTop = false;
-          break;
-        case ClockLayer.top:
-          isAlwaysOnTop = true;
-          break;
-      }
+      bool isAlwaysOnTop = _config.layer == ClockLayer.top;
       windowManager.setAlwaysOnTop(isAlwaysOnTop);
     }
   }

@@ -74,7 +74,7 @@ class _LogViewerDialogState extends State<LogViewerDialog> {
   @override
   Widget build(BuildContext context) {
     return Dialog(
-      backgroundColor: Colors.black.withOpacity(0.9),
+      backgroundColor: Colors.black.withValues(alpha: 0.9),
       child: Container(
         width: 800,
         height: 600,

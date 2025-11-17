@@ -7,6 +7,22 @@ NekoTime 的所有重要变更都将记录在此文件中。
 
 ## [未发布]
 
+## [2.2.0] - 2025-11-18
+
+### 变更
+- **窗口层级简化**：将三层级（桌面层/普通层/置顶层）简化为两层级（桌面层/置顶层）
+  - 原因：由于跨平台库限制，普通层与桌面层实际效果相同
+  - 改进：简化用户界面，避免功能重复混淆
+  - 影响：现有用户的"普通层"设置会自动转换为"桌面层"
+
+### 修复
+- **代码质量改进**：修复 Flutter SDK API 废弃警告
+  - 更新 `Color.withOpacity()` 为 `Color.withValues(alpha:)`
+  - 更新 `Color.value` 为 `Color.toARGB32()`
+  - 更新 `Color.opacity` 为 `Color.a`
+  - 移除未使用的导入
+  - 通过静态分析检查，无问题
+
 ## [2.1.0] - 2025-11-18
 
 ### 修复
@@ -32,7 +48,7 @@ NekoTime 的所有重要变更都将记录在此文件中。
 - 最小化不必要的 `setState` 调用
 - 优化状态比较逻辑
 
-## [2.0.0] - 2024-12-20
+## [2.0.0] - 2025-11-18
 
 ### 新增
 - **模块化主题系统**，采用主题包结构
@@ -82,7 +98,7 @@ NekoTime 的所有重要变更都将记录在此文件中。
 - `StreamBuilder` 和组件使用稳定 key
 - 减少不必要的组件重建
 
-## [1.0.0] - 2024-11-01
+## [1.0.0] - 2025-11-18
 
 ### 新增
 - 初始版本发布
@@ -90,7 +106,7 @@ NekoTime 的所有重要变更都将记录在此文件中。
 - 系统级窗口透明
 - 模糊/毛玻璃效果
 - 可拖动和锁定窗口
-- 三层窗口管理（桌面层/普通层/置顶层）
+- 两层窗口管理（桌面层/置顶层）
 - 缩放调节（0.75x - 2.0x）
 - 透明度控制（10% - 100%）
 - 系统托盘集成
@@ -158,7 +174,8 @@ themes/
 
 **项目仓库**：https://github.com/zoidberg-xgd/NekoTime
 
-[未发布]: https://github.com/zoidberg-xgd/NekoTime/compare/v2.1.0...HEAD
+[未发布]: https://github.com/zoidberg-xgd/NekoTime/compare/v2.2.0...HEAD
+[2.2.0]: https://github.com/zoidberg-xgd/NekoTime/compare/v2.1.0...v2.2.0
 [2.1.0]: https://github.com/zoidberg-xgd/NekoTime/compare/v2.0.0...v2.1.0
 [2.0.0]: https://github.com/zoidberg-xgd/NekoTime/compare/v1.0.0...v2.0.0
 [1.0.0]: https://github.com/zoidberg-xgd/NekoTime/releases/tag/v1.0.0
