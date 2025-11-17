@@ -1,35 +1,70 @@
-# 自定义主题
+# 自定义主题（主题包）
 
-应用启动时会在应用支持目录（macOS 为 `~/Library/Application Support/digital_clock/themes`）下寻找以 `.json` 结尾的主题文件。每个文件描述一个主题，示例：
+应用支持以“主题包”的方式加载主题：在 `themes/` 目录下创建子文件夹，每个文件夹内包含一个 `theme.json` 和可选的 `assets/` 静态资源。也兼容旧版：放在 `themes/` 根目录的独立 `.json` 文件仍会被加载。
 
+## 目录结构示例
+```
+/themes/
+  your_theme_id/
+    theme.json
+    assets/
+      bg.jpg
+      overlay.png
+      CustomFont.ttf
+```
+
+## theme.json 示例
 ```json
 {
-  "id": "neon_purple",
-  "name": "Neon Purple",
-  "kind": "blur",
-  "borderRadius": 24,
-  "paddingHorizontal": 24,
-  "paddingVertical": 12,
-  "blurSigmaX": 20,
-  "blurSigmaY": 20,
-  "tintColor": "#FF8A2BE2",
-  "tintOpacityMultiplier": 0.18
+  "id": "your_theme_id",
+  "name": "你的主题名",
+  "version": "1.0.0",
+  "apiVersion": 1,
+  "kind": "solid",
+  "borderRadius": 16,
+  "padding": { "preset": "cozy", "horizontal": 16, "vertical": 8 },
+  "layout": { "alignment": "center" },
+  "backgroundColor": "#101218",
+  "backgroundOpacityMultiplier": 0.6,
+  "tintColor": "#3D5AFE",
+  "tintOpacityMultiplier": 0.08,
+  "blur": { "sigmaX": 12, "sigmaY": 12 },
+  "backgroundImage": "assets/bg.jpg",
+  "overlayImage": "assets/overlay.png",
+  "fontFamily": "CustomFont",
+  "fonts": [ "assets/CustomFont.ttf" ],
+  "digit": { "spacing": 8 }
 }
 ```
 
-字段说明：
+## 字段说明（Manifest Schema）
+- 基础
+  - `id`：主题唯一 ID（建议与文件夹名一致）
+  - `name`：显示名称
+  - `version`：主题自身版本（可选）
+  - `apiVersion`：主题 API 版本（可选，用于兼容性控制）
+  - `kind`：`transparent` | `blur` | `solid`
+- 布局与间距
+  - `padding`：
+    - 数值：`horizontal`、`vertical`
+    - 或预设：`preset` 支持 `none` | `compact` | `cozy` | `comfortable`
+  - `layout.alignment`：`left` | `center` | `right`
+  - `digit.spacing`（或 `digitSpacing`）：数字间距（像素）
+- 视觉
+  - `backgroundColor`、`backgroundOpacityMultiplier`
+  - `tintColor`、`tintOpacityMultiplier`
+  - `blur.sigmaX`、`blur.sigmaY`（仅 `kind = blur` 有效）
+  - `backgroundImage`：背景图片（相对主题包目录）
+  - `overlayImage`：前景叠加图（覆盖在内容之上）
+- 字体
+  - `fontFamily`：字体族名
+  - `fonts`：字体文件列表（相对路径），运行时动态加载
 
-| 字段 | 说明 |
-| --- | --- |
-| `id` | 唯一 ID，供配置引用 |
-| `name` | UI 与托盘菜单显示的名称 |
-| `kind` | `transparent` / `blur` / `solid` |
-| `borderRadius` | 圆角半径 |
-| `paddingHorizontal` / `paddingVertical` | 内边距 |
-| `blurSigmaX` / `blurSigmaY` | 毛玻璃模糊半径（仅 `blur` 有效） |
-| `tintColor` + `tintOpacityMultiplier` | 覆盖色与不透明度（0-1，可叠加 `config.opacity`） |
-| `backgroundColor` + `backgroundOpacityMultiplier` | 背景色枚举 |
+## 使用步骤
+1. 打开应用设置对话框，查看底部提示的 `themes/` 目录路径。
+2. 将你的主题包文件夹（含 `theme.json` 与 `assets/`）复制到该目录。
+3. 点击“重新加载主题”，在列表中选择你的主题。
 
-修改或添加文件后，可在设置弹窗或托盘菜单中点击“重新加载主题”立即生效。
-
-
+## 兼容说明（旧版）
+- 仍支持将单个 `.json` 放在 `themes/` 根目录（不带子文件夹）。此时资源路径以该 `.json` 所在目录为基准解析。
+- 建议优先使用“主题包”结构，便于组织资源与分享。

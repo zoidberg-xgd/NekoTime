@@ -10,6 +10,8 @@ import 'package:digital_clock/ui/widgets/time_display.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:window_manager/window_manager.dart';
+import 'dart:io';
+import 'package:path/path.dart' as p;
 
 class ClockScreen extends StatefulWidget {
   const ClockScreen({super.key});
@@ -40,10 +42,26 @@ class _ClockScreenState extends State<ClockScreen> with WindowListener {
     ThemeDefinition theme,
   ) {
     final opacity = config.opacity;
-    final padding = EdgeInsets.symmetric(
-      horizontal: theme.paddingHorizontal,
-      vertical: theme.paddingVertical,
-    );
+    EdgeInsets padding;
+    switch (theme.paddingPreset) {
+      case 'none':
+        padding = const EdgeInsets.symmetric(horizontal: 0, vertical: 0);
+        break;
+      case 'compact':
+        padding = const EdgeInsets.symmetric(horizontal: 8, vertical: 4);
+        break;
+      case 'cozy':
+        padding = const EdgeInsets.symmetric(horizontal: 16, vertical: 8);
+        break;
+      case 'comfortable':
+        padding = const EdgeInsets.symmetric(horizontal: 24, vertical: 12);
+        break;
+      default:
+        padding = EdgeInsets.symmetric(
+          horizontal: theme.paddingHorizontal,
+          vertical: theme.paddingVertical,
+        );
+    }
 
     final backgroundOverlay = theme.backgroundColor?.withOpacity(
       theme.backgroundOpacityMultiplier * opacity,
@@ -52,10 +70,44 @@ class _ClockScreenState extends State<ClockScreen> with WindowListener {
       theme.tintOpacityMultiplier * opacity,
     );
 
+    Alignment align;
+    switch (theme.alignment) {
+      case LayoutAlignment.left:
+        align = Alignment.centerLeft;
+        break;
+      case LayoutAlignment.right:
+        align = Alignment.centerRight;
+        break;
+      case LayoutAlignment.center:
+      default:
+        align = Alignment.center;
+    }
+
     Widget content = Padding(
       padding: padding,
-      child: Center(child: child),
+      child: Align(alignment: align, child: child),
     );
+
+    DecorationImage? bgImage;
+    DecorationImage? overlayImage;
+    if (theme.backgroundImagePath != null && theme.assetsBasePath != null) {
+      final file = File(p.join(theme.assetsBasePath!, theme.backgroundImagePath!));
+      if (file.existsSync()) {
+        bgImage = DecorationImage(
+          image: FileImage(file),
+          fit: BoxFit.cover,
+        );
+      }
+    }
+    if (theme.overlayImagePath != null && theme.assetsBasePath != null) {
+      final file = File(p.join(theme.assetsBasePath!, theme.overlayImagePath!));
+      if (file.existsSync()) {
+        overlayImage = DecorationImage(
+          image: FileImage(file),
+          fit: BoxFit.cover,
+        );
+      }
+    }
 
     switch (theme.kind) {
       case ThemeKind.transparent:
@@ -69,7 +121,13 @@ class _ClockScreenState extends State<ClockScreen> with WindowListener {
               sigmaY: theme.blurSigmaY,
             ),
             child: Container(
-              color: tintOverlay ?? backgroundOverlay ?? Colors.transparent,
+              decoration: BoxDecoration(
+                color: (tintOverlay ?? backgroundOverlay) ?? Colors.transparent,
+                image: bgImage,
+              ),
+              foregroundDecoration: overlayImage == null
+                  ? null
+                  : BoxDecoration(image: overlayImage),
               child: content,
             ),
           ),
@@ -78,8 +136,11 @@ class _ClockScreenState extends State<ClockScreen> with WindowListener {
         return Container(
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(theme.borderRadius),
-            color: backgroundOverlay ?? tintOverlay ?? Colors.black,
+            color: (backgroundOverlay ?? tintOverlay) ?? Colors.black,
+            image: bgImage,
           ),
+          foregroundDecoration:
+              overlayImage == null ? null : BoxDecoration(image: overlayImage),
           child: content,
         );
     }
@@ -102,6 +163,14 @@ class _ClockScreenState extends State<ClockScreen> with WindowListener {
           _updateWindow(configService);
         });
 
+        final theme = themeService.resolve(configService.config.themeId);
+
+        // Ensure fonts for the theme are loaded; request rebuild when done
+        // so that Text widgets can pick up the newly registered font.
+        themeService.ensureFontsLoaded(theme).then((_) {
+          if (mounted) setState(() {});
+        });
+
         Widget clock = StreamBuilder<DateTime>(
           stream: _timeService.timeStream,
           builder: (context, snapshot) {
@@ -110,7 +179,11 @@ class _ClockScreenState extends State<ClockScreen> with WindowListener {
                 showSeconds: configService.config.showSeconds);
             // ALWAYS use the config from the builder
             return TimeDisplay(
-                digits: digits, scale: configService.config.scale);
+              digits: digits,
+              scale: configService.config.scale,
+              digitSpacing: theme.digitSpacing ?? 0.0,
+              fontFamily: theme.fontFamily,
+            );
           },
         );
 
@@ -127,7 +200,7 @@ class _ClockScreenState extends State<ClockScreen> with WindowListener {
               context,
               clock,
               configService.config,
-              themeService.resolve(configService.config.themeId),
+              theme,
             ),
           ),
         );

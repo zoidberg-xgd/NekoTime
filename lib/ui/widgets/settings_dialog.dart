@@ -129,8 +129,5 @@ String _localizedThemeName(
   AppLocalizations l10n,
   ThemeDefinition theme,
 ) {
-  if (theme.id == ThemeDefinition.defaultThemeId) {
-    return l10n.themeFrostedGlass;
-  }
   return theme.name;
 }

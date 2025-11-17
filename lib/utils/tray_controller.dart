@@ -145,9 +145,6 @@ mixin TrayController<T extends StatefulWidget> on State<T> {
   }
 
   String _trayThemeName(AppLocalizations l10n, ThemeDefinition theme) {
-    if (theme.id == ThemeDefinition.defaultThemeId) {
-      return l10n.themeFrostedGlass;
-    }
     return theme.name;
   }
 }

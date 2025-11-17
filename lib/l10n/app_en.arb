@@ -1,7 +1,6 @@
 {
   "@@locale": "en",
   "theme": "Theme",
-  "themeFrostedGlass": "Frosted Glass",
   "themeReload": "Reload themes",
   "themeFolderHint": "Add or edit JSON theme files under {path} and press Reload to apply.",
   "@themeFolderHint": {

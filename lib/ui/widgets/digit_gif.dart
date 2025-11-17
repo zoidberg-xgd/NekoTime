@@ -3,8 +3,9 @@ import 'package:flutter/material.dart';
 class DigitGif extends StatelessWidget {
   final String digit;
   final double scale;
+  final String? fontFamily;
 
-  const DigitGif({super.key, required this.digit, this.scale = 1.0});
+  const DigitGif({super.key, required this.digit, this.scale = 1.0, this.fontFamily});
 
   @override
   Widget build(BuildContext context) {
@@ -22,6 +23,7 @@ class DigitGif extends StatelessWidget {
               fontSize: height * 0.6,
               color: Colors.white,
               fontWeight: FontWeight.bold,
+              fontFamily: fontFamily,
               height: 1.0,
               shadows: const [
                 Shadow(

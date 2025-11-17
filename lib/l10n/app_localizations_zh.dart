@@ -12,9 +12,6 @@ class AppLocalizationsZh extends AppLocalizations {
   String get theme => '主题';
 
   @override
-  String get themeFrostedGlass => '毛玻璃';
-
-  @override
   String get themeReload => '重新加载主题';
 
   @override

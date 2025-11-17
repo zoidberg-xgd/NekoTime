@@ -50,46 +50,61 @@
    ```
    可执行文件将位于 `build/macos/Build/Products/Release/`。
 
-## 🎨 自定义主题
+## 🎨 自定义主题（主题包）
 
-应用启动时会在应用支持目录（例如 macOS 的 `~/Library/Application Support/digital_clock/themes`）下寻找以 `.json` 结尾的主题文件。每个文件描述一个主题。
+应用支持以“主题包”的方式加载主题：在应用支持目录的 `themes/` 下创建子文件夹，每个文件夹包含 `theme.json` 与可选的 `assets/` 静态资源。仍兼容旧版：放在 `themes/` 根目录的独立 `.json` 文件也会被识别。
 
-你可以在该目录中新建 JSON 文件，参考下方示例来创建你的主题。
+- 主题目录路径会在设置弹窗底部提示，例如 macOS：`~/Library/Application Support/digital_clock/themes`
 
-### 示例
+### 目录结构示例
+```
+themes/
+  my_theme/
+    theme.json
+    assets/
+      bg.jpg
+      overlay.png
+      MyFont.ttf
+```
 
+### theme.json 示例
 ```json
 {
-  "id": "sample_neon",
-  "name": "Sample Neon",
-  "kind": "solid",
-  "borderRadius": 20,
-  "paddingHorizontal": 24,
-  "paddingVertical": 12,
-  "backgroundColor": "#FF0A0A0A",
-  "backgroundOpacityMultiplier": 0.85,
-  "tintColor": "#FF00C2FF",
-  "tintOpacityMultiplier": 0.12
+  "id": "my_theme",
+  "name": "我的主题",
+  "version": "1.0.0",
+  "apiVersion": 1,
+  "kind": "blur",
+  "borderRadius": 16,
+  "padding": { "preset": "cozy", "horizontal": 16, "vertical": 8 },
+  "layout": { "alignment": "right" },
+  "backgroundColor": "#101218",
+  "backgroundOpacityMultiplier": 0.4,
+  "tintColor": "#9E9E9E",
+  "tintOpacityMultiplier": 0.12,
+  "blur": { "sigmaX": 16, "sigmaY": 16 },
+  "backgroundImage": "assets/bg.jpg",
+  "overlayImage": "assets/overlay.png",
+  "fontFamily": "MyFont",
+  "fonts": [ "assets/MyFont.ttf" ],
+  "digit": { "spacing": 8 }
 }
 ```
 
-### 字段说明
+### 字段说明（Manifest）
+- 基础：`id`、`name`、`version`、`apiVersion`、`kind (transparent|blur|solid)`
+- 布局与间距：
+  - `padding`：数值 `horizontal/vertical` 或预设 `preset (none|compact|cozy|comfortable)`
+  - `layout.alignment`：`left|center|right`
+  - `digit.spacing`（或 `digitSpacing`）：数字间距（像素）
+- 视觉：
+  - `backgroundColor`、`backgroundOpacityMultiplier`
+  - `tintColor`、`tintOpacityMultiplier`
+  - `blur.sigmaX`、`blur.sigmaY`（仅 kind=blur 有效）
+  - `backgroundImage`（背景图）、`overlayImage`（前景叠加）
+- 字体：`fontFamily` 与 `fonts`（相对路径），运行时动态加载
 
-| 字段 | 类型 | 说明 |
-| --- | --- | --- |
-| `id` | `String` | 主题的唯一 ID，供配置引用。 |
-| `name` | `String` | 在设置菜单中显示的名称。 |
-| `kind` | `String` | 主题类型，可选值：`transparent`、`blur`、`solid`。 |
-| `borderRadius` | `double` | 窗口圆角半径。 |
-| `paddingHorizontal` | `double` | 内容区域的水平内边距。 |
-| `paddingVertical` | `double` | 内容区域的垂直内边距。 |
-| `blurSigmaX` / `blurSigmaY` | `double` | 毛玻璃效果的模糊半径（仅当 `kind` 为 `blur` 时有效）。 |
-| `backgroundColor` | `String` | 背景颜色（Hex 格式，如 `#AARRGGBB` 或 `#RRGGBB`）。 |
-| `backgroundOpacityMultiplier` | `double` | 背景色的不透明度乘数（0-1），会与全局透明度叠加。 |
-| `tintColor` | `String` | 覆盖色（Hex 格式），可用于给毛玻璃或纯色背景染色。 |
-| `tintOpacityMultiplier` | `double` | 覆盖色的不透明度乘数（0-1）。 |
-
-修改或添加文件后，在 **设置** 弹窗或 **系统托盘菜单** 中点击 **“重新加载主题”** 即可立即生效。
+修改或添加主题包后，在设置弹窗或系统托盘菜单点击“重新加载主题”即可生效。
 
 ## 📦 主要依赖
 

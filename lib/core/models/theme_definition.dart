@@ -1,6 +1,7 @@
 import 'dart:ui';
 
 enum ThemeKind { transparent, blur, solid }
+enum LayoutAlignment { left, center, right }
 
 class ThemeDefinition {
   static const defaultThemeId = 'frosted_glass';
@@ -11,12 +12,20 @@ class ThemeDefinition {
   final double borderRadius;
   final double paddingHorizontal;
   final double paddingVertical;
+  final String? paddingPreset;
+  final LayoutAlignment alignment;
   final double blurSigmaX;
   final double blurSigmaY;
   final Color? backgroundColor;
   final double backgroundOpacityMultiplier;
   final Color? tintColor;
   final double tintOpacityMultiplier;
+  final String? backgroundImagePath;
+  final String? overlayImagePath;
+  final double? digitSpacing;
+  final String? fontFamily;
+  final List<String>? fontFiles;
+  final String? assetsBasePath; // runtime-only; not serialized
 
   const ThemeDefinition({
     required this.id,
@@ -25,15 +34,24 @@ class ThemeDefinition {
     this.borderRadius = 0,
     this.paddingHorizontal = 16,
     this.paddingVertical = 8,
+    this.paddingPreset,
+    this.alignment = LayoutAlignment.center,
     this.blurSigmaX = 0,
     this.blurSigmaY = 0,
     this.backgroundColor,
     this.backgroundOpacityMultiplier = 1,
     this.tintColor,
     this.tintOpacityMultiplier = 1,
+    this.backgroundImagePath,
+    this.overlayImagePath,
+    this.digitSpacing,
+    this.fontFamily,
+    this.fontFiles,
+    this.assetsBasePath,
   });
 
   factory ThemeDefinition.fromJson(Map<String, dynamic> json) {
+    final String? alignRaw = (json['layout']?['alignment'] ?? json['alignment']) as String?;
     return ThemeDefinition(
       id: json['id'] as String,
       name: json['name'] as String? ?? json['id'] as String,
@@ -45,6 +63,8 @@ class ThemeDefinition {
       paddingVertical:
           (json['padding']?['vertical'] ?? json['paddingVertical'] ?? 8)
               .toDouble(),
+      paddingPreset: (json['padding']?['preset'] ?? json['paddingPreset']) as String?,
+      alignment: _parseAlignment(alignRaw),
       blurSigmaX:
           (json['blur']?['sigmaX'] ?? json['blurSigmaX'] ?? 0).toDouble(),
       blurSigmaY:
@@ -54,6 +74,20 @@ class ThemeDefinition {
           (json['backgroundOpacityMultiplier'] ?? 1).toDouble(),
       tintColor: _colorFromHex(json['tintColor'] as String?),
       tintOpacityMultiplier: (json['tintOpacityMultiplier'] ?? 1).toDouble(),
+      backgroundImagePath: json['backgroundImage'] as String?,
+      overlayImagePath: json['overlayImage'] as String?,
+      digitSpacing: (json['digit']?['spacing'] ?? json['digitSpacing']) == null
+          ? null
+          : (json['digit']?['spacing'] ?? json['digitSpacing']).toDouble(),
+      fontFamily: json['fontFamily'] as String?,
+      fontFiles: (json['fonts'] as List?)
+          ?.map((e) {
+            if (e is String) return e;
+            if (e is Map<String, dynamic>) return e['file']?.toString();
+            return null;
+          })
+          .whereType<String>()
+          .toList(),
     );
   }
 
@@ -65,13 +99,67 @@ class ThemeDefinition {
       'borderRadius': borderRadius,
       'paddingHorizontal': paddingHorizontal,
       'paddingVertical': paddingVertical,
+      if (paddingPreset != null) 'paddingPreset': paddingPreset,
+      'alignment': alignment.name,
       'blurSigmaX': blurSigmaX,
       'blurSigmaY': blurSigmaY,
       'backgroundColor': _colorToHex(backgroundColor),
       'backgroundOpacityMultiplier': backgroundOpacityMultiplier,
       'tintColor': _colorToHex(tintColor),
       'tintOpacityMultiplier': tintOpacityMultiplier,
+      if (backgroundImagePath != null) 'backgroundImage': backgroundImagePath,
+      if (overlayImagePath != null) 'overlayImage': overlayImagePath,
+      if (digitSpacing != null) 'digitSpacing': digitSpacing,
+      if (fontFamily != null) 'fontFamily': fontFamily,
+      if (fontFiles != null) 'fonts': fontFiles,
     };
+  }
+
+  ThemeDefinition copyWith({
+    String? id,
+    String? name,
+    ThemeKind? kind,
+    double? borderRadius,
+    double? paddingHorizontal,
+    double? paddingVertical,
+    String? paddingPreset,
+    LayoutAlignment? alignment,
+    double? blurSigmaX,
+    double? blurSigmaY,
+    Color? backgroundColor,
+    double? backgroundOpacityMultiplier,
+    Color? tintColor,
+    double? tintOpacityMultiplier,
+    String? backgroundImagePath,
+    String? overlayImagePath,
+    double? digitSpacing,
+    String? fontFamily,
+    List<String>? fontFiles,
+    String? assetsBasePath,
+  }) {
+    return ThemeDefinition(
+      id: id ?? this.id,
+      name: name ?? this.name,
+      kind: kind ?? this.kind,
+      borderRadius: borderRadius ?? this.borderRadius,
+      paddingHorizontal: paddingHorizontal ?? this.paddingHorizontal,
+      paddingVertical: paddingVertical ?? this.paddingVertical,
+      paddingPreset: paddingPreset ?? this.paddingPreset,
+      alignment: alignment ?? this.alignment,
+      blurSigmaX: blurSigmaX ?? this.blurSigmaX,
+      blurSigmaY: blurSigmaY ?? this.blurSigmaY,
+      backgroundColor: backgroundColor ?? this.backgroundColor,
+      backgroundOpacityMultiplier:
+          backgroundOpacityMultiplier ?? this.backgroundOpacityMultiplier,
+      tintColor: tintColor ?? this.tintColor,
+      tintOpacityMultiplier: tintOpacityMultiplier ?? this.tintOpacityMultiplier,
+      backgroundImagePath: backgroundImagePath ?? this.backgroundImagePath,
+      overlayImagePath: overlayImagePath ?? this.overlayImagePath,
+      digitSpacing: digitSpacing ?? this.digitSpacing,
+      fontFamily: fontFamily ?? this.fontFamily,
+      fontFiles: fontFiles ?? this.fontFiles,
+      assetsBasePath: assetsBasePath ?? this.assetsBasePath,
+    );
   }
 
   static ThemeKind _parseKind(String? raw) {
@@ -83,6 +171,18 @@ class ThemeDefinition {
       case 'transparent':
       default:
         return ThemeKind.transparent;
+    }
+  }
+
+  static LayoutAlignment _parseAlignment(String? raw) {
+    switch (raw) {
+      case 'left':
+        return LayoutAlignment.left;
+      case 'right':
+        return LayoutAlignment.right;
+      case 'center':
+      default:
+        return LayoutAlignment.center;
     }
   }
 

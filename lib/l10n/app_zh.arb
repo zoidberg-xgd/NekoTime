@@ -1,7 +1,6 @@
 {
   "@@locale": "zh",
   "theme": "主题",
-  "themeFrostedGlass": "毛玻璃",
   "themeReload": "重新加载主题",
   "themeFolderHint": "在 {path} 中放置或修改 JSON 主题文件，点击“重新加载”即可生效。",
   "@themeFolderHint": {

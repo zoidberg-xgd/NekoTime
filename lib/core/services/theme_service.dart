@@ -3,12 +3,14 @@ import 'dart:io';
 
 import 'package:digital_clock/core/models/theme_definition.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 
 class ThemeService extends ChangeNotifier {
   final Map<String, ThemeDefinition> _themes = {};
   Directory? _themesDirectory;
+  final Set<String> _fontLoadedForTheme = {};
 
   static List<ThemeDefinition> get _builtinThemes => const [
         ThemeDefinition(
@@ -70,19 +72,62 @@ class ThemeService extends ChangeNotifier {
   }
 
   Future<void> _loadCustomThemes(Directory dir) async {
-    final files = dir
-        .listSync()
-        .whereType<File>()
-        .where((file) => file.path.toLowerCase().endsWith('.json'));
-    for (final file in files) {
+    final entries = dir.listSync();
+
+    // 1) Theme packages: subdirectory with theme.json
+    for (final entry in entries.whereType<Directory>()) {
+      final manifest = File(p.join(entry.path, 'theme.json'));
+      if (await manifest.exists()) {
+        try {
+          final content = await manifest.readAsString();
+          final data = jsonDecode(content) as Map<String, dynamic>;
+          var theme = ThemeDefinition.fromJson(data)
+              .copyWith(assetsBasePath: entry.path);
+          _themes[theme.id] = theme;
+        } catch (e) {
+          debugPrint('Failed to load theme package ${entry.path}: $e');
+        }
+      }
+    }
+
+    // 2) Legacy flat JSON files inside themes directory
+    for (final file in entries.whereType<File>()) {
+      if (!file.path.toLowerCase().endsWith('.json')) continue;
+      // skip package manifest already loaded
+      if (p.basename(file.path).toLowerCase() == 'theme.json') continue;
       try {
         final content = await file.readAsString();
         final data = jsonDecode(content) as Map<String, dynamic>;
-        final theme = ThemeDefinition.fromJson(data);
+        var theme = ThemeDefinition.fromJson(data)
+            .copyWith(assetsBasePath: file.parent.path);
         _themes[theme.id] = theme;
       } catch (e) {
         debugPrint('Failed to load theme ${file.path}: $e');
       }
+    }
+  }
+
+  Future<void> ensureFontsLoaded(ThemeDefinition theme) async {
+    if (theme.fontFamily == null || theme.fontFiles == null || theme.fontFiles!.isEmpty) return;
+    final cacheKey = '${theme.id}:${theme.fontFamily}';
+    if (_fontLoadedForTheme.contains(cacheKey)) return;
+    if (theme.assetsBasePath == null) return;
+
+    final loader = FontLoader(theme.fontFamily!);
+    for (final rel in theme.fontFiles!) {
+      try {
+        final file = File(p.join(theme.assetsBasePath!, rel));
+        final bytes = await file.readAsBytes();
+        loader.addFont(Future.value(ByteData.view(bytes.buffer)));
+      } catch (e) {
+        debugPrint('Failed to load font $rel for theme ${theme.id}: $e');
+      }
+    }
+    try {
+      await loader.load();
+      _fontLoadedForTheme.add(cacheKey);
+    } catch (e) {
+      debugPrint('FontLoader load failed for theme ${theme.id}: $e');
     }
   }
 }
