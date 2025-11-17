@@ -96,18 +96,33 @@ void main() async {
         );
       } else if (Platform.isLinux) {
         // Linux: 基础透明支持（依赖于窗口管理器）
-        // 某些 Linux 桌面环境可能需要额外配置
-        await logService.info('Linux: Using basic transparency support');
+        await logService.info('Linux: Configuring transparency support');
+        // 确保窗口背景完全透明
+        await windowManager.setBackgroundColor(Colors.transparent);
       }
 
       // 通用窗口设置（所有平台）
       await windowManager.setAsFrameless();
       await windowManager.setResizable(false);
-      await windowManager.setHasShadow(true);
+      
+      // Linux 特殊处理：不设置阴影可能更好
+      if (!Platform.isLinux) {
+        await windowManager.setHasShadow(true);
+      } else {
+        await windowManager.setHasShadow(false);
+        await logService.info('Linux: Shadow disabled to avoid black border');
+      }
 
       // 显示和聚焦窗口
       await windowManager.show();
       await windowManager.focus();
+      
+      // Linux 额外步骤：确保窗口大小正确
+      if (Platform.isLinux) {
+        await Future.delayed(const Duration(milliseconds: 100));
+        await windowManager.setSize(initialSize);
+        await logService.info('Linux: Window size set to ${initialSize.width}x${initialSize.height}');
+      }
 
       await logService
           .info('Window initialized and shown on ${Platform.operatingSystem}');

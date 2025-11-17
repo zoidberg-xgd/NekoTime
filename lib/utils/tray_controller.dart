@@ -24,7 +24,7 @@ mixin TrayController<T extends StatefulWidget> on State<T> {
   final SystemTray _tray = SystemTray();
   VoidCallback? _configListener;
 
-  /// 获取托盘图标路径（Windows 需要实际图标文件）
+  /// 获取托盘图标路径（Windows 和 Linux 需要实际图标文件）
   Future<String> _getTrayIconPath() async {
     if (Platform.isWindows) {
       // Windows 必须使用实际的 .ico 文件
@@ -37,16 +37,35 @@ mixin TrayController<T extends StatefulWidget> on State<T> {
         if (!iconFile.existsSync()) {
           final byteData = await rootBundle.load('assets/icons/tray_icon.ico');
           await iconFile.writeAsBytes(byteData.buffer.asUint8List());
-          LogService().info('Tray icon copied to: $iconPath');
+          LogService().info('Windows tray icon copied to: $iconPath');
         }
         
         return iconPath;
       } catch (e) {
-        LogService().error('Failed to load tray icon: $e');
+        LogService().error('Failed to load Windows tray icon: $e');
+        return '';
+      }
+    } else if (Platform.isLinux) {
+      // Linux 也需要实际的图标文件（某些桌面环境不支持 Emoji）
+      try {
+        final tempDir = await getTemporaryDirectory();
+        final iconPath = path.join(tempDir.path, 'tray_icon.png');
+        final iconFile = File(iconPath);
+        
+        // 如果文件不存在，从 assets 复制（使用 app_icon_source.png）
+        if (!iconFile.existsSync()) {
+          final byteData = await rootBundle.load('assets/icons/app_icon_source.png');
+          await iconFile.writeAsBytes(byteData.buffer.asUint8List());
+          LogService().info('Linux tray icon copied to: $iconPath');
+        }
+        
+        return iconPath;
+      } catch (e) {
+        LogService().error('Failed to load Linux tray icon: $e');
         return '';
       }
     }
-    // macOS 和 Linux 可以使用空路径 + Emoji
+    // macOS 可以使用空路径 + Emoji
     return '';
   }
 
@@ -61,14 +80,14 @@ mixin TrayController<T extends StatefulWidget> on State<T> {
         toolTip: 'NekoTime',
       );
 
-      // 在 macOS/Linux 上设置 Emoji 标题
-      if (!Platform.isWindows) {
+      // 只在 macOS 上设置 Emoji 标题（Linux 可能不支持）
+      if (Platform.isMacOS) {
         await _tray.setTitle('🕐');
       }
 
       // 确保托盘图标可见
       await _tray.setSystemTrayInfo(
-        title: Platform.isWindows ? '' : '🕐',
+        title: Platform.isMacOS ? '🕐' : '',
         toolTip: 'NekoTime - 双击窗口隐藏，右键菜单显示',
       );
       
