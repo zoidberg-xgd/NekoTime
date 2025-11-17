@@ -1,5 +1,5 @@
 name: neko_time
-description: 猫铃时钟 NekoTime - 可爱的像素风桌面时钟，使用 GIF 动画角色展示时间
+description: A cute desktop clock with customizable GIF themes
 publish_to: 'none'
 
 version: 1.0.0+1
