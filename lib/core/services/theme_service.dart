@@ -34,17 +34,47 @@ class ThemeService extends ChangeNotifier {
 
   Future<void> _installExampleThemesIfNeeded(Directory themesDir) async {
     // 检查是否已安装示例主题（通过检查标记文件）
-    final markerFile = File(p.join(themesDir.path, '.examples_installed'));
+    final markerFile = File(p.join(themesDir.path, '.examples_installed_v2'));
     if (await markerFile.exists()) {
       LogService().debug('Example themes already installed');
       return;
     }
 
-    LogService().info('Installing example themes...');
-    // 示例主题将由用户手动复制，或在未来版本中打包
-    // 创建标记文件
-    await markerFile.writeAsString('v1');
-    LogService().info('Example themes installation marker created');
+    LogService().info('Installing example themes from assets...');
+    
+    try {
+      // 复制 example_mod 主题
+      final exampleModDir = Directory(p.join(themesDir.path, 'example_mod'));
+      if (!await exampleModDir.exists()) {
+        await exampleModDir.create(recursive: true);
+      }
+      
+      // 复制主题配置文件
+      final themeJsonAsset = await rootBundle.loadString('themes/example_mod/theme.json');
+      await File(p.join(exampleModDir.path, 'theme.json')).writeAsString(themeJsonAsset);
+      
+      // 复制数字 GIF
+      final digitsDir = Directory(p.join(exampleModDir.path, 'digits'));
+      if (!await digitsDir.exists()) {
+        await digitsDir.create(recursive: true);
+      }
+      
+      for (int i = 0; i <= 9; i++) {
+        final assetPath = 'themes/example_mod/digits/$i.gif';
+        final digitBytes = await rootBundle.load(assetPath);
+        await File(p.join(digitsDir.path, '$i.gif'))
+            .writeAsBytes(digitBytes.buffer.asUint8List());
+      }
+      
+      LogService().info('Example theme installed successfully: example_mod');
+      
+      // 创建标记文件
+      await markerFile.writeAsString('v2');
+      LogService().info('Example themes installation completed');
+    } catch (e, stackTrace) {
+      LogService().error('Failed to install example themes', 
+          error: e, stackTrace: stackTrace);
+    }
   }
 
   Future<void> reload() async {

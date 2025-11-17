@@ -4,16 +4,25 @@
 # 自动处理常见的图形和依赖问题
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-APP_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
-EXECUTABLE="$APP_DIR/neko_time"
 
-echo "🐱 NekoTime 启动中..."
-
-# 检查可执行文件是否存在
-if [ ! -f "$EXECUTABLE" ]; then
-    echo "❌ 错误: 找不到可执行文件: $EXECUTABLE"
+# 检测可执行文件位置（脚本可能在根目录或 scripts/ 目录）
+if [ -f "$SCRIPT_DIR/neko_time" ]; then
+    EXECUTABLE="$SCRIPT_DIR/neko_time"
+    APP_DIR="$SCRIPT_DIR"
+elif [ -f "$SCRIPT_DIR/../neko_time" ]; then
+    EXECUTABLE="$SCRIPT_DIR/../neko_time"
+    APP_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
+else
+    echo "❌ 错误: 找不到 neko_time 可执行文件"
+    echo "   请确保 neko_time 与此脚本在同一目录"
+    echo "   当前目录: $SCRIPT_DIR"
+    ls -la "$SCRIPT_DIR" | head -10
     exit 1
 fi
+
+echo "🐱 NekoTime 启动中..."
+echo "📂 应用目录: $APP_DIR"
+echo "🚀 可执行文件: $EXECUTABLE"
 
 # 确保可执行权限
 chmod +x "$EXECUTABLE"
