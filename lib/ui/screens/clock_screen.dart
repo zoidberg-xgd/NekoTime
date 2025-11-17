@@ -205,9 +205,10 @@ class _ClockScreenState extends State<ClockScreen> with WindowListener {
       builder: (context, configService, themeService, child) {
         final config = configService.config;
 
-        // 只在配置真正改变时才更新窗口
+        // 在配置改变时或首次构建时更新窗口
         if (_lastConfigThemeId != config.themeId ||
-            _lastScale != config.scale) {
+            _lastScale != config.scale ||
+            _lastConfigThemeId == null) {  // 首次构建
           _lastConfigThemeId = config.themeId;
           _lastScale = config.scale;
           WidgetsBinding.instance.addPostFrameCallback((_) {
