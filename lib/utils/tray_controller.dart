@@ -6,6 +6,9 @@ import 'package:neko_time/core/services/config_service.dart';
 import 'package:neko_time/core/services/theme_service.dart';
 import 'package:neko_time/core/services/log_service.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:path/path.dart' as path;
 
 import 'package:provider/provider.dart';
 import 'package:system_tray/system_tray.dart';
@@ -21,24 +24,57 @@ mixin TrayController<T extends StatefulWidget> on State<T> {
   final SystemTray _tray = SystemTray();
   VoidCallback? _configListener;
 
+  /// 获取托盘图标路径（Windows 需要实际图标文件）
+  Future<String> _getTrayIconPath() async {
+    if (Platform.isWindows) {
+      // Windows 必须使用实际的 .ico 文件
+      try {
+        final tempDir = await getTemporaryDirectory();
+        final iconPath = path.join(tempDir.path, 'tray_icon.ico');
+        final iconFile = File(iconPath);
+        
+        // 如果文件不存在，从 assets 复制
+        if (!iconFile.existsSync()) {
+          final byteData = await rootBundle.load('assets/icons/tray_icon.ico');
+          await iconFile.writeAsBytes(byteData.buffer.asUint8List());
+          LogService().info('Tray icon copied to: $iconPath');
+        }
+        
+        return iconPath;
+      } catch (e) {
+        LogService().error('Failed to load tray icon: $e');
+        return '';
+      }
+    }
+    // macOS 和 Linux 可以使用空路径 + Emoji
+    return '';
+  }
+
   Future<void> initTray(ConfigService configService) async {
     try {
-      // 初始化托盘，使用空图标但确保托盘始终可见
+      // 获取适合平台的图标路径
+      final iconPath = await _getTrayIconPath();
+      
+      // 初始化托盘
       await _tray.initSystemTray(
-        iconPath: '',
+        iconPath: iconPath,
         toolTip: 'NekoTime',
       );
 
-      // 设置标题为时钟 Emoji
-      await _tray.setTitle('🕐');
+      // 在 macOS/Linux 上设置 Emoji 标题
+      if (!Platform.isWindows) {
+        await _tray.setTitle('🕐');
+      }
 
       // 确保托盘图标可见
       await _tray.setSystemTrayInfo(
-        title: '🕐',
+        title: Platform.isWindows ? '' : '🕐',
         toolTip: 'NekoTime - 双击窗口隐藏，右键菜单显示',
       );
+      
+      LogService().info('System tray initialized successfully');
     } catch (e) {
-      debugPrint('SystemTray init failed: $e');
+      LogService().error('SystemTray init failed: $e');
       return;
     }
 
