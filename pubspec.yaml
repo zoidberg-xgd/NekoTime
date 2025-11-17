@@ -1,0 +1,49 @@
+name: digital_clock
+description: A floating digital clock using GIF images.
+publish_to: 'none'
+
+version: 1.0.0+1
+
+environment:
+  sdk: '>=3.0.0 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  # 窗口管理 (macOS, Windows, Linux)
+  window_manager: ^0.5.1
+  # 系统托盘 (macOS, Windows, Linux)
+  # 屏幕信息
+  screen_retriever: ^0.2.0
+  # 配置持久化
+  shared_preferences: ^2.2.2
+  # 状态管理
+  provider: ^6.1.1
+  path_provider: ^2.1.3
+  system_tray: ^2.0.3
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^2.0.0
+  flutter_launcher_icons: ^0.13.1
+
+flutter:
+  uses-material-design: true
+  assets:
+    - assets/gif/
+    - assets/icons/
+
+flutter_launcher_icons:
+  # 使用同一张源图片为多平台生成图标
+  image_path: "assets/icons/app_icon_source.png"
+  android: true
+  ios: true
+  macos:
+    generate: true
+  windows:
+    generate: true
+  linux:
+    generate: true
+  remove_alpha_ios: true
+

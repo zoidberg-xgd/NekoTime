@@ -1,0 +1,33 @@
+# Flutter/Dart
+.dart_tool/
+.packages
+.pub-cache/
+build/
+**/GeneratedPluginRegistrant.*
+**/Flutter/ephemeral/
+
+# iOS/macOS
+**/Pods/
+**/*.xcworkspace/
+**/*.xcuserstate
+**/*.xcuserdata/
+**/*.xcodeproj/project.xcworkspace/
+**/*.xcodeproj/xcuserdata/
+DerivedData/
+
+# Android
+**/local.properties
+**/.gradle/
+**/captures/
+**/outputs/
+
+# IDE
+.vscode/
+.idea/
+*.iml
+
+# Logs
+*.log
+
+# Misc
+pubspec.lock
