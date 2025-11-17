@@ -7,6 +7,8 @@ NekoTime 的所有重要变更都将记录在此文件中。
 
 ## [未发布]
 
+## [2.2.3] - 2025-11-18
+
 ### 修复
 - **GIF 显示**：修复数字 GIF 纵横比失真问题
   - 使用 `BoxFit.contain` 保持原始纵横比
@@ -201,7 +203,8 @@ themes/
 
 **项目仓库**：https://github.com/zoidberg-xgd/NekoTime
 
-[未发布]: https://github.com/zoidberg-xgd/NekoTime/compare/v2.2.2...HEAD
+[未发布]: https://github.com/zoidberg-xgd/NekoTime/compare/v2.2.3...HEAD
+[2.2.3]: https://github.com/zoidberg-xgd/NekoTime/compare/v2.2.2...v2.2.3
 [2.2.2]: https://github.com/zoidberg-xgd/NekoTime/compare/v2.2.1...v2.2.2
 [2.2.1]: https://github.com/zoidberg-xgd/NekoTime/compare/v2.2.0...v2.2.1
 [2.2.0]: https://github.com/zoidberg-xgd/NekoTime/compare/v2.1.0...v2.2.0
