@@ -223,6 +223,12 @@ class ThemeDefinition {
 
   static String? _colorToHex(Color? color) {
     if (color == null) return null;
-    return '#${color.toARGB32().toRadixString(16).padLeft(8, '0')}';
+    // Manual ARGB32 conversion for compatibility with Flutter 3.24.5
+    final int a = (color.a * 255).round().clamp(0, 255);
+    final int r = (color.r * 255).round().clamp(0, 255);
+    final int g = (color.g * 255).round().clamp(0, 255);
+    final int b = (color.b * 255).round().clamp(0, 255);
+    final int value = (a << 24) | (r << 16) | (g << 8) | b;
+    return '#${value.toRadixString(16).padLeft(8, '0')}';
   }
 }
