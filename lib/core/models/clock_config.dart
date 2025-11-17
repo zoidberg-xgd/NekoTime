@@ -34,12 +34,20 @@ class ClockConfig {
   // 从 JSON 创建配置
   factory ClockConfig.fromJson(Map<String, dynamic> json) {
     final legacyThemeIndex = json['themeStyleIndex'] as int?;
+    // 兼容旧版本的三层级配置 (desktop/normal/top -> desktop/top)
+    // 旧版本: 0=desktop, 1=normal, 2=top
+    // 新版本: 0=desktop, 1=top
+    int layerIndex = json['layerIndex'] ?? 0;
+    if (layerIndex >= ClockLayer.values.length) {
+      // 如果是旧的 index 2 (top)，映射到新的 index 1 (top)
+      layerIndex = ClockLayer.top.index;
+    }
     return ClockConfig(
       scale: (json['scale'] ?? 1.0) * 1.0,
       opacity: (json['opacity'] ?? 0.85) * 1.0,
       themeId: json['themeId'] as String? ??
           _themeIdFromLegacyIndex(legacyThemeIndex),
-      layer: ClockLayer.values[json['layerIndex'] ?? 0],
+      layer: ClockLayer.values[layerIndex],
       lockPosition: json['lockPosition'] ?? false,
       locale: json['locale'] ?? 'en',
     );
