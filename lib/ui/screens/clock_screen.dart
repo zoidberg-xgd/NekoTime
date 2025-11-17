@@ -261,6 +261,10 @@ class _ClockScreenState extends State<ClockScreen> with WindowListener {
                 }
               },
               onDoubleTap: () async {
+                // 锁定位置时禁用双击隐藏
+                if (configService.config.lockPosition) {
+                  return;
+                }
                 // 双击设置窗口透明度为0（隐藏但不销毁，保持托盘可见）
                 await windowManager.setOpacity(0.0);
                 LogService().info('Window hidden (opacity=0) by double-tap');

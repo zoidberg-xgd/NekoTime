@@ -171,11 +171,12 @@ mixin TrayController<T extends StatefulWidget> on State<T> {
             await windowManager.setOpacity(0.0);
             LogService().info('Window hidden via tray menu (opacity=0)');
           } else {
-            // 当前隐藏，显示它
-            await windowManager.setOpacity(1.0);
+            // 当前隐藏，恢复用户配置的透明度
+            final configOpacity = configService.config.opacity.clamp(0.1, 1.0);
+            await windowManager.setOpacity(configOpacity);
             await windowManager.show();
             await windowManager.focus();
-            LogService().info('Window shown via tray menu (opacity=1)');
+            LogService().info('Window shown via tray menu (opacity=$configOpacity)');
           }
         },
       ),
