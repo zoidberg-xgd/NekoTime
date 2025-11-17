@@ -254,7 +254,7 @@ themes/
 - 托盘菜单快速显示/隐藏
 - 完善主题开发文档
 
-详细变更：[IMPROVEMENTS.md](IMPROVEMENTS.md)
+📋 **完整更新日志**：[CHANGELOG.md](CHANGELOG.md)
 
 ## 🤝 贡献
 
