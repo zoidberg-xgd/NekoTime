@@ -83,6 +83,24 @@ sudo gem install cocoapods
 <details>
 <summary><b>Linux</b></summary>
 
+#### 下载运行版（推荐）
+
+从 [Releases](https://github.com/zoidberg-xgd/NekoTime/releases) 下载最新版本后：
+
+```bash
+# 1. 解压
+tar -xzf NekoTime-Linux-x64-v*.tar.gz
+cd NekoTime-Linux-x64-*
+
+# 2. 安装运行时依赖（首次运行必需）
+sudo ./scripts/install_linux_deps.sh
+
+# 3. 启动应用
+./run_linux.sh
+```
+
+#### 从源码构建
+
 **Ubuntu/Debian**：
 ```bash
 sudo apt-get update
@@ -103,6 +121,17 @@ sudo dnf install -y \
 **Arch Linux**：
 ```bash
 sudo pacman -S base-devel gtk3 cmake ninja
+```
+
+#### 常见问题
+
+⚠️ **黑屏或 "No rendering surface available"**
+```bash
+# 运行依赖安装脚本
+sudo ./scripts/install_linux_deps.sh
+
+# 或手动安装运行时库
+sudo apt install libgtk-3-0 libegl1 libgl1 libgles2
 ```
 </details>
 
@@ -352,58 +381,6 @@ make test-coverage
 
 - 📘 [测试指南](TESTING.md) - 完整的测试文档和最佳实践
 - 🛠️ [工具脚本](tool/README.md) - 测试和构建脚本说明
-
-## ❓ 常见问题
-
-### Windows 11 - 看不见托盘图标
-
-**问题**：应用正常运行，但任务栏右下角看不到托盘图标 🕐
-
-**解决方案**：
-
-1. **查看隐藏图标**
-   - 点击任务栏右下角的 **"^"** 图标（向上箭头）
-   - 查看溢出区域是否有 NekoTime 图标
-
-2. **启用托盘图标显示**
-   - 打开 **设置 → 个性化 → 任务栏**
-   - 点击 **"其他系统托盘图标"**
-   - 找到 **NekoTime**，打开开关
-   - 重启应用
-
-3. **临时解决**
-   - 即使看不到托盘图标，应用仍在运行
-   - 时钟窗口可以通过双击隐藏/显示
-   - 可以通过右键时钟窗口访问部分功能
-
-### macOS - 窗口无法拖动
-
-**问题**：无法拖动时钟窗口
-
-**解决方案**：
-- 检查是否启用了 **"锁定位置"**
-- 右键托盘图标 → 取消勾选 **"Lock Position"**
-- 或在设置中关闭位置锁定
-
-### Linux - 透明效果不工作
-
-**问题**：窗口背景不透明，无法看到桌面
-
-**解决方案**：
-- 确保桌面环境启用了**合成器（Compositor）**
-- GNOME: 默认启用
-- KDE Plasma: 系统设置 → 显示 → 合成器
-- XFCE: 设置 → 窗口管理器微调 → 合成器
-
-### 所有平台 - 主题不显示
-
-**问题**：切换主题后没有变化
-
-**解决方案**：
-- 检查主题文件夹路径是否正确
-- 确保 `theme.json` 格式正确（可以用 JSON 验证器检查）
-- 右键托盘图标 → **"Reload Themes"** 重新加载
-- 查看日志文件排查错误（设置 → 查看日志）
 
 ## 🤝 贡献
 

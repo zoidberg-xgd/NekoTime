@@ -262,8 +262,16 @@ jobs:
           PKG_DIR="$APP_NAME-Linux-x64-v$VERSION"
           mkdir -p "$DIST_DIR/$PKG_DIR"
           
-          # Copy files
+          # Copy application files
           cp -r "$BUILD_DIR"/* "$DIST_DIR/$PKG_DIR/"
+          
+          # Copy helper scripts
+          mkdir -p "$DIST_DIR/$PKG_DIR/scripts"
+          cp scripts/install_linux_deps.sh "$DIST_DIR/$PKG_DIR/scripts/"
+          cp scripts/run_linux.sh "$DIST_DIR/$PKG_DIR/"
+          chmod +x "$DIST_DIR/$PKG_DIR/neko_time"
+          chmod +x "$DIST_DIR/$PKG_DIR/run_linux.sh"
+          chmod +x "$DIST_DIR/$PKG_DIR/scripts/install_linux_deps.sh"
           
           # Create README
           cat > "$DIST_DIR/$PKG_DIR/README.txt" << EOF
@@ -272,9 +280,14 @@ jobs:
           
           Linux 便携版
           
-          运行方式:
-          1. 执行 ./neko_time
-          2. 如遇权限问题: chmod +x neko_time
+          快速开始:
+          1. 安装依赖（首次运行）: sudo ./scripts/install_linux_deps.sh
+          2. 启动应用: ./run_linux.sh
+          或直接运行: ./neko_time
+          
+          ⚠️  首次运行必读:
+          如果遇到黑屏或 "No rendering surface available" 错误，
+          请先运行依赖安装脚本！
           
           系统要求:
           - Linux 发行版（Ubuntu 20.04+, Fedora 35+, Arch Linux 等）
