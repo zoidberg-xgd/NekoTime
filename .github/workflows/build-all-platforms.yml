@@ -33,9 +33,14 @@ jobs:
           channel: 'stable'
           cache: true
       
-      - name: Enable macOS desktop
+      - name: Enable macOS desktop and force project recognition
         run: |
+          # Enable desktop support
           flutter config --enable-macos-desktop --no-analytics
+          # Clear Flutter cache
+          flutter precache --macos --force
+          # Regenerate project files to ensure recognition
+          flutter create --platforms=macos --org=com.nekotime --project-name=neko_time .
       
       - name: Verify project structure
         run: |
@@ -47,14 +52,7 @@ jobs:
           flutter devices
       
       - name: Install dependencies
-        run: |
-          # Generate platform-specific files
-          flutter pub get
-          # Force download macOS artifacts
-          echo "Downloading macOS build tools..."
-          flutter precache --macos --verbose
-          echo "Verifying macOS artifacts..."
-          ls -la $FLUTTER_ROOT/bin/cache/artifacts/engine/darwin-x64-release/ || echo "Engine artifacts not found"
+        run: flutter pub get
       
       - name: Run tests
         run: flutter test
@@ -119,9 +117,11 @@ jobs:
           channel: 'stable'
           cache: true
       
-      - name: Enable Windows desktop
+      - name: Enable Windows desktop and force project recognition
         run: |
           flutter config --enable-windows-desktop --no-analytics
+          flutter precache --windows --force
+          flutter create --platforms=windows --org=com.nekotime --project-name=neko_time .
       
       - name: Install dependencies
         run: flutter pub get
@@ -222,9 +222,11 @@ jobs:
           channel: 'stable'
           cache: true
       
-      - name: Enable Linux desktop
+      - name: Enable Linux desktop and force project recognition
         run: |
           flutter config --enable-linux-desktop --no-analytics
+          flutter precache --linux --force
+          flutter create --platforms=linux --org=com.nekotime --project-name=neko_time .
       
       - name: Install dependencies
         run: flutter pub get
