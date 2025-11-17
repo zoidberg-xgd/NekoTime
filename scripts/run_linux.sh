@@ -64,6 +64,13 @@ export GDK_BACKEND=x11  # 强制使用 X11 后端（避免 Wayland 问题）
 export LIBGL_ALWAYS_SOFTWARE=0  # 使用硬件加速
 export MESA_GL_VERSION_OVERRIDE=3.3  # 确保 OpenGL 版本
 
+# Linux 窗口透明优化
+export GDK_CORE_DEVICE_EVENTS=1  # 改善窗口事件处理
+export QT_X11_NO_MITSHM=1  # 禁用共享内存扩展（某些情况下有帮助）
+
+# 强制无装饰窗口
+export GTK_CSD=0  # 禁用客户端装饰（减少黑边）
+
 # 检测桌面环境
 if [ "$XDG_SESSION_TYPE" = "wayland" ]; then
     echo "ℹ️  检测到 Wayland 会话"

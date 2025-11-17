@@ -95,33 +95,52 @@ void main() async {
           color: Colors.transparent,
         );
       } else if (Platform.isLinux) {
-        // Linux: 基础透明支持（依赖于窗口管理器）
-        await logService.info('Linux: Configuring transparency support');
-        // 确保窗口背景完全透明
+        // Linux: 激进的透明窗口配置
+        await logService.info('Linux: Configuring aggressive transparency');
         await windowManager.setBackgroundColor(Colors.transparent);
+        
+        // 尝试移除所有窗口装饰
+        try {
+          await windowManager.setTitleBarStyle(TitleBarStyle.hidden);
+        } catch (e) {
+          await logService.error('Failed to set title bar style', error: e);
+        }
       }
 
       // 通用窗口设置（所有平台）
       await windowManager.setAsFrameless();
       await windowManager.setResizable(false);
       
-      // Linux 特殊处理：不设置阴影可能更好
-      if (!Platform.isLinux) {
-        await windowManager.setHasShadow(true);
-      } else {
+      // Linux 特殊处理：完全禁用阴影和装饰
+      if (Platform.isLinux) {
         await windowManager.setHasShadow(false);
-        await logService.info('Linux: Shadow disabled to avoid black border');
+        // 先不显示窗口，等待设置完成
+        await logService.info('Linux: Applying window settings...');
+        
+        // 多次设置大小以确保生效
+        await windowManager.setSize(initialSize);
+        await Future.delayed(const Duration(milliseconds: 50));
+        await windowManager.setSize(initialSize);
+        
+        // 强制最小和最大尺寸相同，防止窗口管理器添加边框
+        await windowManager.setMinimumSize(initialSize);
+        await windowManager.setMaximumSize(initialSize);
+        
+        await logService.info('Linux: Window constrained to ${initialSize.width}x${initialSize.height}');
+      } else {
+        await windowManager.setHasShadow(true);
       }
 
       // 显示和聚焦窗口
       await windowManager.show();
       await windowManager.focus();
       
-      // Linux 额外步骤：确保窗口大小正确
+      // Linux 最后确认：再次设置大小
       if (Platform.isLinux) {
-        await Future.delayed(const Duration(milliseconds: 100));
+        await Future.delayed(const Duration(milliseconds: 200));
         await windowManager.setSize(initialSize);
-        await logService.info('Linux: Window size set to ${initialSize.width}x${initialSize.height}');
+        await windowManager.setAlignment(Alignment.center);
+        await logService.info('Linux: Final window size applied');
       }
 
       await logService
