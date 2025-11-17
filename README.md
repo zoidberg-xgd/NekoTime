@@ -59,8 +59,10 @@ flutter build macos --release
 
 构建产物位置：
 - **macOS**: `build/macos/Build/Products/Release/digital_clock.app`
-- **Windows**: `build/windows/runner/Release/`
+- **Windows**: `build/windows/x64/runner/Release/`
 - **Linux**: `build/linux/x64/release/bundle/`
+
+📘 **跨平台支持详情**：查看 [PLATFORM_SUPPORT.md](PLATFORM_SUPPORT.md) 了解各平台的详细构建和部署说明。
 
 ## 📖 使用指南
 

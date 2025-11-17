@@ -29,7 +29,8 @@ void main() async {
   // 先初始化窗口管理器（必须在最前面）
   if (isDesktop) {
     await windowManager.ensureInitialized();
-    if (Platform.isMacOS) {
+    // 初始化透明效果库（支持 macOS 和 Windows）
+    if (Platform.isMacOS || Platform.isWindows) {
       await flutter_acrylic.Window.initialize();
     }
   }
@@ -68,8 +69,9 @@ void main() async {
 
     // 先配置窗口属性，再显示
     windowManager.waitUntilReadyToShow(windowOptions, () async {
-      // macOS 特定配置（flutter_acrylic 已在前面初始化）
+      // 平台特定配置
       if (Platform.isMacOS) {
+        // macOS: 使用 Acrylic 实现毛玻璃效果
         await flutter_acrylic.Window.makeTitlebarTransparent();
         await flutter_acrylic.Window.enableFullSizeContentView();
         await flutter_acrylic.Window.setWindowBackgroundColorToClear();
@@ -77,18 +79,28 @@ void main() async {
           effect: flutter_acrylic.WindowEffect.sidebar,
           color: Colors.transparent,
         );
+      } else if (Platform.isWindows) {
+        // Windows: 使用 Acrylic 效果
+        await flutter_acrylic.Window.setEffect(
+          effect: flutter_acrylic.WindowEffect.acrylic,
+          color: Colors.transparent,
+        );
+      } else if (Platform.isLinux) {
+        // Linux: 基础透明支持（依赖于窗口管理器）
+        // 某些 Linux 桌面环境可能需要额外配置
+        await logService.info('Linux: Using basic transparency support');
       }
       
-      // 设置窗口为无边框和不可调整大小
+      // 通用窗口设置（所有平台）
       await windowManager.setAsFrameless();
       await windowManager.setResizable(false);
       await windowManager.setHasShadow(true);
       
-      // 最后才显示和聚焦窗口
+      // 显示和聚焦窗口
       await windowManager.show();
       await windowManager.focus();
       
-      await logService.info('Window initialized and shown');
+      await logService.info('Window initialized and shown on ${Platform.operatingSystem}');
     });
   }
 
