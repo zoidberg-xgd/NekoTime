@@ -47,19 +47,17 @@ jobs:
           flutter devices
       
       - name: Install dependencies
-        run: flutter pub get
+        run: |
+          # Generate platform-specific files
+          flutter pub get
+          # Ensure Flutter recognizes macOS platform  
+          flutter precache --macos
       
       - name: Run tests
         run: flutter test
-      
+          
       - name: Build macOS app
-        run: |
-          # Clean any cached build files
-          flutter clean
-          # Regenerate plugin registrations
-          flutter pub get
-          # Build with verbose output
-          flutter build macos --release -v
+        run: flutter build macos --release -v
       
       - name: Create DMG
         run: |
