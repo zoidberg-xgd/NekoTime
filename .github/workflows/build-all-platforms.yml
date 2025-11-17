@@ -13,6 +13,10 @@ on:
       - develop
   workflow_dispatch:
 
+permissions:
+  contents: write
+  packages: write
+
 env:
   APP_NAME: NekoTime
   APP_VERSION: 2.1.0
