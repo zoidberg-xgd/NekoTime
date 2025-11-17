@@ -1,12 +1,12 @@
 import 'dart:ui';
 
-import 'package:digital_clock/core/models/clock_config.dart';
-import 'package:digital_clock/core/models/theme_definition.dart';
-import 'package:digital_clock/core/services/config_service.dart';
-import 'package:digital_clock/core/services/log_service.dart';
-import 'package:digital_clock/core/services/time_service.dart';
-import 'package:digital_clock/core/services/theme_service.dart';
-import 'package:digital_clock/ui/widgets/time_display.dart';
+import 'package:neko_time/core/models/clock_config.dart';
+import 'package:neko_time/core/models/theme_definition.dart';
+import 'package:neko_time/core/services/config_service.dart';
+import 'package:neko_time/core/services/log_service.dart';
+import 'package:neko_time/core/services/time_service.dart';
+import 'package:neko_time/core/services/theme_service.dart';
+import 'package:neko_time/ui/widgets/time_display.dart';
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -39,13 +39,14 @@ class _ClockScreenState extends State<ClockScreen> with WindowListener {
     windowManager.removeListener(this);
     super.dispose();
   }
-  
+
   void _loadThemeFontsIfNeeded(ThemeService themeService, String themeId) {
     if (_lastLoadedThemeId != themeId) {
       _lastLoadedThemeId = themeId;
       final theme = themeService.resolve(themeId);
       LogService().info('Loading theme: ${theme.name} (${theme.id})');
-      LogService().debug('Theme config: digitGifPath=${theme.digitGifPath}, format=${theme.digitImageFormat}, assetsBase=${theme.assetsBasePath}');
+      LogService().debug(
+          'Theme config: digitGifPath=${theme.digitGifPath}, format=${theme.digitImageFormat}, assetsBase=${theme.assetsBasePath}');
       themeService.ensureFontsLoaded(theme);
     }
   }
@@ -94,8 +95,8 @@ class _ClockScreenState extends State<ClockScreen> with WindowListener {
         align = Alignment.centerRight;
         break;
       case LayoutAlignment.center:
-      default:
         align = Alignment.center;
+        break;
     }
 
     Widget content = Padding(
@@ -106,7 +107,8 @@ class _ClockScreenState extends State<ClockScreen> with WindowListener {
     DecorationImage? bgImage;
     DecorationImage? overlayImage;
     if (theme.backgroundImagePath != null && theme.assetsBasePath != null) {
-      final file = File(p.join(theme.assetsBasePath!, theme.backgroundImagePath!));
+      final file =
+          File(p.join(theme.assetsBasePath!, theme.backgroundImagePath!));
       if (file.existsSync()) {
         bgImage = DecorationImage(
           image: FileImage(file),
@@ -139,8 +141,9 @@ class _ClockScreenState extends State<ClockScreen> with WindowListener {
             child: Container(
               decoration: BoxDecoration(
                 color: (tintOverlay ?? backgroundOverlay)?.withOpacity(
-                  ((tintOverlay ?? backgroundOverlay)?.opacity ?? 0.0) * 0.8
-                ) ?? Colors.transparent,
+                        ((tintOverlay ?? backgroundOverlay)?.opacity ?? 0.0) *
+                            0.8) ??
+                    Colors.transparent,
                 image: bgImage,
               ),
               child: Stack(
@@ -174,8 +177,8 @@ class _ClockScreenState extends State<ClockScreen> with WindowListener {
               ),
               if (overlayImage != null)
                 Opacity(
-                  opacity:
-                      (theme.overlayOpacityMultiplier * opacity).clamp(0.0, 1.0),
+                  opacity: (theme.overlayOpacityMultiplier * opacity)
+                      .clamp(0.0, 1.0),
                   child: Container(
                     decoration: BoxDecoration(image: overlayImage),
                   ),
@@ -201,16 +204,17 @@ class _ClockScreenState extends State<ClockScreen> with WindowListener {
     return Consumer2<ConfigService, ThemeService>(
       builder: (context, configService, themeService, child) {
         final config = configService.config;
-        
+
         // 只在配置真正改变时才更新窗口
-        if (_lastConfigThemeId != config.themeId || _lastScale != config.scale) {
+        if (_lastConfigThemeId != config.themeId ||
+            _lastScale != config.scale) {
           _lastConfigThemeId = config.themeId;
           _lastScale = config.scale;
           WidgetsBinding.instance.addPostFrameCallback((_) {
             _updateWindow(configService);
           });
         }
-        
+
         // 只在透明度改变时才更新
         if (_lastOpacity != config.opacity) {
           _lastOpacity = config.opacity;
@@ -221,7 +225,7 @@ class _ClockScreenState extends State<ClockScreen> with WindowListener {
 
         // 只在主题切换时加载字体和记录日志
         _loadThemeFontsIfNeeded(themeService, config.themeId);
-        
+
         final theme = themeService.resolve(config.themeId);
 
         Widget clock = StreamBuilder<DateTime>(

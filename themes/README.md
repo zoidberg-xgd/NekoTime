@@ -6,9 +6,9 @@
 
 主题目录位于应用支持目录下：
 
-- **macOS**: `~/Library/Application Support/digital_clock/themes/`
-- **Windows**: `%APPDATA%\digital_clock\themes\`
-- **Linux**: `~/.local/share/digital_clock/themes/`
+- **macOS**: `~/Library/Application Support/NekoTime/themes/`
+- **Windows**: `%APPDATA%\NekoTime\themes\`
+- **Linux**: `~/.local/share/NekoTime/themes/`
 
 **提示**：可在应用设置对话框底部查看完整路径。
 
@@ -82,10 +82,10 @@ themes/
 
 ```bash
 # macOS/Linux
-mkdir -p ~/Library/Application\ Support/digital_clock/themes/my_theme
+mkdir -p ~/Library/Application\ Support/NekoTime/themes/my_theme
 
 # Windows
-mkdir %APPDATA%\digital_clock\themes\my_theme
+mkdir %APPDATA%\NekoTime\themes\my_theme
 ```
 
 ### 2. 创建配置文件

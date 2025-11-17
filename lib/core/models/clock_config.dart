@@ -1,6 +1,6 @@
 import 'dart:ui';
 
-import 'package:digital_clock/core/models/theme_definition.dart';
+import 'package:neko_time/core/models/theme_definition.dart';
 
 // 定义时钟层级
 enum ClockLayer {
@@ -83,17 +83,18 @@ Size calculateWindowSizeFromConfig(ClockConfig config) {
   final double digitWidth = digitHeight * 0.58; // 数字宽度
   final double colonWidth = digitHeight * 0.25; // 冒号宽度
   final double digitSpacing = 2 * config.scale; // 数字间距也随scale缩放
-  
+
   // 计算实际内容宽度：4个数字 + 1个冒号 (HH:MM) + 数字间距
   // 间距在数字之间，不包括冒号前后
-  final double baseW = 4 * digitWidth + colonWidth + 2 * digitSpacing; // 2个间距（HH之间和MM之间）
-  
+  final double baseW =
+      4 * digitWidth + colonWidth + 2 * digitSpacing; // 2个间距（HH之间和MM之间）
+
   final double baseH = digitHeight;
-  
+
   // padding 也要随着 scale 缩放，保持比例
-  final double padH = 24 * config.scale;  // 左右边距 (12*2)
-  final double padV = 16 * config.scale;  // 上下边距 (8*2)
-  
+  final double padH = 24 * config.scale; // 左右边距 (12*2)
+  final double padV = 16 * config.scale; // 上下边距 (8*2)
+
   return Size(baseW + padH, baseH + padV);
 }
 

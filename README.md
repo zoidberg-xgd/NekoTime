@@ -108,7 +108,7 @@ flutter build macos --release
 ```
 
 构建产物位置：
-- **macOS**: `build/macos/Build/Products/Release/digital_clock.app`
+- **macOS**: `build/macos/Build/Products/Release/NekoTime.app`
 - **Windows**: `build/windows/x64/runner/Release/`
 - **Linux**: `build/linux/x64/release/bundle/`
 
@@ -149,9 +149,9 @@ flutter build macos --release
 
 主题存储在应用支持目录的 `themes/` 文件夹：
 
-- **macOS**: `~/Library/Application Support/digital_clock/themes/`
-- **Windows**: `%APPDATA%\digital_clock\themes\`
-- **Linux**: `~/.local/share/digital_clock/themes/`
+- **macOS**: `~/Library/Application Support/NekoTime/themes/`
+- **Windows**: `%APPDATA%\NekoTime\themes\`
+- **Linux**: `~/.local/share/NekoTime/themes/`
 
 *提示：可在设置对话框底部找到完整路径*
 
@@ -308,14 +308,65 @@ themes/
 
 📋 **完整更新日志**：[CHANGELOG.md](CHANGELOG.md)
 
+## 🧪 测试
+
+NekoTime 包含完整的测试套件，确保代码质量和稳定性。
+
+### 快速测试
+
+```bash
+# 运行所有测试
+make test
+
+# 快速测试（开发时）
+make test-quick
+
+# 生成覆盖率报告
+make test-coverage
+```
+
+### 测试类型
+
+- **单元测试** - 测试核心功能和服务
+- **Widget 测试** - 测试 UI 组件
+- **代码分析** - 静态代码检查
+- **格式检查** - 代码风格验证
+
+### 详细文档
+
+- 📘 [测试指南](TESTING.md) - 完整的测试文档和最佳实践
+- 🛠️ [工具脚本](tool/README.md) - 测试和构建脚本说明
+
 ## 🤝 贡献
 
 欢迎提交 Issue 和 Pull Request！
 
 ### 开发规范
 - 遵循 Flutter 官方代码风格
-- 提交前运行 `flutter analyze`
+- 提交前运行 `make test` 或 `./tool/run_tests.sh`
+- 确保所有测试通过
+- 保持测试覆盖率 ≥ 70%
 - 重大功能请先开 Issue 讨论
+
+### 开发工作流
+
+```bash
+# 1. 克隆项目
+git clone https://github.com/zoidberg-xgd/NekoTime.git
+cd NekoTime
+
+# 2. 获取依赖
+make get
+
+# 3. 运行测试
+make test-quick
+
+# 4. 运行应用
+make run-macos  # 或 run-windows / run-linux
+
+# 5. 提交前检查
+make pre-release
+```
 
 ## 📄 许可证
 

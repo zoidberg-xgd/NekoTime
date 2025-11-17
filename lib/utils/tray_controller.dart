@@ -1,15 +1,15 @@
 import 'dart:io';
 
-import 'package:digital_clock/core/models/clock_config.dart';
-import 'package:digital_clock/core/models/theme_definition.dart';
-import 'package:digital_clock/core/services/config_service.dart';
-import 'package:digital_clock/core/services/theme_service.dart';
-import 'package:digital_clock/core/services/log_service.dart';
+import 'package:neko_time/core/models/clock_config.dart';
+import 'package:neko_time/core/models/theme_definition.dart';
+import 'package:neko_time/core/services/config_service.dart';
+import 'package:neko_time/core/services/theme_service.dart';
+import 'package:neko_time/core/services/log_service.dart';
 import 'package:flutter/material.dart';
 
 import 'package:provider/provider.dart';
 import 'package:system_tray/system_tray.dart';
-import 'package:digital_clock/l10n/app_localizations.dart';
+import 'package:neko_time/l10n/app_localizations.dart';
 import 'package:window_manager/window_manager.dart';
 
 /// 系统托盘控制逻辑（基于 system_tray）。
@@ -26,16 +26,16 @@ mixin TrayController<T extends StatefulWidget> on State<T> {
       // 初始化托盘，使用空图标但确保托盘始终可见
       await _tray.initSystemTray(
         iconPath: '',
-        toolTip: 'Digital Clock',
+        toolTip: 'NekoTime',
       );
-      
+
       // 设置标题为时钟 Emoji
       await _tray.setTitle('🕐');
-      
+
       // 确保托盘图标可见
       await _tray.setSystemTrayInfo(
         title: '🕐',
-        toolTip: 'Digital Clock - 双击窗口隐藏，右键菜单显示',
+        toolTip: 'NekoTime - 双击窗口隐藏，右键菜单显示',
       );
     } catch (e) {
       debugPrint('SystemTray init failed: $e');

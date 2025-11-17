@@ -5,9 +5,9 @@
 // gestures. You can also use WidgetTester to find child widgets in the widget
 // tree, read text, and verify that the values of widget properties are correct.
 
-import 'package:digital_clock/core/services/config_service.dart';
-import 'package:digital_clock/main.dart';
-import 'package:digital_clock/ui/screens/clock_screen.dart';
+import 'package:neko_time/core/services/config_service.dart';
+import 'package:neko_time/main.dart';
+import 'package:neko_time/ui/screens/clock_screen.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
@@ -22,6 +22,3 @@ void main() {
     expect(find.byType(ClockScreen), findsOneWidget);
   });
 }
-
-
-

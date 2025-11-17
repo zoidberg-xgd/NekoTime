@@ -34,9 +34,9 @@ example_mod/
 ### 1. 定位主题目录
 
 打开应用设置对话框，在底部找到 `themes/` 目录路径：
-- **macOS**: `~/Library/Application Support/digital_clock/themes/`
-- **Windows**: `%APPDATA%\digital_clock\themes\`
-- **Linux**: `~/.local/share/digital_clock/themes/`
+- **macOS**: `~/Library/Application Support/NekoTime/themes/`
+- **Windows**: `%APPDATA%\NekoTime\themes\`
+- **Linux**: `~/.local/share/NekoTime/themes/`
 
 ### 2. 安装主题
 
@@ -44,7 +44,7 @@ example_mod/
 
 ```bash
 # macOS 示例
-cp -r example_mod ~/Library/Application\ Support/digital_clock/themes/
+cp -r example_mod ~/Library/Application\ Support/NekoTime/themes/
 ```
 
 ### 3. 准备资源（可选）

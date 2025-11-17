@@ -1,8 +1,6 @@
-import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:digital_clock/core/services/log_service.dart';
-import 'package:path/path.dart' as p;
+import 'package:neko_time/core/services/log_service.dart';
 
 /// 数字GIF显示组件 - 重构版本
 /// 统一处理内置资源和外部资源，确保加载失败时正确显示文本后备
@@ -28,7 +26,8 @@ class DigitGifV2 extends StatefulWidget {
   State<DigitGifV2> createState() => _DigitGifV2State();
 }
 
-class _DigitGifV2State extends State<DigitGifV2> with AutomaticKeepAliveClientMixin {
+class _DigitGifV2State extends State<DigitGifV2>
+    with AutomaticKeepAliveClientMixin {
   @override
   bool get wantKeepAlive => true;
 
@@ -60,7 +59,8 @@ class _DigitGifV2State extends State<DigitGifV2> with AutomaticKeepAliveClientMi
       return;
     }
 
-    final imagePath = widget.gifBasePath ?? 'themes/builtin/frosted_glass/digits';
+    final imagePath =
+        widget.gifBasePath ?? 'themes/builtin/frosted_glass/digits';
     final format = widget.imageFormat ?? 'gif';
     final assetPath = '$imagePath/${widget.digit}.$format';
 
@@ -164,7 +164,8 @@ class _DigitGifV2State extends State<DigitGifV2> with AutomaticKeepAliveClientMi
     }
 
     // 资源存在，加载图片
-    final imagePath = widget.gifBasePath ?? 'themes/builtin/frosted_glass/digits';
+    final imagePath =
+        widget.gifBasePath ?? 'themes/builtin/frosted_glass/digits';
     final format = widget.imageFormat ?? 'gif';
     final assetPath = '$imagePath/${widget.digit}.$format';
 
@@ -180,7 +181,8 @@ class _DigitGifV2State extends State<DigitGifV2> with AutomaticKeepAliveClientMi
         gaplessPlayback: true,
         // 即使预检查通过，还是保留errorBuilder作为最后防线
         errorBuilder: (context, error, stack) {
-          LogService().error('Image.asset error for digit: ${widget.digit}', error: error, stackTrace: stack);
+          LogService().error('Image.asset error for digit: ${widget.digit}',
+              error: error, stackTrace: stack);
           return Text(
             widget.digit,
             style: TextStyle(

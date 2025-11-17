@@ -59,7 +59,7 @@ if %ERRORLEVEL% EQ 0 (
     dir dist\%ZIP_NAME%
     echo.
     echo 可执行文件位置:
-    echo %RELEASE_DIR%\digital_clock.exe
+    echo %RELEASE_DIR%\NekoTime.exe
     echo.
 ) else (
     echo [错误] 打包失败
@@ -74,7 +74,7 @@ echo ==============================
 echo.
 echo 安装说明:
 echo 1. 解压到任意目录
-echo 2. 双击运行 digital_clock.exe
+echo 2. 双击运行 NekoTime.exe
 echo 3. 首次运行可能需要安装 Visual C++ 运行库
 echo.
 echo 系统要求:
@@ -86,10 +86,10 @@ echo - 查看完整文档: https://github.com/zoidberg-xgd/NekoTime
 echo - 提交 Issue: https://github.com/zoidberg-xgd/NekoTime/issues
 echo.
 echo 主题目录:
-echo %%APPDATA%%\digital_clock\themes\
+echo %%APPDATA%%\NekoTime\themes\
 echo.
 echo 日志目录:
-echo %%APPDATA%%\digital_clock\logs\
+echo %%APPDATA%%\NekoTime\logs\
 ) > "%RELEASE_DIR%\README.txt"
 
 echo [✓] README.txt 已创建

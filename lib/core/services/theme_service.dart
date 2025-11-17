@@ -1,8 +1,8 @@
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:digital_clock/core/models/theme_definition.dart';
-import 'package:digital_clock/core/services/log_service.dart';
+import 'package:neko_time/core/models/theme_definition.dart';
+import 'package:neko_time/core/services/log_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:path/path.dart' as p;
@@ -15,23 +15,23 @@ class ThemeService extends ChangeNotifier {
 
   Future<void> init() async {
     _themes.clear();
-    
+
     // 首先添加内置主题（硬编码，确保始终可用）
     _themes[ThemeDefinition.defaultThemeId] = _createBuiltinTheme();
     LogService().info('Loaded builtin theme: Frosted Glass');
-    
+
     // 然后从应用支持目录加载用户主题
     final dir = await _ensureThemesDirectory();
-    
+
     // 首次启动时，复制示例主题到应用支持目录
     await _installExampleThemesIfNeeded(dir);
-    
+
     await _loadCustomThemes(dir);
-    
+
     LogService().info('Total themes loaded: ${_themes.length}');
     notifyListeners();
   }
-  
+
   Future<void> _installExampleThemesIfNeeded(Directory themesDir) async {
     // 检查是否已安装示例主题（通过检查标记文件）
     final markerFile = File(p.join(themesDir.path, '.examples_installed'));
@@ -39,7 +39,7 @@ class ThemeService extends ChangeNotifier {
       LogService().debug('Example themes already installed');
       return;
     }
-    
+
     LogService().info('Installing example themes...');
     // 示例主题将由用户手动复制，或在未来版本中打包
     // 创建标记文件
@@ -49,15 +49,15 @@ class ThemeService extends ChangeNotifier {
 
   Future<void> reload() async {
     _themes.clear();
-    
+
     // 重新加载内置主题
     _themes[ThemeDefinition.defaultThemeId] = _createBuiltinTheme();
     LogService().info('Reloaded builtin theme: Frosted Glass');
-    
+
     // 加载用户主题
     final dir = await _ensureThemesDirectory();
     await _loadCustomThemes(dir);
-    
+
     LogService().info('Total themes after reload: ${_themes.length}');
     notifyListeners();
   }
@@ -84,7 +84,7 @@ class ThemeService extends ChangeNotifier {
         _themes[ThemeDefinition.defaultThemeId] ??
         _themes.values.first;
   }
-  
+
   ThemeDefinition _createBuiltinTheme() {
     return const ThemeDefinition(
       id: ThemeDefinition.defaultThemeId,
@@ -103,7 +103,7 @@ class ThemeService extends ChangeNotifier {
       digitSpacing: 2,
     );
   }
-  
+
   ThemeDefinition _createFallbackTheme() {
     return const ThemeDefinition(
       id: 'fallback',
@@ -147,12 +147,14 @@ class ThemeService extends ChangeNotifier {
           var theme = ThemeDefinition.fromJson(data)
               .copyWith(assetsBasePath: entry.path);
           _themes[theme.id] = theme;
-          LogService().info('Loaded theme package: ${theme.name} (${theme.id}) from ${entry.path}');
+          LogService().info(
+              'Loaded theme package: ${theme.name} (${theme.id}) from ${entry.path}');
           LogService().debug('  - digitGifPath: ${theme.digitGifPath}');
           LogService().debug('  - digitImageFormat: ${theme.digitImageFormat}');
           LogService().debug('  - assetsBasePath: ${theme.assetsBasePath}');
         } catch (e, stackTrace) {
-          LogService().error('Failed to load theme package ${entry.path}', error: e, stackTrace: stackTrace);
+          LogService().error('Failed to load theme package ${entry.path}',
+              error: e, stackTrace: stackTrace);
         }
       }
     }
@@ -168,17 +170,21 @@ class ThemeService extends ChangeNotifier {
         var theme = ThemeDefinition.fromJson(data)
             .copyWith(assetsBasePath: file.parent.path);
         _themes[theme.id] = theme;
-        LogService().info('Loaded legacy theme: ${theme.name} (${theme.id}) from ${file.path}');
+        LogService().info(
+            'Loaded legacy theme: ${theme.name} (${theme.id}) from ${file.path}');
       } catch (e, stackTrace) {
-        LogService().error('Failed to load theme ${file.path}', error: e, stackTrace: stackTrace);
+        LogService().error('Failed to load theme ${file.path}',
+            error: e, stackTrace: stackTrace);
       }
     }
-    
+
     LogService().info('Total themes loaded: ${_themes.length}');
   }
 
   Future<void> ensureFontsLoaded(ThemeDefinition theme) async {
-    if (theme.fontFamily == null || theme.fontFiles == null || theme.fontFiles!.isEmpty) return;
+    if (theme.fontFamily == null ||
+        theme.fontFiles == null ||
+        theme.fontFiles!.isEmpty) return;
     final cacheKey = '${theme.id}:${theme.fontFamily}';
     if (_fontLoadedForTheme.contains(cacheKey)) {
       LogService().debug('Font already loaded for theme: ${theme.id}');
@@ -195,7 +201,8 @@ class ThemeService extends ChangeNotifier {
         loader.addFont(Future.value(ByteData.view(bytes.buffer)));
         LogService().debug('Font file loaded: $rel');
       } catch (e, stackTrace) {
-        LogService().error('Failed to load font $rel for theme ${theme.id}', error: e, stackTrace: stackTrace);
+        LogService().error('Failed to load font $rel for theme ${theme.id}',
+            error: e, stackTrace: stackTrace);
       }
     }
     try {
@@ -203,7 +210,8 @@ class ThemeService extends ChangeNotifier {
       _fontLoadedForTheme.add(cacheKey);
       LogService().info('Fonts successfully loaded for theme: ${theme.id}');
     } catch (e, stackTrace) {
-      LogService().error('FontLoader load failed for theme ${theme.id}', error: e, stackTrace: stackTrace);
+      LogService().error('FontLoader load failed for theme ${theme.id}',
+          error: e, stackTrace: stackTrace);
     }
   }
 }

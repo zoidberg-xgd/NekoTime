@@ -82,8 +82,8 @@ NekoTime - 猫铃时钟 v${VERSION}
 
 安装说明:
 1. 解压到任意目录
-2. 运行 ./digital_clock
-3. 如遇权限问题: chmod +x digital_clock
+2. 运行 ./neko_time
+3. 如遇权限问题: chmod +x neko_time
 
 系统要求:
 - Linux 发行版（Ubuntu 20.04+, Fedora 35+, Arch Linux 等）
@@ -101,10 +101,10 @@ NekoTime - 猫铃时钟 v${VERSION}
 - Linux 兼容性: 查看 LINUX_COMPATIBILITY.md
 
 主题目录:
-~/.local/share/digital_clock/themes/
+~/.local/share/NekoTime/themes/
 
 日志目录:
-~/.local/share/digital_clock/logs/
+~/.local/share/NekoTime/logs/
 
 常见问题:
 1. 透明效果不工作
@@ -137,11 +137,11 @@ echo -e "${BLUE}输出文件:${NC} dist/${TAR_NAME}"
 ls -lh "dist/${TAR_NAME}"
 echo ""
 echo -e "${BLUE}可执行文件位置:${NC}"
-echo "${RELEASE_DIR}/digital_clock"
+echo "${RELEASE_DIR}/neko_time"
 echo ""
 echo -e "${YELLOW}提示:${NC} 可以直接运行以下命令测试:"
 echo "  cd ${RELEASE_DIR}"
-echo "  ./digital_clock"
+echo "  ./neko_time"
 echo ""
 
 # 询问是否创建 AppImage（可选）

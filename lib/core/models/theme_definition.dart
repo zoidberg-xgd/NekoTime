@@ -1,6 +1,7 @@
 import 'dart:ui';
 
 enum ThemeKind { transparent, blur, solid }
+
 enum LayoutAlignment { left, center, right }
 
 class ThemeDefinition {
@@ -26,8 +27,10 @@ class ThemeDefinition {
   final double? digitSpacing;
   final String? fontFamily;
   final List<String>? fontFiles;
-  final String? digitGifPath; // Path to digit images directory (e.g., 'assets/gif' or 'gif')
-  final String? digitImageFormat; // Image format: 'gif', 'png', 'jpg', 'webp', or null for auto-detect
+  final String?
+      digitGifPath; // Path to digit images directory (e.g., 'assets/gif' or 'gif')
+  final String?
+      digitImageFormat; // Image format: 'gif', 'png', 'jpg', 'webp', or null for auto-detect
   final String? assetsBasePath; // runtime-only; not serialized
 
   const ThemeDefinition({
@@ -57,7 +60,8 @@ class ThemeDefinition {
   });
 
   factory ThemeDefinition.fromJson(Map<String, dynamic> json) {
-    final String? alignRaw = (json['layout']?['alignment'] ?? json['alignment']) as String?;
+    final String? alignRaw =
+        (json['layout']?['alignment'] ?? json['alignment']) as String?;
     return ThemeDefinition(
       id: json['id'] as String,
       name: json['name'] as String? ?? json['id'] as String,
@@ -69,7 +73,8 @@ class ThemeDefinition {
       paddingVertical:
           (json['padding']?['vertical'] ?? json['paddingVertical'] ?? 8)
               .toDouble(),
-      paddingPreset: (json['padding']?['preset'] ?? json['paddingPreset']) as String?,
+      paddingPreset:
+          (json['padding']?['preset'] ?? json['paddingPreset']) as String?,
       alignment: _parseAlignment(alignRaw),
       blurSigmaX:
           (json['blur']?['sigmaX'] ?? json['blurSigmaX'] ?? 0).toDouble(),
@@ -82,7 +87,8 @@ class ThemeDefinition {
       tintOpacityMultiplier: (json['tintOpacityMultiplier'] ?? 1).toDouble(),
       backgroundImagePath: json['backgroundImage'] as String?,
       overlayImagePath: json['overlayImage'] as String?,
-      overlayOpacityMultiplier: (json['overlayOpacityMultiplier'] ?? 0.5).toDouble(),
+      overlayOpacityMultiplier:
+          (json['overlayOpacityMultiplier'] ?? 0.5).toDouble(),
       digitSpacing: (json['digit']?['spacing'] ?? json['digitSpacing']) == null
           ? null
           : (json['digit']?['spacing'] ?? json['digitSpacing']).toDouble(),
@@ -95,8 +101,10 @@ class ThemeDefinition {
           })
           .whereType<String>()
           .toList(),
-      digitGifPath: (json['digit']?['gifPath'] ?? json['digitGifPath']) as String?,
-      digitImageFormat: (json['digit']?['format'] ?? json['digitImageFormat']) as String?,
+      digitGifPath:
+          (json['digit']?['gifPath'] ?? json['digitGifPath']) as String?,
+      digitImageFormat:
+          (json['digit']?['format'] ?? json['digitImageFormat']) as String?,
     );
   }
 
@@ -167,7 +175,8 @@ class ThemeDefinition {
       backgroundOpacityMultiplier:
           backgroundOpacityMultiplier ?? this.backgroundOpacityMultiplier,
       tintColor: tintColor ?? this.tintColor,
-      tintOpacityMultiplier: tintOpacityMultiplier ?? this.tintOpacityMultiplier,
+      tintOpacityMultiplier:
+          tintOpacityMultiplier ?? this.tintOpacityMultiplier,
       backgroundImagePath: backgroundImagePath ?? this.backgroundImagePath,
       overlayImagePath: overlayImagePath ?? this.overlayImagePath,
       overlayOpacityMultiplier:

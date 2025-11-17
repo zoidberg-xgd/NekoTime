@@ -57,7 +57,7 @@ flutter pub get
 flutter build macos --release
 
 # 3. 应用程序位置
-# build/macos/Build/Products/Release/digital_clock.app
+# build/macos/Build/Products/Release/NekoTime.app
 ```
 
 ### 创建 DMG 安装包（可选）
@@ -74,11 +74,11 @@ create-dmg \
   --window-pos 200 120 \
   --window-size 600 400 \
   --icon-size 100 \
-  --icon "digital_clock.app" 175 120 \
-  --hide-extension "digital_clock.app" \
+  --icon "NekoTime.app" 175 120 \
+  --hide-extension "NekoTime.app" \
   --app-drop-link 425 120 \
   "NekoTime-macOS-v2.1.0.dmg" \
-  "build/macos/Build/Products/Release/digital_clock.app"
+  "build/macos/Build/Products/Release/NekoTime.app"
 ```
 
 ### 签名和公证（发布用）
@@ -87,7 +87,7 @@ create-dmg \
 # 代码签名
 codesign --deep --force --verify --verbose \
   --sign "Developer ID Application: Your Name" \
-  build/macos/Build/Products/Release/digital_clock.app
+  build/macos/Build/Products/Release/NekoTime.app
 
 # 公证（需要 Apple 开发者账号）
 xcrun notarytool submit NekoTime-macOS-v2.1.0.dmg \
@@ -118,7 +118,7 @@ REM 2. 构建 Release 版本
 flutter build windows --release
 
 REM 3. 可执行文件位置
-REM build\windows\x64\runner\Release\digital_clock.exe
+REM build\windows\x64\runner\Release\NekoTime.exe
 ```
 
 ### 创建安装程序
@@ -144,11 +144,11 @@ SolidCompression=yes
 Source: "build\windows\x64\runner\Release\*"; DestDir: "{app}"; Flags: recursesubdirs
 
 [Icons]
-Name: "{group}\NekoTime"; Filename: "{app}\digital_clock.exe"
-Name: "{commondesktop}\NekoTime"; Filename: "{app}\digital_clock.exe"
+Name: "{group}\NekoTime"; Filename: "{app}\NekoTime.exe"
+Name: "{commondesktop}\NekoTime"; Filename: "{app}\NekoTime.exe"
 
 [Run]
-Filename: "{app}\digital_clock.exe"; Description: "启动 NekoTime"; Flags: postinstall nowait skipifsilent
+Filename: "{app}\NekoTime.exe"; Description: "启动 NekoTime"; Flags: postinstall nowait skipifsilent
 ```
 
 3. 编译：
@@ -175,7 +175,7 @@ makensis installer.nsi
 REM 需要代码签名证书
 signtool sign /f YourCertificate.pfx /p YourPassword ^
   /t http://timestamp.digicert.com ^
-  build\windows\x64\runner\Release\digital_clock.exe
+  build\windows\x64\runner\Release\NekoTime.exe
 ```
 
 ## 🐧 Linux 构建
@@ -208,7 +208,7 @@ flutter pub get
 flutter build linux --release
 
 # 3. 可执行文件位置
-# build/linux/x64/release/bundle/digital_clock
+# build/linux/x64/release/bundle/neko_time
 ```
 
 ### 创建 AppImage
@@ -236,7 +236,7 @@ cp assets/icons/app_icon_source.png NekoTime.AppDir/usr/share/icons/hicolor/256x
 cat > NekoTime.AppDir/usr/share/applications/nekotime.desktop << EOF
 [Desktop Entry]
 Name=NekoTime
-Exec=digital_clock
+Exec=neko_time
 Icon=nekotime
 Type=Application
 Categories=Utility;
@@ -249,7 +249,7 @@ SELF=$(readlink -f "$0")
 HERE=${SELF%/*}
 export PATH="${HERE}/usr/bin:${PATH}"
 export LD_LIBRARY_PATH="${HERE}/usr/lib:${LD_LIBRARY_PATH}"
-exec "${HERE}/usr/bin/digital_clock" "$@"
+exec "${HERE}/usr/bin/neko_time" "$@"
 EOF
 
 chmod +x NekoTime.AppDir/AppRun
@@ -286,7 +286,7 @@ EOF
 cat > nekotime_2.1.0-1_amd64/usr/share/applications/nekotime.desktop << EOF
 [Desktop Entry]
 Name=NekoTime
-Exec=/usr/bin/digital_clock
+Exec=/usr/bin/neko_time
 Icon=nekotime
 Type=Application
 Categories=Utility;
@@ -406,7 +406,7 @@ flutter build macos --release
 security find-identity -v -p codesigning
 
 # 移除旧签名
-codesign --remove-signature build/macos/Build/Products/Release/digital_clock.app
+codesign --remove-signature build/macos/Build/Products/Release/NekoTime.app
 ```
 
 ### Windows
@@ -441,7 +441,7 @@ pkg-config --modversion gtk+-3.0
 **问题：缺少共享库**
 ```bash
 # 检查依赖
-ldd build/linux/x64/release/bundle/digital_clock
+ldd build/linux/x64/release/bundle/neko_time
 
 # 安装缺失的库
 sudo apt-get install <missing-library>

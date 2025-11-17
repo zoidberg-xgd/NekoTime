@@ -15,16 +15,16 @@ class LogService {
 
   Future<void> init() async {
     if (_initialized) return;
-    
+
     try {
       final supportDir = await getApplicationSupportDirectory();
       final logsDir = Directory(p.join(supportDir.path, 'logs'));
       if (!await logsDir.exists()) {
         await logsDir.create(recursive: true);
       }
-      
+
       _logFile = File(p.join(logsDir.path, 'app.log'));
-      
+
       // 检查日志文件大小，如果太大则轮转
       if (await _logFile!.exists()) {
         final size = await _logFile!.length();
@@ -32,7 +32,7 @@ class LogService {
           await _rotateLogFile();
         }
       }
-      
+
       _initialized = true;
       await info('LogService initialized. Log file: ${_logFile!.path}');
     } catch (e) {
@@ -60,7 +60,7 @@ class LogService {
 
       // 将当前日志文件重命名为 .1
       await _logFile!.rename('${_logFile!.path}.1');
-      
+
       // 创建新的日志文件
       _logFile = File(_logFile!.path);
     } catch (e) {
@@ -68,7 +68,8 @@ class LogService {
     }
   }
 
-  Future<void> _write(String level, String message, {Object? error, StackTrace? stackTrace}) async {
+  Future<void> _write(String level, String message,
+      {Object? error, StackTrace? stackTrace}) async {
     if (!_initialized || _logFile == null) {
       debugPrint('[$level] $message');
       return;
@@ -78,15 +79,15 @@ class LogService {
       final timestamp = DateTime.now().toIso8601String();
       final logEntry = StringBuffer();
       logEntry.writeln('[$timestamp] [$level] $message');
-      
+
       if (error != null) {
         logEntry.writeln('Error: $error');
       }
-      
+
       if (stackTrace != null) {
         logEntry.writeln('StackTrace:\n$stackTrace');
       }
-      
+
       logEntry.writeln('---');
 
       await _logFile!.writeAsString(
@@ -115,7 +116,8 @@ class LogService {
     await _write('WARNING', message, error: error);
   }
 
-  Future<void> error(String message, {Object? error, StackTrace? stackTrace}) async {
+  Future<void> error(String message,
+      {Object? error, StackTrace? stackTrace}) async {
     await _write('ERROR', message, error: error, stackTrace: stackTrace);
   }
 
@@ -135,11 +137,11 @@ class LogService {
       }
 
       final lines = await _logFile!.readAsLines();
-      
+
       if (maxLines != null && lines.length > maxLines) {
         return lines.sublist(lines.length - maxLines).join('\n');
       }
-      
+
       return lines.join('\n');
     } catch (e) {
       return 'Failed to read logs: $e';

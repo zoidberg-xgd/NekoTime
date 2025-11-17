@@ -36,37 +36,54 @@ build_macos() {
         return 1
     fi
     
+    # 更新应用图标
+    echo -e "${YELLOW}更新应用图标...${NC}"
+    SOURCE_ICON="assets/icons/source.png"
+    ICON_SET="macos/Runner/Assets.xcassets/AppIcon.appiconset"
+    
+    if [ -f "$SOURCE_ICON" ]; then
+        sips -z 16 16     "$SOURCE_ICON" --out "$ICON_SET/app_icon_16.png" > /dev/null 2>&1
+        sips -z 32 32     "$SOURCE_ICON" --out "$ICON_SET/app_icon_32.png" > /dev/null 2>&1
+        sips -z 64 64     "$SOURCE_ICON" --out "$ICON_SET/app_icon_64.png" > /dev/null 2>&1
+        sips -z 128 128   "$SOURCE_ICON" --out "$ICON_SET/app_icon_128.png" > /dev/null 2>&1
+        sips -z 256 256   "$SOURCE_ICON" --out "$ICON_SET/app_icon_256.png" > /dev/null 2>&1
+        sips -z 512 512   "$SOURCE_ICON" --out "$ICON_SET/app_icon_512.png" > /dev/null 2>&1
+        sips -z 1024 1024 "$SOURCE_ICON" --out "$ICON_SET/app_icon_1024.png" > /dev/null 2>&1
+    fi
+    
     flutter build macos --release
     
     # 打包
-    MACOS_APP="build/macos/Build/Products/Release/digital_clock.app"
+    MACOS_APP="build/macos/Build/Products/Release/NekoTime.app"
     DIST_DIR="dist"
     mkdir -p "$DIST_DIR"
     
-    # 创建 DMG（可选，需要 create-dmg 工具）
+    # 创建 ZIP
+    echo -e "${YELLOW}创建 ZIP 压缩包...${NC}"
+    cd build/macos/Build/Products/Release
+    zip -r -q "../../../../../${DIST_DIR}/${APP_NAME}-macOS-v${VERSION}.zip" NekoTime.app
+    cd - > /dev/null
+    
+    # 创建 DMG（如果有 create-dmg）
     if command -v create-dmg &> /dev/null; then
         echo -e "${YELLOW}创建 DMG 安装包...${NC}"
         create-dmg \
             --volname "${APP_NAME}" \
+            --volicon "$SOURCE_ICON" \
             --window-pos 200 120 \
             --window-size 600 400 \
             --icon-size 100 \
-            --icon "${APP_NAME}.app" 175 120 \
-            --hide-extension "${APP_NAME}.app" \
-            --app-drop-link 425 120 \
-            "${DIST_DIR}/${APP_NAME}-macOS-v${VERSION}.dmg" \
-            "$MACOS_APP"
-    else
-        # 创建 ZIP
-        echo -e "${YELLOW}创建 ZIP 压缩包...${NC}"
-        cd build/macos/Build/Products/Release
-        zip -r "../../../../../${DIST_DIR}/${APP_NAME}-macOS-v${VERSION}.zip" digital_clock.app
-        cd -
+            --icon "NekoTime.app" 175 190 \
+            --hide-extension "NekoTime.app" \
+            --app-drop-link 425 190 \
+            --no-internet-enable \
+            "${DIST_DIR}/${APP_NAME}-v${VERSION}.dmg" \
+            "$MACOS_APP" 2>&1 | grep -v "^[[:space:]]*$" || true
     fi
     
     echo -e "${GREEN}✓ macOS 构建完成${NC}"
     echo -e "  路径: ${DIST_DIR}/"
-    ls -lh "$DIST_DIR"/*.{dmg,zip} 2>/dev/null || true
+    ls -lh "$DIST_DIR"/${APP_NAME}* 2>/dev/null || true
     echo ""
 }
 

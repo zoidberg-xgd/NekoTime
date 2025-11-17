@@ -1,5 +1,5 @@
 import 'dart:io';
-import 'package:digital_clock/core/services/log_service.dart';
+import 'package:neko_time/core/services/log_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 

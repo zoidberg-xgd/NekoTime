@@ -1,11 +1,11 @@
 import 'dart:io';
 
-import 'package:digital_clock/core/models/clock_config.dart';
-import 'package:digital_clock/core/services/config_service.dart';
-import 'package:digital_clock/core/services/theme_service.dart';
-import 'package:digital_clock/core/services/log_service.dart';
-import 'package:digital_clock/ui/screens/clock_screen.dart';
-import 'package:digital_clock/utils/tray_controller.dart';
+import 'package:neko_time/core/models/clock_config.dart';
+import 'package:neko_time/core/services/config_service.dart';
+import 'package:neko_time/core/services/theme_service.dart';
+import 'package:neko_time/core/services/log_service.dart';
+import 'package:neko_time/ui/screens/clock_screen.dart';
+import 'package:neko_time/utils/tray_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_acrylic/flutter_acrylic.dart' as flutter_acrylic;
 import 'package:provider/provider.dart';
@@ -33,9 +33,11 @@ void main() async {
     if (Platform.isMacOS || Platform.isWindows) {
       try {
         await flutter_acrylic.Window.initialize();
-        await logService.info('flutter_acrylic initialized for ${Platform.operatingSystem}');
+        await logService.info(
+            'flutter_acrylic initialized for ${Platform.operatingSystem}');
       } catch (e, stackTrace) {
-        await logService.error('Failed to initialize flutter_acrylic', error: e, stackTrace: stackTrace);
+        await logService.error('Failed to initialize flutter_acrylic',
+            error: e, stackTrace: stackTrace);
       }
     }
   }
@@ -44,24 +46,26 @@ void main() async {
     await configService.init();
     await logService.info('ConfigService initialized');
   } catch (e, stackTrace) {
-    await logService.error('Failed to initialize ConfigService', error: e, stackTrace: stackTrace);
+    await logService.error('Failed to initialize ConfigService',
+        error: e, stackTrace: stackTrace);
   }
 
   try {
     await themeService.init();
-    await logService.info('ThemeService initialized. Themes loaded: ${themeService.themes.length}');
+    await logService.info(
+        'ThemeService initialized. Themes loaded: ${themeService.themes.length}');
   } catch (e, stackTrace) {
-    await logService.error('Failed to initialize ThemeService', error: e, stackTrace: stackTrace);
+    await logService.error('Failed to initialize ThemeService',
+        error: e, stackTrace: stackTrace);
   }
 
   if (isDesktop) {
-    
     final Size initialSize =
         calculateWindowSizeFromConfig(configService.config);
 
     // 根据配置决定是否置顶
     bool shouldAlwaysOnTop = configService.config.layer == ClockLayer.top;
-    
+
     WindowOptions windowOptions = WindowOptions(
       size: initialSize,
       minimumSize: const Size(200, 80),
@@ -95,17 +99,18 @@ void main() async {
         // 某些 Linux 桌面环境可能需要额外配置
         await logService.info('Linux: Using basic transparency support');
       }
-      
+
       // 通用窗口设置（所有平台）
       await windowManager.setAsFrameless();
       await windowManager.setResizable(false);
       await windowManager.setHasShadow(true);
-      
+
       // 显示和聚焦窗口
       await windowManager.show();
       await windowManager.focus();
-      
-      await logService.info('Window initialized and shown on ${Platform.operatingSystem}');
+
+      await logService
+          .info('Window initialized and shown on ${Platform.operatingSystem}');
     });
   }
 
@@ -145,7 +150,8 @@ class _MyAppState extends State<MyApp> with TrayController<MyApp> {
           await initTray(widget.configService);
           await LogService().info('System tray initialized');
         } catch (e, stackTrace) {
-          await LogService().error('Failed to init tray', error: e, stackTrace: stackTrace);
+          await LogService()
+              .error('Failed to init tray', error: e, stackTrace: stackTrace);
         }
       });
     }

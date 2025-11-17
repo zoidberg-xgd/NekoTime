@@ -1,13 +1,13 @@
 import 'dart:io';
 import 'dart:ui';
 
-import 'package:digital_clock/core/models/theme_definition.dart';
-import 'package:digital_clock/core/services/config_service.dart';
-import 'package:digital_clock/core/services/log_service.dart';
-import 'package:digital_clock/core/services/theme_service.dart';
-import 'package:digital_clock/ui/widgets/log_viewer_dialog.dart';
+import 'package:neko_time/core/models/theme_definition.dart';
+import 'package:neko_time/core/services/config_service.dart';
+import 'package:neko_time/core/services/log_service.dart';
+import 'package:neko_time/core/services/theme_service.dart';
+import 'package:neko_time/ui/widgets/log_viewer_dialog.dart';
 import 'package:flutter/material.dart';
-import 'package:digital_clock/l10n/app_localizations.dart';
+import 'package:neko_time/l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
 
 class SettingsDialog extends StatelessWidget {
@@ -133,8 +133,8 @@ class SettingsDialog extends StatelessWidget {
                       onPressed: () => Navigator.of(context).pop(),
                       child: Text(l10n.close),
                     ),
-                  ),
-                )
+                  ],
+                ),
               ],
             ),
           ),

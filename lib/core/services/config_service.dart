@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
-import 'package:digital_clock/core/models/clock_config.dart';
-import 'package:digital_clock/core/services/log_service.dart';
+import 'package:neko_time/core/models/clock_config.dart';
+import 'package:neko_time/core/services/log_service.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:window_manager/window_manager.dart';

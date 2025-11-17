@@ -37,7 +37,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE instance, _In_opt_ HINSTANCE prev,
                 LR_DEFAULTCOLOR));
   // --- End of Custom Configuration ---
 
-  if (!window.Create(L"digital_clock", origin, size)) {
+  if (!window.Create(L"NekoTime", origin, size)) {
     return EXIT_FAILURE;
   }
 

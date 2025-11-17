@@ -38,7 +38,7 @@ await flutter_acrylic.Window.setEffect(
 ### 构建
 ```bash
 flutter build macos --release
-# 产物：build/macos/Build/Products/Release/digital_clock.app
+# 产物：build/macos/Build/Products/Release/NekoTime.app
 ```
 
 ### 已知问题
@@ -265,7 +265,7 @@ flutter run -d macos
 flutter build macos --release
 
 # 输出
-build/macos/Build/Products/Release/digital_clock.app
+build/macos/Build/Products/Release/NekoTime.app
 ```
 
 ### Windows
@@ -277,7 +277,7 @@ REM Release 构建
 flutter build windows --release
 
 REM 输出
-build\windows\x64\runner\Release\digital_clock.exe
+build\windows\x64\runner\Release\NekoTime.exe
 ```
 
 ### Linux
@@ -289,7 +289,7 @@ flutter run -d linux
 flutter build linux --release
 
 # 输出
-build/linux/x64/release/bundle/digital_clock
+build/linux/x64/release/bundle/neko_time
 ```
 
 ---
@@ -298,9 +298,9 @@ build/linux/x64/release/bundle/digital_clock
 
 | 平台 | 主题目录 |
 |------|----------|
-| macOS | `~/Library/Application Support/digital_clock/themes/` |
-| Windows | `%APPDATA%\digital_clock\themes\` |
-| Linux | `~/.local/share/digital_clock/themes/` |
+| macOS | `~/Library/Application Support/NekoTime/themes/` |
+| Windows | `%APPDATA%\NekoTime\themes\` |
+| Linux | `~/.local/share/NekoTime/themes/` |
 
 ---
 

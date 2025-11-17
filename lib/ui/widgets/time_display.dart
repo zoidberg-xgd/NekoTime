@@ -1,5 +1,4 @@
-import 'package:digital_clock/ui/widgets/digit_gif_v2.dart';
-import 'package:digital_clock/core/services/log_service.dart';
+import 'package:neko_time/ui/widgets/digit_gif_v2.dart';
 import 'package:flutter/material.dart';
 
 class TimeDisplay extends StatelessWidget {
@@ -27,7 +26,10 @@ class TimeDisplay extends StatelessWidget {
     final children = <Widget>[];
     for (int i = 0; i < digits.length; i++) {
       // 只在非第一个元素且非冒号后添加间距
-      if (i > 0 && digitSpacing > 0 && digits[i-1] != ':' && digits[i] != ':') {
+      if (i > 0 &&
+          digitSpacing > 0 &&
+          digits[i - 1] != ':' &&
+          digits[i] != ':') {
         children.add(SizedBox(key: ValueKey('spacer_$i'), width: digitSpacing));
       }
       children.add(
