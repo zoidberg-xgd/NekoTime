@@ -29,9 +29,14 @@ void main() async {
   // 先初始化窗口管理器（必须在最前面）
   if (isDesktop) {
     await windowManager.ensureInitialized();
-    // 初始化透明效果库（支持 macOS 和 Windows）
+    // 初始化透明效果库（仅支持 macOS 和 Windows，Linux 使用原生透明）
     if (Platform.isMacOS || Platform.isWindows) {
-      await flutter_acrylic.Window.initialize();
+      try {
+        await flutter_acrylic.Window.initialize();
+        await logService.info('flutter_acrylic initialized for ${Platform.operatingSystem}');
+      } catch (e, stackTrace) {
+        await logService.error('Failed to initialize flutter_acrylic', error: e, stackTrace: stackTrace);
+      }
     }
   }
 
