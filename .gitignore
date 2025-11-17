@@ -32,3 +32,6 @@ DerivedData/
 # Misc
 pubspec.lock
 .DS_Store
+
+# Build outputs / Distribution
+dist/
