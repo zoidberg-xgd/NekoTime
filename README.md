@@ -35,6 +35,11 @@
   <p><em>透明度实时调节演示</em></p>
 </div>
 
+<div align="center">
+  <img src="docs/screenshots/scale-demo.gif" alt="窗口缩放演示" width="600">
+  <p><em>窗口尺寸自由缩放</em></p>
+</div>
+
 ### ⚡ 性能优化
 - **低资源占用** - 经过性能优化，避免无响应和卡顿
 - **智能缓存** - 主题资源智能加载，减少重复操作
