@@ -17,5 +17,5 @@
   "overlayOpacityMultiplier": 0.2,
   "fontFamily": "ExampleModFont",
   "fonts": [ "assets/ExampleModFont.ttf" ],
-  "digit": { "spacing": 0, "gifPath": "gif", "format": "gif" }
+  "digit": { "spacing": 0, "gifPath": "digits", "format": "gif" }
 }

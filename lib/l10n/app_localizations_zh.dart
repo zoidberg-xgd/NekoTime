@@ -38,6 +38,9 @@ class AppLocalizationsZh extends AppLocalizations {
   String get unlockPosition => '解锁位置';
 
   @override
+  String get hideShow => '隐藏/显示';
+
+  @override
   String get layer => '显示层级';
 
   @override

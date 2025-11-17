@@ -36,8 +36,9 @@ flutter:
   generate: true # For i18n
   uses-material-design: true
   assets:
-    - assets/gif/
     - assets/icons/
+    - themes/builtin/frosted_glass/
+    - themes/builtin/frosted_glass/digits/
 
 flutter_launcher_icons:
   # 使用同一张源图片为多平台生成图标

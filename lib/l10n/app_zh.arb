@@ -16,6 +16,7 @@
   "hideSeconds": "隐藏秒",
   "lockPosition": "锁定位置",
   "unlockPosition": "解锁位置",
+  "hideShow": "隐藏/显示",
   "layer": "显示层级",
   "layerDesktop": "桌面层",
   "layerNormal": "标准层",

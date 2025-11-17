@@ -38,6 +38,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get unlockPosition => 'Unlock Position';
 
   @override
+  String get hideShow => 'Hide/Show';
+
+  @override
   String get layer => 'Layer';
 
   @override

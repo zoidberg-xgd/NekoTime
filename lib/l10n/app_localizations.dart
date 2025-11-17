@@ -152,6 +152,12 @@ abstract class AppLocalizations {
   /// **'Unlock Position'**
   String get unlockPosition;
 
+  /// No description provided for @hideShow.
+  ///
+  /// In en, this message translates to:
+  /// **'Hide/Show'**
+  String get hideShow;
+
   /// No description provided for @layer.
   ///
   /// In en, this message translates to:

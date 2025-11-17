@@ -13,53 +13,111 @@ class ThemeService extends ChangeNotifier {
   Directory? _themesDirectory;
   final Set<String> _fontLoadedForTheme = {};
 
-  static List<ThemeDefinition> get _builtinThemes => const [
-        ThemeDefinition(
-          id: ThemeDefinition.defaultThemeId,
-          name: 'Frosted Glass',
-          kind: ThemeKind.blur,
-          borderRadius: 12,
-          paddingHorizontal: 4,  // 进一步减小
-          paddingVertical: 2,    // 进一步减小
-          blurSigmaX: 16,
-          blurSigmaY: 16,
-          tintColor: Color(0xFF9E9E9E),
-          tintOpacityMultiplier: 0.08, // 减少背景不透明度，让背景更透明
-          digitGifPath: 'assets/gif', // 使用应用内置的数字图片资源
-          digitImageFormat: 'gif', // 默认使用 GIF 格式
-          digitSpacing: 0.0, // 数字间距设为0，更紧凑
-        ),
-      ];
-
   Future<void> init() async {
     _themes.clear();
-    for (final theme in _builtinThemes) {
-      _themes[theme.id] = theme;
-    }
+    
+    // 首先添加内置主题（硬编码，确保始终可用）
+    _themes[ThemeDefinition.defaultThemeId] = _createBuiltinTheme();
+    LogService().info('Loaded builtin theme: Frosted Glass');
+    
+    // 然后从应用支持目录加载用户主题
     final dir = await _ensureThemesDirectory();
+    
+    // 首次启动时，复制示例主题到应用支持目录
+    await _installExampleThemesIfNeeded(dir);
+    
     await _loadCustomThemes(dir);
+    
+    LogService().info('Total themes loaded: ${_themes.length}');
     notifyListeners();
+  }
+  
+  Future<void> _installExampleThemesIfNeeded(Directory themesDir) async {
+    // 检查是否已安装示例主题（通过检查标记文件）
+    final markerFile = File(p.join(themesDir.path, '.examples_installed'));
+    if (await markerFile.exists()) {
+      LogService().debug('Example themes already installed');
+      return;
+    }
+    
+    LogService().info('Installing example themes...');
+    // 示例主题将由用户手动复制，或在未来版本中打包
+    // 创建标记文件
+    await markerFile.writeAsString('v1');
+    LogService().info('Example themes installation marker created');
   }
 
   Future<void> reload() async {
+    _themes.clear();
+    
+    // 重新加载内置主题
+    _themes[ThemeDefinition.defaultThemeId] = _createBuiltinTheme();
+    LogService().info('Reloaded builtin theme: Frosted Glass');
+    
+    // 加载用户主题
     final dir = await _ensureThemesDirectory();
-    _themes
-      ..clear()
-      ..addEntries(_builtinThemes.map((t) => MapEntry(t.id, t)));
     await _loadCustomThemes(dir);
+    
+    LogService().info('Total themes after reload: ${_themes.length}');
     notifyListeners();
   }
 
   List<ThemeDefinition> get themes {
     final list = _themes.values.toList();
-    list.sort((a, b) => a.name.compareTo(b.name));
+    // 排序：内置主题优先，然后按名称排序
+    list.sort((a, b) {
+      // 内置主题始终排在最前
+      if (a.id == ThemeDefinition.defaultThemeId) return -1;
+      if (b.id == ThemeDefinition.defaultThemeId) return 1;
+      // 其他主题按名称排序
+      return a.name.compareTo(b.name);
+    });
     return list;
   }
 
   ThemeDefinition resolve(String themeId) {
+    if (_themes.isEmpty) {
+      LogService().error('No themes loaded! Creating fallback theme.');
+      return _createFallbackTheme();
+    }
     return _themes[themeId] ??
         _themes[ThemeDefinition.defaultThemeId] ??
-        _builtinThemes.first;
+        _themes.values.first;
+  }
+  
+  ThemeDefinition _createBuiltinTheme() {
+    return const ThemeDefinition(
+      id: ThemeDefinition.defaultThemeId,
+      name: 'Frosted Glass',
+      kind: ThemeKind.blur,
+      borderRadius: 16,
+      paddingHorizontal: 12,
+      paddingVertical: 8,
+      blurSigmaX: 16,
+      blurSigmaY: 16,
+      tintColor: Color(0xFF9E9E9E),
+      backgroundOpacityMultiplier: 0.3,
+      tintOpacityMultiplier: 0.15,
+      digitGifPath: 'themes/builtin/frosted_glass/digits',
+      digitImageFormat: 'gif',
+      digitSpacing: 2,
+    );
+  }
+  
+  ThemeDefinition _createFallbackTheme() {
+    return const ThemeDefinition(
+      id: 'fallback',
+      name: 'Fallback',
+      kind: ThemeKind.transparent,
+      borderRadius: 12,
+      paddingHorizontal: 4,
+      paddingVertical: 2,
+      blurSigmaX: 0,
+      blurSigmaY: 0,
+      backgroundOpacityMultiplier: 0.0,
+      tintOpacityMultiplier: 0.0,
+      digitSpacing: 0,
+    );
   }
 
   String? get themesDirectoryPath => _themesDirectory?.path;

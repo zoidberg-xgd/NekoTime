@@ -4,6 +4,7 @@ import 'package:digital_clock/core/models/clock_config.dart';
 import 'package:digital_clock/core/models/theme_definition.dart';
 import 'package:digital_clock/core/services/config_service.dart';
 import 'package:digital_clock/core/services/theme_service.dart';
+import 'package:digital_clock/core/services/log_service.dart';
 import 'package:flutter/material.dart';
 
 import 'package:provider/provider.dart';
@@ -102,24 +103,24 @@ mixin TrayController<T extends StatefulWidget> on State<T> {
           ),
       ]),
       MenuItemLabel(
-        label: config.showSeconds ? l10n.hideSeconds : l10n.showSeconds,
-        onClicked: (_) => configService.toggleShowSeconds(),
-      ),
-      MenuItemLabel(
         label: config.lockPosition ? l10n.unlockPosition : l10n.lockPosition,
         onClicked: (_) => configService.toggleLockPosition(),
       ),
       MenuItemLabel(
-        label: '隐藏/显示',
+        label: l10n.hideShow,
         onClicked: (_) async {
-          final isVisible = await windowManager.isVisible();
-          if (isVisible) {
-            await windowManager.hide();
-            // 确保托盘图标在窗口隐藏后仍然可见
-            await _tray.setTitle('🕐');
+          // 使用透明度控制而不是hide/show，避免托盘消失
+          final currentOpacity = await windowManager.getOpacity();
+          if (currentOpacity > 0.01) {
+            // 当前可见，隐藏它
+            await windowManager.setOpacity(0.0);
+            LogService().info('Window hidden via tray menu (opacity=0)');
           } else {
+            // 当前隐藏，显示它
+            await windowManager.setOpacity(1.0);
             await windowManager.show();
             await windowManager.focus();
+            LogService().info('Window shown via tray menu (opacity=1)');
           }
         },
       ),

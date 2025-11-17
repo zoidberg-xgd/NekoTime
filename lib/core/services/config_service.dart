@@ -55,11 +55,6 @@ class ConfigService extends ChangeNotifier {
   }
 
   // Methods to update specific config values
-  void toggleShowSeconds() {
-    final newConfig = _config.copyWith(showSeconds: !_config.showSeconds);
-    saveConfig(newConfig);
-  }
-
   void setScale(double scale) {
     final newConfig = _config.copyWith(scale: scale);
     saveConfig(newConfig);

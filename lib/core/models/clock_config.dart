@@ -10,8 +10,6 @@ enum ClockLayer {
 }
 
 class ClockConfig {
-  // 是否显示秒
-  bool showSeconds;
   // 缩放比例（基础缩放因子）
   double scale;
   // 透明度（0-1）：整体不透明度/主题强度
@@ -26,7 +24,6 @@ class ClockConfig {
   String locale;
 
   ClockConfig({
-    this.showSeconds = false, // 默认不显示秒
     this.scale = 1.0,
     this.opacity = 0.85,
     String? themeId,
@@ -39,7 +36,6 @@ class ClockConfig {
   factory ClockConfig.fromJson(Map<String, dynamic> json) {
     final legacyThemeIndex = json['themeStyleIndex'] as int?;
     return ClockConfig(
-      showSeconds: json['showSeconds'] ?? false,
       scale: (json['scale'] ?? 1.0) * 1.0,
       opacity: (json['opacity'] ?? 0.85) * 1.0,
       themeId: json['themeId'] as String? ??
@@ -53,7 +49,6 @@ class ClockConfig {
   // 将配置转为 JSON
   Map<String, dynamic> toJson() {
     return {
-      'showSeconds': showSeconds,
       'scale': scale,
       'opacity': opacity,
       'themeId': themeId,
@@ -65,7 +60,6 @@ class ClockConfig {
 
   // 复制配置并修改
   ClockConfig copyWith({
-    bool? showSeconds,
     double? scale,
     double? opacity,
     String? themeId,
@@ -74,7 +68,6 @@ class ClockConfig {
     String? locale,
   }) {
     return ClockConfig(
-      showSeconds: showSeconds ?? this.showSeconds,
       scale: scale ?? this.scale,
       opacity: opacity ?? this.opacity,
       themeId: themeId ?? this.themeId,
@@ -87,19 +80,19 @@ class ClockConfig {
 
 Size calculateWindowSizeFromConfig(ClockConfig config) {
   final double digitHeight = 80 * config.scale;
-  final double digitWidth = digitHeight * 0.58; // 更紧凑的宽度
+  final double digitWidth = digitHeight * 0.58; // 数字宽度
   final double colonWidth = digitHeight * 0.25; // 冒号宽度
+  final double digitSpacing = 2 * config.scale; // 数字间距也随scale缩放
   
-  // 计算实际内容宽度：4个数字 + 1个冒号
-  final double baseW = config.showSeconds 
-      ? (6 * digitWidth + 2 * colonWidth) // HH:MM:SS
-      : (4 * digitWidth + colonWidth);    // HH:MM
+  // 计算实际内容宽度：4个数字 + 1个冒号 (HH:MM) + 数字间距
+  // 间距在数字之间，不包括冒号前后
+  final double baseW = 4 * digitWidth + colonWidth + 2 * digitSpacing; // 2个间距（HH之间和MM之间）
   
   final double baseH = digitHeight;
   
   // padding 也要随着 scale 缩放，保持比例
-  final double padH = 8 * config.scale;  // 左右边距按比例缩放
-  final double padV = 4 * config.scale;  // 上下边距按比例缩放
+  final double padH = 24 * config.scale;  // 左右边距 (12*2)
+  final double padV = 16 * config.scale;  // 上下边距 (8*2)
   
   return Size(baseW + padH, baseH + padV);
 }

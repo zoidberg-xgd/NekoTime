@@ -103,17 +103,6 @@ class SettingsDialog extends StatelessWidget {
                     Text('${(config.scale * 100).round()}%'),
                   ],
                 ),
-                const SizedBox(height: 8),
-                Row(
-                  children: [
-                    Text(l10n.showSeconds),
-                    const SizedBox(width: 8),
-                    Switch(
-                      value: config.showSeconds,
-                      onChanged: (_) => configService.toggleShowSeconds(),
-                    ),
-                  ],
-                ),
                 const SizedBox(height: 16),
                 Row(
                   children: [

@@ -1,0 +1,28 @@
+{
+  "id": "builtin_frosted_glass",
+  "name": "Frosted Glass",
+  "version": "1.0.0",
+  "apiVersion": 1,
+  "kind": "blur",
+  "borderRadius": 16,
+  "padding": {
+    "horizontal": 12,
+    "vertical": 8
+  },
+  "layout": {
+    "alignment": "center"
+  },
+  "backgroundColor": "#9E9E9E",
+  "backgroundOpacityMultiplier": 0.3,
+  "tintColor": "#9E9E9E",
+  "tintOpacityMultiplier": 0.15,
+  "blur": {
+    "sigmaX": 16,
+    "sigmaY": 16
+  },
+  "digit": {
+    "spacing": 2,
+    "gifPath": "digits",
+    "format": "gif"
+  }
+}

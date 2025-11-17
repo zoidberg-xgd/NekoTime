@@ -211,8 +211,7 @@ class _ClockScreenState extends State<ClockScreen> with WindowListener {
           stream: _timeService.timeStream,
           builder: (context, snapshot) {
             if (!snapshot.hasData) return const SizedBox.shrink();
-            final digits = _timeService.formatTime(snapshot.data!,
-                showSeconds: configService.config.showSeconds);
+            final digits = _timeService.formatTime(snapshot.data!);
             // ALWAYS use the config from the builder
             final safeScale = configService.config.scale.clamp(0.5, 3.0);
             return TimeDisplay(
@@ -227,6 +226,11 @@ class _ClockScreenState extends State<ClockScreen> with WindowListener {
           },
         );
 
+        // 设置窗口透明度（真正的系统级透明度，可以看到底下的应用）
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          windowManager.setOpacity(configService.config.opacity.clamp(0.1, 1.0));
+        });
+
         return Scaffold(
           backgroundColor: Colors.transparent,
           body: Container(
@@ -239,10 +243,10 @@ class _ClockScreenState extends State<ClockScreen> with WindowListener {
                 }
               },
               onDoubleTap: () async {
-                // 双击隐藏窗口
-                await windowManager.hide();
-                LogService().info('Window hidden by double-tap');
-                // 注意：托盘图标应该始终可见，用户可以通过托盘菜单重新显示窗口
+                // 双击设置窗口透明度为0（隐藏但不销毁，保持托盘可见）
+                await windowManager.setOpacity(0.0);
+                LogService().info('Window hidden (opacity=0) by double-tap');
+                // 用户可以通过托盘菜单恢复显示
               },
               child: _buildThemeWrapper(
                 context,

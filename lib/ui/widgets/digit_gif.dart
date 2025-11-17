@@ -34,11 +34,16 @@ class _DigitGifState extends State<DigitGif> with AutomaticKeepAliveClientMixin 
     super.build(context); // 必须调用，以支持 AutomaticKeepAliveClientMixin
     
     final double height = 80 * widget.scale;
+    final double digitWidth = height * 0.58;
+    final double colonWidth = height * 0.25;
+
+    LogService().debug('🔨 Building digit: "${widget.digit}", height: ${height.toStringAsFixed(1)}, width: ${widget.digit == ":" ? colonWidth.toStringAsFixed(1) : digitWidth.toStringAsFixed(1)}');
 
     if (widget.digit == ':') {
       // 冒号用文本实现
+      LogService().debug('  ➡️ Rendering colon with text, width: ${colonWidth.toStringAsFixed(1)}');
       return SizedBox(
-        width: height * 0.25, // 冒号更窄
+        width: colonWidth, // 冒号更窄
         height: height,
         child: Center(
           child: Text(
@@ -63,73 +68,116 @@ class _DigitGifState extends State<DigitGif> with AutomaticKeepAliveClientMixin 
     }
 
     // 构建数字图片 widget
-    Widget digitImage;
     // 如果没有指定路径，默认使用应用内置的 assets/gif
     final imagePath = widget.gifBasePath ?? 'assets/gif';
     final format = widget.imageFormat ?? 'gif';
     
-    LogService().debug('Loading digit image: digit=${widget.digit}, path=$imagePath, format=$format, assetsBase=${widget.assetsBasePath}');
+    LogService().debug('🔍 Loading digit image: digit="${widget.digit}", path=$imagePath, format=$format, assetsBase=${widget.assetsBasePath}');
     
-    // 判断是内置资源还是外部文件
-    if (imagePath.startsWith('assets/')) {
-      // 内置资源，使用 Image.asset
+    // 先尝试构建文本后备widget，如果GIF加载失败就用它
+    Widget textFallback = Container(
+      width: digitWidth,
+      height: height,
+      color: Colors.transparent,
+      alignment: Alignment.center,
+      child: Text(
+        widget.digit,
+        style: TextStyle(
+          fontSize: height * 0.6,
+          color: Colors.white,
+          fontWeight: FontWeight.bold,
+          fontFamily: widget.fontFamily,
+          shadows: const [
+            Shadow(
+              blurRadius: 6.0,
+              color: Colors.black45,
+              offset: Offset(1.0, 1.0),
+            ),
+          ],
+        ),
+      ),
+    );
+    
+    Widget digitImage;
+    
+    // 核心判断逻辑：
+    // 1. 如果path是"assets/"开头，ALWAYS使用内置资源，忽略assetsBasePath
+    // 2. 否则才使用外部文件路径
+    final bool isBuiltinAsset = imagePath.startsWith('assets/');
+    
+    LogService().debug('  🎯 Resource type: ${isBuiltinAsset ? "BUILTIN ASSET" : "EXTERNAL FILE"}');
+    
+    if (isBuiltinAsset) {
+      // 内置资源，使用 Image.asset，包装在Container中避免默认错误显示
       final String assetPath = _findAssetPath(imagePath, widget.digit, format);
-      LogService().debug('Using asset path: $assetPath');
-      digitImage = Image.asset(
-        assetPath,
-        fit: BoxFit.contain,
-        filterQuality: FilterQuality.none,
-        gaplessPlayback: true,
-        cacheWidth: null,
-        cacheHeight: null,
-        errorBuilder: (context, error, stack) {
-          LogService().error('DigitImage asset load failed', error: 'digit: ${widget.digit}, path: $assetPath, error: $error');
-          // 直接返回文本作为后备，不要再尝试加载图片
-          return _buildErrorWidget(height);
-        },
+      LogService().debug('  📦 Loading asset: $assetPath');
+      
+      digitImage = Container(
+        width: digitWidth,
+        height: height,
+        color: Colors.transparent,
+        child: Image.asset(
+          assetPath,
+          width: digitWidth,
+          height: height,
+          fit: BoxFit.fill,
+          filterQuality: FilterQuality.none,
+          gaplessPlayback: true,
+          excludeFromSemantics: true,
+          errorBuilder: (context, error, stack) {
+            LogService().error('❌ Asset load FAILED: digit=${widget.digit}, path=$assetPath, error=$error');
+            // 直接返回一个新的Container with Text，不复用textFallback
+            return SizedBox(
+              width: digitWidth,
+              height: height,
+              child: Center(
+                child: Text(
+                  widget.digit,
+                  style: TextStyle(
+                    fontSize: height * 0.6,
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                    fontFamily: widget.fontFamily,
+                  ),
+                ),
+              ),
+            );
+          },
+        ),
       );
-    } else if (widget.assetsBasePath != null) {
+      LogService().debug('  ✅ Created asset container for digit: ${widget.digit}');
+    } else {
       // 外部主题资源，使用 FileImage
-      final File? file = _findExternalFile(widget.assetsBasePath!, imagePath, widget.digit, format);
-      if (file != null && file.existsSync()) {
-        LogService().debug('Using external file: ${file.path}');
-        digitImage = Image.file(
+      if (widget.assetsBasePath == null) {
+        LogService().warning('  ⚠️ No assetsBasePath for external resource, using text fallback');
+        digitImage = textFallback;
+      } else {
+        final File? file = _findExternalFile(widget.assetsBasePath!, imagePath, widget.digit, format);
+        if (file != null && file.existsSync()) {
+          LogService().debug('  📁 Using external file: ${file.path}');
+          digitImage = Image.file(
           file,
-          fit: BoxFit.contain,
+          width: digitWidth,
+          height: height,
+          fit: BoxFit.fill,
           filterQuality: FilterQuality.none,
           gaplessPlayback: true,
           errorBuilder: (context, error, stack) {
-            LogService().error('DigitImage file load failed', error: 'digit: ${widget.digit}, path: ${file.path}, error: $error');
-            return _buildErrorWidget(height);
+            LogService().error('❌ DigitImage file errorBuilder triggered!', error: 'digit: ${widget.digit}, path: ${file.path}, error: $error');
+            return textFallback;
           },
         );
-      } else {
-        LogService().warning('DigitImage file not found for digit: ${widget.digit} in ${widget.assetsBasePath}/$imagePath');
-        digitImage = _buildErrorWidget(height);
+        } else {
+          LogService().warning('  ⚠️ File not found for digit: ${widget.digit} in ${widget.assetsBasePath}/$imagePath');
+          digitImage = textFallback;
+        }
       }
-    } else {
-      // 没有提供路径，使用默认内置资源
-      final String assetPath = _findAssetPath('assets/gif', widget.digit, format);
-      LogService().debug('Using default asset path: $assetPath');
-      digitImage = Image.asset(
-        assetPath,
-        fit: BoxFit.contain,
-        filterQuality: FilterQuality.none,
-        gaplessPlayback: true,
-        errorBuilder: (context, error, stack) {
-          LogService().error('DigitImage default asset load failed', error: 'digit: ${widget.digit}, error: $error');
-          return _buildErrorWidget(height);
-        },
-      );
     }
 
-    return SizedBox(
-      width: height * 0.58, // 更紧凑，但仍保持人物显示
-      height: height,
-      child: Center(
-        child: digitImage,
-      ),
-    );
+    LogService().debug('  ✅ Returning final widget: width=${digitWidth.toStringAsFixed(1)}, height=${height.toStringAsFixed(1)}');
+    
+    // 直接返回digitImage，它已经有正确的尺寸
+    return digitImage;
   }
 
   // 支持的图片格式列表，按优先级排序

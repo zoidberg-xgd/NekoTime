@@ -4,7 +4,7 @@ enum ThemeKind { transparent, blur, solid }
 enum LayoutAlignment { left, center, right }
 
 class ThemeDefinition {
-  static const defaultThemeId = 'frosted_glass';
+  static const defaultThemeId = 'builtin_frosted_glass';
 
   final String id;
   final String name;
