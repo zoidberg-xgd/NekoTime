@@ -7,6 +7,8 @@ NekoTime 的所有重要变更都将记录在此文件中。
 
 ## [未发布]
 
+## [2.2.2] - 2025-11-18
+
 ### 修复
 - **隐藏/显示**：修复显示窗口后透明度丢失问题
   - 显示窗口时恢复用户配置的透明度，而不是固定为 1.0
@@ -194,7 +196,8 @@ themes/
 
 **项目仓库**：https://github.com/zoidberg-xgd/NekoTime
 
-[未发布]: https://github.com/zoidberg-xgd/NekoTime/compare/v2.2.1...HEAD
+[未发布]: https://github.com/zoidberg-xgd/NekoTime/compare/v2.2.2...HEAD
+[2.2.2]: https://github.com/zoidberg-xgd/NekoTime/compare/v2.2.1...v2.2.2
 [2.2.1]: https://github.com/zoidberg-xgd/NekoTime/compare/v2.2.0...v2.2.1
 [2.2.0]: https://github.com/zoidberg-xgd/NekoTime/compare/v2.1.0...v2.2.0
 [2.1.0]: https://github.com/zoidberg-xgd/NekoTime/compare/v2.0.0...v2.1.0
