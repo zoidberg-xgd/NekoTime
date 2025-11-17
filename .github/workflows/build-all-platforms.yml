@@ -35,8 +35,7 @@ jobs:
       
       - name: Enable macOS desktop
         run: |
-          flutter config --enable-macos-desktop
-          flutter create --platforms=macos .
+          flutter config --enable-macos-desktop --no-analytics
       
       - name: Install dependencies
         run: flutter pub get
@@ -103,8 +102,7 @@ jobs:
       
       - name: Enable Windows desktop
         run: |
-          flutter config --enable-windows-desktop
-          flutter create --platforms=windows .
+          flutter config --enable-windows-desktop --no-analytics
       
       - name: Install dependencies
         run: flutter pub get
@@ -207,8 +205,7 @@ jobs:
       
       - name: Enable Linux desktop
         run: |
-          flutter config --enable-linux-desktop
-          flutter create --platforms=linux .
+          flutter config --enable-linux-desktop --no-analytics
       
       - name: Install dependencies
         run: flutter pub get
