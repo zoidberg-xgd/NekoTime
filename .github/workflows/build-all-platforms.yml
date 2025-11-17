@@ -37,6 +37,15 @@ jobs:
         run: |
           flutter config --enable-macos-desktop --no-analytics
       
+      - name: Verify project structure
+        run: |
+          echo "Checking macOS project files..."
+          ls -la macos/
+          echo "Checking .metadata..."
+          cat .metadata
+          echo "Running flutter devices..."
+          flutter devices
+      
       - name: Install dependencies
         run: flutter pub get
       
@@ -44,7 +53,13 @@ jobs:
         run: flutter test
       
       - name: Build macOS app
-        run: flutter build macos --release
+        run: |
+          # Clean any cached build files
+          flutter clean
+          # Regenerate plugin registrations
+          flutter pub get
+          # Build with verbose output
+          flutter build macos --release -v
       
       - name: Create DMG
         run: |
