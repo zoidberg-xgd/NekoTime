@@ -1,0 +1,382 @@
+name: Build All Platforms
+
+on:
+  push:
+    branches:
+      - main
+      - develop
+    tags:
+      - 'v*'
+  pull_request:
+    branches:
+      - main
+      - develop
+  workflow_dispatch:
+
+env:
+  APP_NAME: NekoTime
+  APP_VERSION: 2.1.0
+
+jobs:
+  build-macos:
+    name: Build macOS
+    runs-on: macos-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.16.0'
+          channel: 'stable'
+          cache: true
+      
+      - name: Install dependencies
+        run: flutter pub get
+      
+      - name: Run tests
+        run: flutter test
+      
+      - name: Build macOS app
+        run: flutter build macos --release
+      
+      - name: Create DMG
+        run: |
+          brew install create-dmg
+          mkdir -p dist
+          
+          create-dmg \
+            --volname "${{ env.APP_NAME }}" \
+            --window-pos 200 120 \
+            --window-size 600 400 \
+            --icon-size 100 \
+            --icon "${{ env.APP_NAME }}.app" 175 190 \
+            --hide-extension "${{ env.APP_NAME }}.app" \
+            --app-drop-link 425 190 \
+            --no-internet-enable \
+            "dist/${{ env.APP_NAME }}-macOS-v${{ env.APP_VERSION }}.dmg" \
+            "build/macos/Build/Products/Release/${{ env.APP_NAME }}.app" || true
+      
+      - name: Create ZIP (fallback)
+        if: always()
+        run: |
+          mkdir -p dist
+          cd build/macos/Build/Products/Release
+          zip -r -q "../../../../../dist/${{ env.APP_NAME }}-macOS-v${{ env.APP_VERSION }}.zip" ${{ env.APP_NAME }}.app
+      
+      - name: Calculate checksums
+        run: |
+          cd dist
+          shasum -a 256 *.dmg *.zip > SHA256SUMS-macOS.txt || true
+      
+      - name: Upload macOS artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: macos-build
+          path: |
+            dist/*.dmg
+            dist/*.zip
+            dist/SHA256SUMS-macOS.txt
+          retention-days: 30
+
+  build-windows:
+    name: Build Windows
+    runs-on: windows-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.16.0'
+          channel: 'stable'
+          cache: true
+      
+      - name: Install dependencies
+        run: flutter pub get
+      
+      - name: Run tests
+        run: flutter test
+      
+      - name: Build Windows app
+        run: flutter build windows --release
+      
+      - name: Create portable package
+        shell: powershell
+        run: |
+          $VERSION = "${{ env.APP_VERSION }}"
+          $APP_NAME = "${{ env.APP_NAME }}"
+          $BUILD_DIR = "build\windows\x64\runner\Release"
+          $DIST_DIR = "dist"
+          
+          # Create dist directory
+          New-Item -ItemType Directory -Force -Path $DIST_DIR
+          
+          # Create package directory
+          $PKG_DIR = "$APP_NAME-Windows-v$VERSION"
+          New-Item -ItemType Directory -Force -Path "$DIST_DIR\$PKG_DIR"
+          
+          # Copy files
+          Copy-Item -Path "$BUILD_DIR\*" -Destination "$DIST_DIR\$PKG_DIR" -Recurse
+          
+          # Create README
+          @"
+          $APP_NAME - 猫铃时钟 v$VERSION
+          ==============================
+          
+          Windows 便携版
+          
+          运行方式:
+          1. 双击 $APP_NAME.exe 运行
+          2. 首次运行可能需要安装 Visual C++ 运行库
+          
+          系统要求:
+          - Windows 10 1903 或更高版本
+          - 推荐 Windows 11 以获得最佳体验
+          
+          主题目录:
+          %APPDATA%\$APP_NAME\themes\
+          
+          日志目录:
+          %APPDATA%\$APP_NAME\logs\
+          
+          快捷操作:
+          - 拖动窗口: 按住并拖动
+          - 隐藏窗口: 双击时钟窗口
+          - 显示窗口: 点击系统托盘图标
+          - 打开设置: 托盘菜单 → Settings
+          
+          问题反馈:
+          https://github.com/zoidberg-xgd/NekoTime/issues
+          
+          许可证: MIT License
+          "@ | Out-File -FilePath "$DIST_DIR\$PKG_DIR\README.txt" -Encoding UTF8
+          
+          # Create ZIP
+          Compress-Archive -Path "$DIST_DIR\$PKG_DIR" -DestinationPath "$DIST_DIR\$APP_NAME-Windows-v$VERSION.zip" -Force
+          
+          # Calculate SHA256
+          $hash = Get-FileHash "$DIST_DIR\$APP_NAME-Windows-v$VERSION.zip" -Algorithm SHA256
+          "$($hash.Hash)  $APP_NAME-Windows-v$VERSION.zip" | Out-File -FilePath "$DIST_DIR\SHA256SUMS-Windows.txt" -Encoding ASCII
+      
+      - name: Upload Windows artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: windows-build
+          path: |
+            dist/*.zip
+            dist/SHA256SUMS-Windows.txt
+          retention-days: 30
+
+  build-linux:
+    name: Build Linux
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            clang cmake ninja-build pkg-config \
+            libgtk-3-dev liblzma-dev \
+            libayatana-appindicator3-dev
+      
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.16.0'
+          channel: 'stable'
+          cache: true
+      
+      - name: Install dependencies
+        run: flutter pub get
+      
+      - name: Run tests
+        run: flutter test
+      
+      - name: Build Linux app
+        run: flutter build linux --release
+      
+      - name: Create portable package
+        run: |
+          VERSION="${{ env.APP_VERSION }}"
+          APP_NAME="${{ env.APP_NAME }}"
+          BUILD_DIR="build/linux/x64/release/bundle"
+          DIST_DIR="dist"
+          
+          # Create dist directory
+          mkdir -p "$DIST_DIR"
+          
+          # Create package directory
+          PKG_DIR="$APP_NAME-Linux-x64-v$VERSION"
+          mkdir -p "$DIST_DIR/$PKG_DIR"
+          
+          # Copy files
+          cp -r "$BUILD_DIR"/* "$DIST_DIR/$PKG_DIR/"
+          
+          # Create README
+          cat > "$DIST_DIR/$PKG_DIR/README.txt" << EOF
+          $APP_NAME - 猫铃时钟 v$VERSION
+          ==============================
+          
+          Linux 便携版
+          
+          运行方式:
+          1. 执行 ./neko_time
+          2. 如遇权限问题: chmod +x neko_time
+          
+          系统要求:
+          - Linux 发行版（Ubuntu 20.04+, Fedora 35+, Arch Linux 等）
+          - GTK 3.0+
+          - 窗口合成器（用于透明效果）
+          
+          推荐桌面环境:
+          - GNOME 40+
+          - KDE Plasma 5.20+
+          - Cinnamon 5.0+
+          
+          主题目录:
+          ~/.local/share/$APP_NAME/themes/
+          
+          日志目录:
+          ~/.local/share/$APP_NAME/logs/
+          
+          快捷操作:
+          - 拖动窗口: 按住并拖动
+          - 隐藏窗口: 双击时钟窗口
+          - 显示窗口: 点击系统托盘图标
+          - 打开设置: 托盘菜单 → Settings
+          
+          常见问题:
+          1. 透明效果不工作
+             - 确保桌面环境启用了合成器
+             - GNOME Wayland: 需要 AppIndicator 扩展
+          
+          2. 托盘图标不显示
+             - 安装 libayatana-appindicator3
+             - GNOME: 安装 appindicator 扩展
+          
+          问题反馈:
+          https://github.com/zoidberg-xgd/NekoTime/issues
+          
+          许可证: MIT License
+          EOF
+          
+          # Create tarball
+          cd "$DIST_DIR"
+          tar -czf "$APP_NAME-Linux-x64-v$VERSION.tar.gz" "$PKG_DIR"
+          
+          # Calculate SHA256
+          sha256sum "$APP_NAME-Linux-x64-v$VERSION.tar.gz" > SHA256SUMS-Linux.txt
+      
+      - name: Upload Linux artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: linux-build
+          path: |
+            dist/*.tar.gz
+            dist/SHA256SUMS-Linux.txt
+          retention-days: 30
+
+  create-release:
+    name: Create Release
+    needs: [build-macos, build-windows, build-linux]
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/v')
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      
+      - name: Download all artifacts
+        uses: actions/download-artifact@v3
+        with:
+          path: artifacts
+      
+      - name: Prepare release assets
+        run: |
+          mkdir -p release-assets
+          
+          # Copy all build artifacts
+          find artifacts -type f \( -name "*.dmg" -o -name "*.zip" -o -name "*.tar.gz" \) -exec cp {} release-assets/ \;
+          
+          # Merge SHA256 files
+          cat artifacts/*/SHA256SUMS*.txt > release-assets/SHA256SUMS.txt || true
+          
+          # List files
+          ls -lh release-assets/
+      
+      - name: Create release notes
+        run: |
+          cat > release-assets/RELEASE_NOTES.md << 'EOF'
+          # NekoTime v${{ env.APP_VERSION }} 发布说明
+          
+          ## 📦 下载
+          
+          ### macOS
+          - **DMG 安装包** (推荐): `NekoTime-macOS-v${{ env.APP_VERSION }}.dmg`
+          - **ZIP 便携版**: `NekoTime-macOS-v${{ env.APP_VERSION }}.zip`
+          - 系统要求: macOS 10.14+
+          
+          ### Windows
+          - **ZIP 便携版**: `NekoTime-Windows-v${{ env.APP_VERSION }}.zip`
+          - 系统要求: Windows 10 1903+
+          
+          ### Linux
+          - **TAR.GZ 压缩包**: `NekoTime-Linux-x64-v${{ env.APP_VERSION }}.tar.gz`
+          - 系统要求: Ubuntu 20.04+, Fedora 35+, Arch Linux
+          
+          ## ✨ 主要特性
+          
+          - 🎨 透明毛玻璃效果
+          - 🖱️ 自由拖动和多层级显示
+          - 🎭 可自定义 GIF 主题系统
+          - 📊 系统托盘集成
+          - 🌐 多语言支持 (中文/English)
+          - ⚡ 低资源占用，高性能
+          
+          ## 🔐 安全验证
+          
+          下载后请验证 SHA256 校验和:
+          ```bash
+          sha256sum -c SHA256SUMS.txt
+          ```
+          
+          ## 📚 文档
+          
+          - [安装指南](https://github.com/zoidberg-xgd/NekoTime#-quick-start)
+          - [主题开发](https://github.com/zoidberg-xgd/NekoTime/blob/main/themes/THEME_GUIDE.md)
+          - [构建指南](https://github.com/zoidberg-xgd/NekoTime/blob/main/BUILD_GUIDE.md)
+          
+          ## 🐛 问题反馈
+          
+          https://github.com/zoidberg-xgd/NekoTime/issues
+          
+          ---
+          
+          **完整更新日志**: [CHANGELOG.md](https://github.com/zoidberg-xgd/NekoTime/blob/main/CHANGELOG.md)
+          EOF
+      
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: release-assets/*
+          body_path: release-assets/RELEASE_NOTES.md
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      
+      - name: Upload release info
+        uses: actions/upload-artifact@v3
+        with:
+          name: release-info
+          path: release-assets/RELEASE_NOTES.md
+          retention-days: 90
