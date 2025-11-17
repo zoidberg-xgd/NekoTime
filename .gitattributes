@@ -1,0 +1,20 @@
+# Git attributes for NekoTime
+
+# Mark generated files
+*.g.dart linguist-generated=true
+
+# Text files
+*.md text
+*.dart text
+*.yaml text
+*.json text
+*.sh text eol=lf
+*.bat text eol=crlf
+
+# Binary files
+*.png binary
+*.jpg binary
+*.gif binary
+*.ico binary
+*.ttf binary
+*.otf binary
