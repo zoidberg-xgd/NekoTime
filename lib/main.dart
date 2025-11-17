@@ -1,44 +1,74 @@
 import 'dart:io';
 
+import 'package:digital_clock/core/models/clock_config.dart';
 import 'package:digital_clock/core/services/config_service.dart';
+import 'package:digital_clock/core/services/theme_service.dart';
 import 'package:digital_clock/ui/screens/clock_screen.dart';
 import 'package:digital_clock/utils/tray_controller.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_acrylic/flutter_acrylic.dart' as flutter_acrylic;
 import 'package:provider/provider.dart';
 import 'package:window_manager/window_manager.dart';
+import 'l10n/app_localizations.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 
 void main() async {
-  // 确保 Flutter 绑定已初始化
   WidgetsFlutterBinding.ensureInitialized();
 
-  // 仅在桌面平台上初始化窗口管理器
-  if (Platform.isMacOS || Platform.isWindows || Platform.isLinux) {
-    await windowManager.ensureInitialized();
+  final configService = ConfigService();
+  final themeService = ThemeService();
+  final bool isDesktop =
+      Platform.isMacOS || Platform.isWindows || Platform.isLinux;
 
-    // 设置窗口选项
-    WindowOptions windowOptions = const WindowOptions(
-      // 初始大小，可以根据 GIF 尺寸调整
-      size: Size(600, 180),
+  if (isDesktop) {
+    await windowManager.ensureInitialized();
+    if (Platform.isMacOS) {
+      await flutter_acrylic.Window.initialize();
+    }
+  }
+
+  await configService.init();
+  await themeService.init();
+
+  if (isDesktop) {
+    final Size initialSize =
+        calculateWindowSizeFromConfig(configService.config);
+
+    WindowOptions windowOptions = WindowOptions(
+      size: initialSize,
+      minimumSize: const Size(200, 80),
       center: true,
       backgroundColor: Colors.transparent,
-      skipTaskbar: false,
-      titleBarStyle: TitleBarStyle.normal,
-      windowButtonVisibility: true,
+      skipTaskbar: true,
+      titleBarStyle: TitleBarStyle.hidden,
     );
 
     windowManager.waitUntilReadyToShow(windowOptions, () async {
-      // 这里不再调用 setAsDesktop，初始为普通窗口，
-      // 具体层级由配置服务中的 ClockLayer 决定。
+      if (Platform.isMacOS) {
+        await flutter_acrylic.Window.makeTitlebarTransparent();
+        await flutter_acrylic.Window.enableFullSizeContentView();
+        await flutter_acrylic.Window.setWindowBackgroundColorToClear();
+        await flutter_acrylic.Window.setEffect(
+          effect: flutter_acrylic.WindowEffect.sidebar,
+          color: Colors.transparent,
+        );
+      }
+      await windowManager.setAsFrameless(); // 无边框
+      await windowManager.setResizable(false);
       await windowManager.show();
       await windowManager.focus();
     });
   }
 
-  // 初始化配置服务
-  final configService = ConfigService();
-  await configService.init();
-
-  runApp(MyApp(configService: configService));
+  runApp(
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider.value(value: configService),
+        ChangeNotifierProvider.value(value: themeService),
+      ],
+      child: MyApp(configService: configService),
+    ),
+  );
 }
 
 class MyApp extends StatefulWidget {
@@ -50,32 +80,58 @@ class MyApp extends StatefulWidget {
   State<MyApp> createState() => _MyAppState();
 }
 
-class _MyAppState extends State<MyApp> with TrayController {
+class _MyAppState extends State<MyApp> with TrayController<MyApp> {
+  final GlobalKey<NavigatorState> _navigatorKey = GlobalKey<NavigatorState>();
+
   @override
-  BuildContext get trayContext => context;
+  BuildContext get trayContext => _navigatorKey.currentContext ?? context;
 
   @override
   void initState() {
     super.initState();
-    // 重新启用托盘（包含安全保护与资源解包），三端均可用
+    // 延迟并安全地初始化托盘
     if (Platform.isMacOS || Platform.isWindows || Platform.isLinux) {
-      WidgetsBinding.instance.addPostFrameCallback((_) async {
-        await initTray(widget.configService);
+      Future.delayed(const Duration(seconds: 1), () async {
+        try {
+          await initTray(widget.configService);
+        } catch (e) {
+          debugPrint('Failed to init tray COMPLETELY: $e');
+        }
       });
     }
   }
 
   @override
+  void dispose() {
+    if (Platform.isMacOS || Platform.isWindows || Platform.isLinux) {
+      disposeTray(widget.configService);
+    }
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider.value(
-      value: widget.configService,
-      child: MaterialApp(
-        debugShowCheckedModeBanner: false,
-        theme: ThemeData(
-          primarySwatch: Colors.blue,
-        ),
-        home: const ClockScreen(),
-      ),
+    return Consumer<ConfigService>(
+      builder: (context, configService, child) {
+        return MaterialApp(
+          debugShowCheckedModeBanner: false,
+          navigatorKey: _navigatorKey,
+          color: Colors.transparent,
+          theme: ThemeData(
+            primarySwatch: Colors.blue,
+            scaffoldBackgroundColor: Colors.transparent,
+          ),
+          locale: Locale(configService.config.locale),
+          localizationsDelegates: const [
+            AppLocalizations.delegate,
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
+          supportedLocales: AppLocalizations.supportedLocales,
+          home: const ClockScreen(),
+        );
+      },
     );
   }
 }

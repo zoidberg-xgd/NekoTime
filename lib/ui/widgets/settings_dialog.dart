@@ -1,8 +1,10 @@
 import 'dart:ui';
 
-import 'package:digital_clock/core/models/clock_config.dart';
+import 'package:digital_clock/core/models/theme_definition.dart';
 import 'package:digital_clock/core/services/config_service.dart';
+import 'package:digital_clock/core/services/theme_service.dart';
 import 'package:flutter/material.dart';
+import 'package:digital_clock/l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
 
 class SettingsDialog extends StatelessWidget {
@@ -11,17 +13,20 @@ class SettingsDialog extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final configService = context.watch<ConfigService>();
+    final themeService = context.watch<ThemeService>();
     final config = configService.config;
+    final l10n = AppLocalizations.of(context)!;
+    final themes = themeService.themes;
 
     return Dialog(
-      backgroundColor: Colors.black.withOpacity(0.2),
+      backgroundColor: const Color.fromRGBO(0, 0, 0, 0.2),
       insetPadding: const EdgeInsets.all(16),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(12),
         child: BackdropFilter(
           filter: ImageFilter.blur(sigmaX: 16, sigmaY: 16),
           child: Container(
-            color: Colors.grey.withOpacity(0.15),
+            color: const Color.fromRGBO(158, 158, 158, 0.15),
             padding: const EdgeInsets.all(16),
             child: Column(
               mainAxisSize: MainAxisSize.min,
@@ -29,31 +34,46 @@ class SettingsDialog extends StatelessWidget {
               children: [
                 Row(
                   children: [
-                    const Text('主题', style: TextStyle(fontWeight: FontWeight.bold)),
-                    const SizedBox(width: 12),
-                    ChoiceChip(
-                      label: const Text('透明'),
-                      selected: config.themeStyle == ThemeStyle.transparent,
-                      onSelected: (_) => configService.setThemeStyle(ThemeStyle.transparent),
-                    ),
-                    const SizedBox(width: 8),
-                    ChoiceChip(
-                      label: const Text('磨砂玻璃'),
-                      selected: config.themeStyle == ThemeStyle.frostedGlass,
-                      onSelected: (_) => configService.setThemeStyle(ThemeStyle.frostedGlass),
-                    ),
-                    const SizedBox(width: 8),
-                    ChoiceChip(
-                      label: const Text('水玻璃'),
-                      selected: config.themeStyle == ThemeStyle.aquaGlass,
-                      onSelected: (_) => configService.setThemeStyle(ThemeStyle.aquaGlass),
+                    Text(l10n.theme,
+                        style: const TextStyle(fontWeight: FontWeight.bold)),
+                    const Spacer(),
+                    TextButton(
+                      onPressed: () => themeService.reload(),
+                      child: Text(l10n.themeReload),
                     ),
                   ],
                 ),
+                const SizedBox(height: 8),
+                Wrap(
+                  spacing: 8,
+                  runSpacing: 8,
+                  children: [
+                    for (final theme in themes)
+                      ChoiceChip(
+                        label: Text(
+                          _localizedThemeName(l10n, theme),
+                        ),
+                        selected: config.themeId == theme.id,
+                        onSelected: (_) => configService.setTheme(theme.id),
+                      ),
+                  ],
+                ),
+                if (themeService.themesDirectoryPath != null) ...[
+                  const SizedBox(height: 8),
+                  Text(
+                    l10n.themeFolderHint(
+                      themeService.themesDirectoryPath!,
+                    ),
+                    style: Theme.of(context)
+                        .textTheme
+                        .bodySmall
+                        ?.copyWith(color: Colors.white70),
+                  ),
+                ],
                 const SizedBox(height: 12),
                 Row(
                   children: [
-                    const Text('透明度'),
+                    Text(l10n.opacity),
                     Expanded(
                       child: Slider(
                         value: config.opacity.clamp(0.0, 1.0),
@@ -68,7 +88,7 @@ class SettingsDialog extends StatelessWidget {
                 const SizedBox(height: 8),
                 Row(
                   children: [
-                    const Text('缩放'),
+                    Text(l10n.scale),
                     Expanded(
                       child: Slider(
                         value: config.scale.clamp(0.5, 3.0),
@@ -83,7 +103,7 @@ class SettingsDialog extends StatelessWidget {
                 const SizedBox(height: 8),
                 Row(
                   children: [
-                    const Text('显示秒'),
+                    Text(l10n.showSeconds),
                     const SizedBox(width: 8),
                     Switch(
                       value: config.showSeconds,
@@ -92,7 +112,7 @@ class SettingsDialog extends StatelessWidget {
                     const Spacer(),
                     TextButton(
                       onPressed: () => Navigator.of(context).pop(),
-                      child: const Text('关闭'),
+                      child: Text(l10n.close),
                     ),
                   ],
                 )
@@ -105,3 +125,18 @@ class SettingsDialog extends StatelessWidget {
   }
 }
 
+String _localizedThemeName(
+  AppLocalizations l10n,
+  ThemeDefinition theme,
+) {
+  switch (theme.id) {
+    case ThemeDefinition.defaultThemeId:
+      return l10n.themeTransparent;
+    case 'frosted_glass':
+      return l10n.themeFrostedGlass;
+    case 'aqua_glass':
+      return l10n.themeAquaGlass;
+    default:
+      return theme.name;
+  }
+}

@@ -3,7 +3,8 @@
 #
 
 list(APPEND FLUTTER_PLUGIN_LIST
-  screen_retriever_linux
+  flutter_acrylic
+  screen_retriever
   system_tray
   window_manager
 )

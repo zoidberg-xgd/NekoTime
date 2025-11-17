@@ -1,0 +1,33 @@
+{
+  "@@locale": "zh",
+  "theme": "主题",
+  "themeTransparent": "透明",
+  "themeFrostedGlass": "毛玻璃",
+  "themeAquaGlass": "水纹玻璃",
+  "themeReload": "重新加载主题",
+  "themeFolderHint": "在 {path} 中放置或修改 JSON 主题文件，点击“重新加载”即可生效。",
+  "@themeFolderHint": {
+    "placeholders": {
+      "path": {
+        "type": "String"
+      }
+    }
+  },
+  "opacity": "透明度",
+  "scale": "缩放",
+  "showSeconds": "显示秒",
+  "hideSeconds": "隐藏秒",
+  "lockPosition": "锁定位置",
+  "unlockPosition": "解锁位置",
+  "layer": "显示层级",
+  "layerDesktop": "桌面层",
+  "layerNormal": "标准层",
+  "layerTop": "置顶层",
+  "language": "语言",
+  "languageEnglish": "英文",
+  "languageChinese": "简体中文",
+  "close": "关闭",
+  "exit": "退出"
+}
+
+

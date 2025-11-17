@@ -38,20 +38,18 @@ class ConfigService extends ChangeNotifier {
 
   // Helper to apply window settings based on current config
   void _applyWindowSettings() {
-    if (!Platform.isAndroid && !Platform.isIOS) {
+    if (Platform.isMacOS || Platform.isWindows || Platform.isLinux) {
+      bool isAlwaysOnTop = false;
       switch (_config.layer) {
         case ClockLayer.desktop:
-          // 桌面层：目前 window_manager 不再提供 setAsDesktop，
-          // 这里退化为普通窗口且不置顶。
-          windowManager.setAlwaysOnTop(false);
-          break;
         case ClockLayer.normal:
-          windowManager.setAlwaysOnTop(false);
+          isAlwaysOnTop = false;
           break;
         case ClockLayer.top:
-          windowManager.setAlwaysOnTop(true);
+          isAlwaysOnTop = true;
           break;
       }
+      windowManager.setAlwaysOnTop(isAlwaysOnTop);
     }
   }
 
@@ -71,8 +69,8 @@ class ConfigService extends ChangeNotifier {
     saveConfig(newConfig);
   }
 
-  void setThemeStyle(ThemeStyle style) {
-    final newConfig = _config.copyWith(themeStyle: style);
+  void setTheme(String themeId) {
+    final newConfig = _config.copyWith(themeId: themeId);
     saveConfig(newConfig);
   }
 
@@ -83,6 +81,11 @@ class ConfigService extends ChangeNotifier {
 
   void toggleLockPosition() {
     final newConfig = _config.copyWith(lockPosition: !_config.lockPosition);
+    saveConfig(newConfig);
+  }
+
+  void setLocale(String locale) {
+    final newConfig = _config.copyWith(locale: locale);
     saveConfig(newConfig);
   }
 }

@@ -36,13 +36,15 @@ class DigitGif extends StatelessWidget {
       );
     }
 
-    return Image.asset(
-      'assets/gif/$digit.gif',
-      // 只限定高度，让宽度随原始比例自适应，避免变形
+    return SizedBox(
+      width: height * 0.75, // 设定一个固定的宽高比，例如 3:4
       height: height,
-      fit: BoxFit.contain,
-      filterQuality: FilterQuality.none, // 像素风，避免模糊和畸变
-      gaplessPlayback: true,
+      child: Image.asset(
+        'assets/gif/$digit.gif',
+        fit: BoxFit.contain, // 保持原始比例
+        filterQuality: FilterQuality.none, // 像素风，避免模糊和畸变
+        gaplessPlayback: true,
+      ),
     );
   }
 }

@@ -1,0 +1,33 @@
+{
+  "@@locale": "en",
+  "theme": "Theme",
+  "themeTransparent": "Transparent",
+  "themeFrostedGlass": "Frosted Glass",
+  "themeAquaGlass": "Aqua Glass",
+  "themeReload": "Reload themes",
+  "themeFolderHint": "Add or edit JSON theme files under {path} and press Reload to apply.",
+  "@themeFolderHint": {
+    "placeholders": {
+      "path": {
+        "type": "String"
+      }
+    }
+  },
+  "opacity": "Opacity",
+  "scale": "Scale",
+  "showSeconds": "Show Seconds",
+  "hideSeconds": "Hide Seconds",
+  "lockPosition": "Lock Position",
+  "unlockPosition": "Unlock Position",
+  "layer": "Layer",
+  "layerDesktop": "Desktop",
+  "layerNormal": "Normal",
+  "layerTop": "Always on Top",
+  "language": "Language",
+  "languageEnglish": "English",
+  "languageChinese": "简体中文",
+  "close": "Close",
+  "exit": "Exit"
+}
+
+

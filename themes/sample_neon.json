@@ -1,0 +1,14 @@
+{
+  "id": "sample_neon",
+  "name": "Sample Neon",
+  "kind": "solid",
+  "borderRadius": 20,
+  "paddingHorizontal": 24,
+  "paddingVertical": 12,
+  "backgroundColor": "#FF0A0A0A",
+  "backgroundOpacityMultiplier": 0.85,
+  "tintColor": "#FF00C2FF",
+  "tintOpacityMultiplier": 0.12
+}
+
+
