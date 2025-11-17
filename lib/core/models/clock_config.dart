@@ -87,11 +87,20 @@ class ClockConfig {
 
 Size calculateWindowSizeFromConfig(ClockConfig config) {
   final double digitHeight = 80 * config.scale;
-  final double digitWidth = digitHeight * 0.75;
-  final double baseW = config.showSeconds ? (8 * digitWidth) : (5 * digitWidth);
+  final double digitWidth = digitHeight * 0.58; // 更紧凑的宽度
+  final double colonWidth = digitHeight * 0.25; // 冒号宽度
+  
+  // 计算实际内容宽度：4个数字 + 1个冒号
+  final double baseW = config.showSeconds 
+      ? (6 * digitWidth + 2 * colonWidth) // HH:MM:SS
+      : (4 * digitWidth + colonWidth);    // HH:MM
+  
   final double baseH = digitHeight;
-  const double padH = 32; // 16px 边距 * 2
-  const double padV = 16; // 8px 边距 * 2
+  
+  // padding 也要随着 scale 缩放，保持比例
+  final double padH = 8 * config.scale;  // 左右边距按比例缩放
+  final double padV = 4 * config.scale;  // 上下边距按比例缩放
+  
   return Size(baseW + padH, baseH + padV);
 }
 

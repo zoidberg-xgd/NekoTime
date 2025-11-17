@@ -9,6 +9,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:system_tray/system_tray.dart';
 import 'package:digital_clock/l10n/app_localizations.dart';
+import 'package:window_manager/window_manager.dart';
 
 /// 系统托盘控制逻辑（基于 system_tray）。
 /// 使用 mixin 混入到 State 类中，集中管理托盘与菜单。
@@ -21,9 +22,20 @@ mixin TrayController<T extends StatefulWidget> on State<T> {
 
   Future<void> initTray(ConfigService configService) async {
     try {
-      // 初始化托盘，不使用文件图标，直接设置标题为 Emoji
-      await _tray.initSystemTray(iconPath: '', toolTip: 'Digital Clock');
-      await _tray.setTitle('🕑');
+      // 初始化托盘，使用空图标但确保托盘始终可见
+      await _tray.initSystemTray(
+        iconPath: '',
+        toolTip: 'Digital Clock',
+      );
+      
+      // 设置标题为时钟 Emoji
+      await _tray.setTitle('🕐');
+      
+      // 确保托盘图标可见
+      await _tray.setSystemTrayInfo(
+        title: '🕐',
+        toolTip: 'Digital Clock - 双击窗口隐藏，右键菜单显示',
+      );
     } catch (e) {
       debugPrint('SystemTray init failed: $e');
       return;
@@ -96,6 +108,20 @@ mixin TrayController<T extends StatefulWidget> on State<T> {
       MenuItemLabel(
         label: config.lockPosition ? l10n.unlockPosition : l10n.lockPosition,
         onClicked: (_) => configService.toggleLockPosition(),
+      ),
+      MenuItemLabel(
+        label: '隐藏/显示',
+        onClicked: (_) async {
+          final isVisible = await windowManager.isVisible();
+          if (isVisible) {
+            await windowManager.hide();
+            // 确保托盘图标在窗口隐藏后仍然可见
+            await _tray.setTitle('🕐');
+          } else {
+            await windowManager.show();
+            await windowManager.focus();
+          }
+        },
       ),
       SubMenu(label: l10n.layer, children: [
         MenuItemLabel(

@@ -5,7 +5,7 @@
   "apiVersion": 1,
   "kind": "solid",
   "borderRadius": 12,
-  "padding": { "preset": "compact", "horizontal": 8, "vertical": 4 },
+  "padding": { "preset": "none", "horizontal": 6, "vertical": 3 },
   "layout": { "alignment": "center" },
   "backgroundColor": "#101218",
   "backgroundOpacityMultiplier": 0.6,
@@ -17,5 +17,5 @@
   "overlayOpacityMultiplier": 0.2,
   "fontFamily": "ExampleModFont",
   "fonts": [ "assets/ExampleModFont.ttf" ],
-  "digit": { "spacing": 2, "gifPath": "gif", "format": "gif" }
+  "digit": { "spacing": 0, "gifPath": "gif", "format": "gif" }
 }

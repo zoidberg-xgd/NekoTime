@@ -19,14 +19,15 @@ class ThemeService extends ChangeNotifier {
           name: 'Frosted Glass',
           kind: ThemeKind.blur,
           borderRadius: 12,
-          paddingHorizontal: 12,
-          paddingVertical: 6,
+          paddingHorizontal: 4,  // 进一步减小
+          paddingVertical: 2,    // 进一步减小
           blurSigmaX: 16,
           blurSigmaY: 16,
           tintColor: Color(0xFF9E9E9E),
-          tintOpacityMultiplier: 0.15,
+          tintOpacityMultiplier: 0.08, // 减少背景不透明度，让背景更透明
           digitGifPath: 'assets/gif', // 使用应用内置的数字图片资源
           digitImageFormat: 'gif', // 默认使用 GIF 格式
+          digitSpacing: 0.0, // 数字间距设为0，更紧凑
         ),
       ];
 

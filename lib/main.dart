@@ -26,6 +26,7 @@ void main() async {
   final bool isDesktop =
       Platform.isMacOS || Platform.isWindows || Platform.isLinux;
 
+  // 先初始化窗口管理器（必须在最前面）
   if (isDesktop) {
     await windowManager.ensureInitialized();
     if (Platform.isMacOS) {
@@ -48,9 +49,13 @@ void main() async {
   }
 
   if (isDesktop) {
+    
     final Size initialSize =
         calculateWindowSizeFromConfig(configService.config);
 
+    // 根据配置决定是否置顶
+    bool shouldAlwaysOnTop = configService.config.layer == ClockLayer.top;
+    
     WindowOptions windowOptions = WindowOptions(
       size: initialSize,
       minimumSize: const Size(200, 80),
@@ -58,9 +63,12 @@ void main() async {
       backgroundColor: Colors.transparent,
       skipTaskbar: true,
       titleBarStyle: TitleBarStyle.hidden,
+      alwaysOnTop: shouldAlwaysOnTop,
     );
 
+    // 先配置窗口属性，再显示
     windowManager.waitUntilReadyToShow(windowOptions, () async {
+      // macOS 特定配置（flutter_acrylic 已在前面初始化）
       if (Platform.isMacOS) {
         await flutter_acrylic.Window.makeTitlebarTransparent();
         await flutter_acrylic.Window.enableFullSizeContentView();
@@ -70,10 +78,17 @@ void main() async {
           color: Colors.transparent,
         );
       }
-      await windowManager.setAsFrameless(); // 无边框
+      
+      // 设置窗口为无边框和不可调整大小
+      await windowManager.setAsFrameless();
       await windowManager.setResizable(false);
+      await windowManager.setHasShadow(true);
+      
+      // 最后才显示和聚焦窗口
       await windowManager.show();
       await windowManager.focus();
+      
+      await logService.info('Window initialized and shown');
     });
   }
 

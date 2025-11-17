@@ -1,5 +1,5 @@
 name: digital_clock
-description: A floating digital clock using GIF images.
+description: 猫铃时钟 NekoTime - 可爱的像素风桌面时钟，使用 GIF 动画角色展示时间
 publish_to: 'none'
 
 version: 1.0.0+1

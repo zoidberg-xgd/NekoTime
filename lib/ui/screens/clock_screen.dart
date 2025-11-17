@@ -127,31 +127,33 @@ class _ClockScreenState extends State<ClockScreen> with WindowListener {
       case ThemeKind.blur:
         return ClipRRect(
           borderRadius: BorderRadius.circular(theme.borderRadius),
+          clipBehavior: Clip.antiAlias,
           child: BackdropFilter(
             filter: ImageFilter.blur(
               sigmaX: theme.blurSigmaX,
               sigmaY: theme.blurSigmaY,
             ),
-            child: Stack(
-              fit: StackFit.passthrough,
-              children: [
-                Container(
-                  decoration: BoxDecoration(
-                    color:
-                        (tintOverlay ?? backgroundOverlay) ?? Colors.transparent,
-                    image: bgImage,
-                  ),
-                ),
-                if (overlayImage != null)
-                  Opacity(
-                    opacity: (theme.overlayOpacityMultiplier * opacity)
-                        .clamp(0.0, 1.0),
-                    child: Container(
-                      decoration: BoxDecoration(image: overlayImage),
+            child: Container(
+              decoration: BoxDecoration(
+                color: (tintOverlay ?? backgroundOverlay)?.withOpacity(
+                  ((tintOverlay ?? backgroundOverlay)?.opacity ?? 0.0) * 0.8
+                ) ?? Colors.transparent,
+                image: bgImage,
+              ),
+              child: Stack(
+                fit: StackFit.passthrough,
+                children: [
+                  if (overlayImage != null)
+                    Opacity(
+                      opacity: (theme.overlayOpacityMultiplier * opacity)
+                          .clamp(0.0, 1.0),
+                      child: Container(
+                        decoration: BoxDecoration(image: overlayImage),
+                      ),
                     ),
-                  ),
-                content,
-              ],
+                  content,
+                ],
+              ),
             ),
           ),
         );
@@ -227,18 +229,27 @@ class _ClockScreenState extends State<ClockScreen> with WindowListener {
 
         return Scaffold(
           backgroundColor: Colors.transparent,
-          body: GestureDetector(
-            behavior: HitTestBehavior.translucent,
-            onPanStart: (_) {
-              if (!configService.config.lockPosition) {
-                windowManager.startDragging();
-              }
-            },
-            child: _buildThemeWrapper(
-              context,
-              clock,
-              configService.config,
-              theme,
+          body: Container(
+            color: Colors.transparent,
+            child: GestureDetector(
+              behavior: HitTestBehavior.translucent,
+              onPanStart: (_) {
+                if (!configService.config.lockPosition) {
+                  windowManager.startDragging();
+                }
+              },
+              onDoubleTap: () async {
+                // 双击隐藏窗口
+                await windowManager.hide();
+                LogService().info('Window hidden by double-tap');
+                // 注意：托盘图标应该始终可见，用户可以通过托盘菜单重新显示窗口
+              },
+              child: _buildThemeWrapper(
+                context,
+                clock,
+                configService.config,
+                theme,
+              ),
             ),
           ),
         );
