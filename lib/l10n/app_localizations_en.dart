@@ -12,13 +12,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get theme => 'Theme';
 
   @override
-  String get themeTransparent => 'Transparent';
-
-  @override
   String get themeFrostedGlass => 'Frosted Glass';
-
-  @override
-  String get themeAquaGlass => 'Aqua Glass';
 
   @override
   String get themeReload => 'Reload themes';

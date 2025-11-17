@@ -1,9 +1,7 @@
 {
   "@@locale": "en",
   "theme": "Theme",
-  "themeTransparent": "Transparent",
   "themeFrostedGlass": "Frosted Glass",
-  "themeAquaGlass": "Aqua Glass",
   "themeReload": "Reload themes",
   "themeFolderHint": "Add or edit JSON theme files under {path} and press Reload to apply.",
   "@themeFolderHint": {

@@ -104,23 +104,11 @@ abstract class AppLocalizations {
   /// **'Theme'**
   String get theme;
 
-  /// No description provided for @themeTransparent.
-  ///
-  /// In en, this message translates to:
-  /// **'Transparent'**
-  String get themeTransparent;
-
   /// No description provided for @themeFrostedGlass.
   ///
   /// In en, this message translates to:
   /// **'Frosted Glass'**
   String get themeFrostedGlass;
-
-  /// No description provided for @themeAquaGlass.
-  ///
-  /// In en, this message translates to:
-  /// **'Aqua Glass'**
-  String get themeAquaGlass;
 
   /// No description provided for @themeReload.
   ///

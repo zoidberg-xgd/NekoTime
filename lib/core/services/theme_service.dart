@@ -13,13 +13,6 @@ class ThemeService extends ChangeNotifier {
   static List<ThemeDefinition> get _builtinThemes => const [
         ThemeDefinition(
           id: ThemeDefinition.defaultThemeId,
-          name: 'Transparent',
-          kind: ThemeKind.transparent,
-          paddingHorizontal: 16,
-          paddingVertical: 8,
-        ),
-        ThemeDefinition(
-          id: 'frosted_glass',
           name: 'Frosted Glass',
           kind: ThemeKind.blur,
           borderRadius: 16,
@@ -30,18 +23,6 @@ class ThemeService extends ChangeNotifier {
           tintColor: Color(0xFF9E9E9E),
           tintOpacityMultiplier: 0.15,
         ),
-        ThemeDefinition(
-          id: 'aqua_glass',
-          name: 'Aqua Glass',
-          kind: ThemeKind.blur,
-          borderRadius: 16,
-          paddingHorizontal: 16,
-          paddingVertical: 8,
-          blurSigmaX: 16,
-          blurSigmaY: 16,
-          tintColor: Color(0xFF007AFF),
-          tintOpacityMultiplier: 0.2,
-        ),
       ];
 
   Future<void> init() async {
@@ -51,7 +32,6 @@ class ThemeService extends ChangeNotifier {
     }
     final dir = await _ensureThemesDirectory();
     await _loadCustomThemes(dir);
-    await _ensureSampleTheme(dir);
     notifyListeners();
   }
 
@@ -105,26 +85,4 @@ class ThemeService extends ChangeNotifier {
       }
     }
   }
-
-  Future<void> _ensureSampleTheme(Directory dir) async {
-    final entries = dir.listSync();
-    if (entries.isNotEmpty) return;
-    final sample = ThemeDefinition(
-      id: 'sample_glow',
-      name: 'Sample Neon',
-      kind: ThemeKind.solid,
-      borderRadius: 20,
-      paddingHorizontal: 24,
-      paddingVertical: 12,
-      tintColor: const Color(0xFF00C2FF),
-      tintOpacityMultiplier: 0.12,
-      backgroundColor: const Color(0xFF0A0A0A),
-      backgroundOpacityMultiplier: 0.8,
-    );
-    final file = File(p.join(dir.path, 'sample_neon.json'));
-    await file.writeAsString(const JsonEncoder.withIndent('  ').convert(
-      sample.toJson(),
-    ));
-  }
 }
-

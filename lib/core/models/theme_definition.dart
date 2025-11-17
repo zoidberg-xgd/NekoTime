@@ -3,7 +3,7 @@ import 'dart:ui';
 enum ThemeKind { transparent, blur, solid }
 
 class ThemeDefinition {
-  static const defaultThemeId = 'transparent';
+  static const defaultThemeId = 'frosted_glass';
 
   final String id;
   final String name;

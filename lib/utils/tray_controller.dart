@@ -145,15 +145,9 @@ mixin TrayController<T extends StatefulWidget> on State<T> {
   }
 
   String _trayThemeName(AppLocalizations l10n, ThemeDefinition theme) {
-    switch (theme.id) {
-      case ThemeDefinition.defaultThemeId:
-        return l10n.themeTransparent;
-      case 'frosted_glass':
-        return l10n.themeFrostedGlass;
-      case 'aqua_glass':
-        return l10n.themeAquaGlass;
-      default:
-        return theme.name;
+    if (theme.id == ThemeDefinition.defaultThemeId) {
+      return l10n.themeFrostedGlass;
     }
+    return theme.name;
   }
 }

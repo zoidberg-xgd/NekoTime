@@ -9,9 +9,6 @@ enum ClockLayer {
   top, // 置顶层
 }
 
-@Deprecated('Use themeId with ThemeDefinition instead')
-enum ThemeStyle { transparent, frostedGlass, aquaGlass }
-
 class ClockConfig {
   // 是否显示秒
   bool showSeconds;
@@ -36,7 +33,7 @@ class ClockConfig {
     this.layer = ClockLayer.top,
     this.lockPosition = false,
     this.locale = 'en',
-  }) : themeId = themeId ?? _themeIdFromLegacy(ThemeStyle.transparent);
+  }) : themeId = themeId ?? ThemeDefinition.defaultThemeId;
 
   // 从 JSON 创建配置
   factory ClockConfig.fromJson(Map<String, dynamic> json) {
@@ -98,22 +95,6 @@ Size calculateWindowSizeFromConfig(ClockConfig config) {
   return Size(baseW + padH, baseH + padV);
 }
 
-String _themeIdFromLegacy(ThemeStyle style) {
-  switch (style) {
-    case ThemeStyle.frostedGlass:
-      return 'frosted_glass';
-    case ThemeStyle.aquaGlass:
-      return 'aqua_glass';
-    case ThemeStyle.transparent:
-      return ThemeDefinition.defaultThemeId;
-  }
-}
-
 String _themeIdFromLegacyIndex(int? index) {
-  if (index == null) return ThemeDefinition.defaultThemeId;
-  final values = ThemeStyle.values;
-  if (index < 0 || index >= values.length) {
-    return ThemeDefinition.defaultThemeId;
-  }
-  return _themeIdFromLegacy(values[index]);
+  return ThemeDefinition.defaultThemeId;
 }

@@ -30,6 +30,6 @@
 | `tintColor` + `tintOpacityMultiplier` | 覆盖色与不透明度（0-1，可叠加 `config.opacity`） |
 | `backgroundColor` + `backgroundOpacityMultiplier` | 背景色枚举 |
 
-修改或添加文件后，可在设置弹窗或托盘菜单中点击“重新加载主题”立即生效。***
+修改或添加文件后，可在设置弹窗或托盘菜单中点击“重新加载主题”立即生效。
 
 
