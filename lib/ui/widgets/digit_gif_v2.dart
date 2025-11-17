@@ -176,7 +176,7 @@ class _DigitGifV2State extends State<DigitGifV2>
         assetPath,
         width: digitWidth,
         height: height,
-        fit: BoxFit.fill,
+        fit: BoxFit.contain,  // 保持原始纵横比，避免拉伸变形
         filterQuality: FilterQuality.none,
         gaplessPlayback: true,
         // 即使预检查通过，还是保留errorBuilder作为最后防线
