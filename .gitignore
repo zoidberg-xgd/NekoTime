@@ -31,3 +31,4 @@ DerivedData/
 
 # Misc
 pubspec.lock
+.DS_Store

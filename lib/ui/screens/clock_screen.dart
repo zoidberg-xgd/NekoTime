@@ -3,6 +3,7 @@ import 'dart:ui';
 import 'package:digital_clock/core/models/clock_config.dart';
 import 'package:digital_clock/core/models/theme_definition.dart';
 import 'package:digital_clock/core/services/config_service.dart';
+import 'package:digital_clock/core/services/log_service.dart';
 import 'package:digital_clock/core/services/time_service.dart';
 import 'package:digital_clock/core/services/theme_service.dart';
 import 'package:digital_clock/ui/widgets/time_display.dart';
@@ -22,6 +23,7 @@ class ClockScreen extends StatefulWidget {
 
 class _ClockScreenState extends State<ClockScreen> with WindowListener {
   final _timeService = TimeService();
+  String? _lastLoadedThemeId;
 
   @override
   void initState() {
@@ -33,6 +35,16 @@ class _ClockScreenState extends State<ClockScreen> with WindowListener {
   void dispose() {
     windowManager.removeListener(this);
     super.dispose();
+  }
+  
+  void _loadThemeFontsIfNeeded(ThemeService themeService, String themeId) {
+    if (_lastLoadedThemeId != themeId) {
+      _lastLoadedThemeId = themeId;
+      final theme = themeService.resolve(themeId);
+      LogService().info('Loading theme: ${theme.name} (${theme.id})');
+      LogService().debug('Theme config: digitGifPath=${theme.digitGifPath}, format=${theme.digitImageFormat}, assetsBase=${theme.assetsBasePath}');
+      themeService.ensureFontsLoaded(theme);
+    }
   }
 
   Widget _buildThemeWrapper(
@@ -120,28 +132,52 @@ class _ClockScreenState extends State<ClockScreen> with WindowListener {
               sigmaX: theme.blurSigmaX,
               sigmaY: theme.blurSigmaY,
             ),
-            child: Container(
-              decoration: BoxDecoration(
-                color: (tintOverlay ?? backgroundOverlay) ?? Colors.transparent,
-                image: bgImage,
-              ),
-              foregroundDecoration: overlayImage == null
-                  ? null
-                  : BoxDecoration(image: overlayImage),
-              child: content,
+            child: Stack(
+              fit: StackFit.passthrough,
+              children: [
+                Container(
+                  decoration: BoxDecoration(
+                    color:
+                        (tintOverlay ?? backgroundOverlay) ?? Colors.transparent,
+                    image: bgImage,
+                  ),
+                ),
+                if (overlayImage != null)
+                  Opacity(
+                    opacity: (theme.overlayOpacityMultiplier * opacity)
+                        .clamp(0.0, 1.0),
+                    child: Container(
+                      decoration: BoxDecoration(image: overlayImage),
+                    ),
+                  ),
+                content,
+              ],
             ),
           ),
         );
       case ThemeKind.solid:
-        return Container(
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(theme.borderRadius),
-            color: (backgroundOverlay ?? tintOverlay) ?? Colors.black,
-            image: bgImage,
+        return ClipRRect(
+          borderRadius: BorderRadius.circular(theme.borderRadius),
+          child: Stack(
+            fit: StackFit.passthrough,
+            children: [
+              Container(
+                decoration: BoxDecoration(
+                  color: (backgroundOverlay ?? tintOverlay) ?? Colors.black,
+                  image: bgImage,
+                ),
+              ),
+              if (overlayImage != null)
+                Opacity(
+                  opacity:
+                      (theme.overlayOpacityMultiplier * opacity).clamp(0.0, 1.0),
+                  child: Container(
+                    decoration: BoxDecoration(image: overlayImage),
+                  ),
+                ),
+              content,
+            ],
           ),
-          foregroundDecoration:
-              overlayImage == null ? null : BoxDecoration(image: overlayImage),
-          child: content,
         );
     }
   }
@@ -163,26 +199,28 @@ class _ClockScreenState extends State<ClockScreen> with WindowListener {
           _updateWindow(configService);
         });
 
+        // 只在主题切换时加载字体和记录日志
+        _loadThemeFontsIfNeeded(themeService, configService.config.themeId);
+        
         final theme = themeService.resolve(configService.config.themeId);
 
-        // Ensure fonts for the theme are loaded; request rebuild when done
-        // so that Text widgets can pick up the newly registered font.
-        themeService.ensureFontsLoaded(theme).then((_) {
-          if (mounted) setState(() {});
-        });
-
         Widget clock = StreamBuilder<DateTime>(
+          key: const ValueKey('time_stream_builder'), // 添加稳定key防止重建
           stream: _timeService.timeStream,
           builder: (context, snapshot) {
             if (!snapshot.hasData) return const SizedBox.shrink();
             final digits = _timeService.formatTime(snapshot.data!,
                 showSeconds: configService.config.showSeconds);
             // ALWAYS use the config from the builder
+            final safeScale = configService.config.scale.clamp(0.5, 3.0);
             return TimeDisplay(
               digits: digits,
-              scale: configService.config.scale,
+              scale: safeScale,
               digitSpacing: theme.digitSpacing ?? 0.0,
               fontFamily: theme.fontFamily,
+              gifBasePath: theme.digitGifPath,
+              imageFormat: theme.digitImageFormat,
+              assetsBasePath: theme.assetsBasePath,
             );
           },
         );

@@ -22,9 +22,12 @@ class ThemeDefinition {
   final double tintOpacityMultiplier;
   final String? backgroundImagePath;
   final String? overlayImagePath;
+  final double overlayOpacityMultiplier;
   final double? digitSpacing;
   final String? fontFamily;
   final List<String>? fontFiles;
+  final String? digitGifPath; // Path to digit images directory (e.g., 'assets/gif' or 'gif')
+  final String? digitImageFormat; // Image format: 'gif', 'png', 'jpg', 'webp', or null for auto-detect
   final String? assetsBasePath; // runtime-only; not serialized
 
   const ThemeDefinition({
@@ -44,9 +47,12 @@ class ThemeDefinition {
     this.tintOpacityMultiplier = 1,
     this.backgroundImagePath,
     this.overlayImagePath,
+    this.overlayOpacityMultiplier = 0.5,
     this.digitSpacing,
     this.fontFamily,
     this.fontFiles,
+    this.digitGifPath,
+    this.digitImageFormat,
     this.assetsBasePath,
   });
 
@@ -76,6 +82,7 @@ class ThemeDefinition {
       tintOpacityMultiplier: (json['tintOpacityMultiplier'] ?? 1).toDouble(),
       backgroundImagePath: json['backgroundImage'] as String?,
       overlayImagePath: json['overlayImage'] as String?,
+      overlayOpacityMultiplier: (json['overlayOpacityMultiplier'] ?? 0.5).toDouble(),
       digitSpacing: (json['digit']?['spacing'] ?? json['digitSpacing']) == null
           ? null
           : (json['digit']?['spacing'] ?? json['digitSpacing']).toDouble(),
@@ -88,6 +95,8 @@ class ThemeDefinition {
           })
           .whereType<String>()
           .toList(),
+      digitGifPath: (json['digit']?['gifPath'] ?? json['digitGifPath']) as String?,
+      digitImageFormat: (json['digit']?['format'] ?? json['digitImageFormat']) as String?,
     );
   }
 
@@ -109,9 +118,12 @@ class ThemeDefinition {
       'tintOpacityMultiplier': tintOpacityMultiplier,
       if (backgroundImagePath != null) 'backgroundImage': backgroundImagePath,
       if (overlayImagePath != null) 'overlayImage': overlayImagePath,
+      'overlayOpacityMultiplier': overlayOpacityMultiplier,
       if (digitSpacing != null) 'digitSpacing': digitSpacing,
       if (fontFamily != null) 'fontFamily': fontFamily,
       if (fontFiles != null) 'fonts': fontFiles,
+      if (digitGifPath != null) 'digitGifPath': digitGifPath,
+      if (digitImageFormat != null) 'digitImageFormat': digitImageFormat,
     };
   }
 
@@ -132,9 +144,12 @@ class ThemeDefinition {
     double? tintOpacityMultiplier,
     String? backgroundImagePath,
     String? overlayImagePath,
+    double? overlayOpacityMultiplier,
     double? digitSpacing,
     String? fontFamily,
     List<String>? fontFiles,
+    String? digitGifPath,
+    String? digitImageFormat,
     String? assetsBasePath,
   }) {
     return ThemeDefinition(
@@ -155,9 +170,13 @@ class ThemeDefinition {
       tintOpacityMultiplier: tintOpacityMultiplier ?? this.tintOpacityMultiplier,
       backgroundImagePath: backgroundImagePath ?? this.backgroundImagePath,
       overlayImagePath: overlayImagePath ?? this.overlayImagePath,
+      overlayOpacityMultiplier:
+          overlayOpacityMultiplier ?? this.overlayOpacityMultiplier,
       digitSpacing: digitSpacing ?? this.digitSpacing,
       fontFamily: fontFamily ?? this.fontFamily,
       fontFiles: fontFiles ?? this.fontFiles,
+      digitGifPath: digitGifPath ?? this.digitGifPath,
+      digitImageFormat: digitImageFormat ?? this.digitImageFormat,
       assetsBasePath: assetsBasePath ?? this.assetsBasePath,
     );
   }

@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 import 'package:digital_clock/core/models/clock_config.dart';
+import 'package:digital_clock/core/services/log_service.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:window_manager/window_manager.dart';
@@ -70,6 +71,7 @@ class ConfigService extends ChangeNotifier {
   }
 
   void setTheme(String themeId) {
+    LogService().info('Theme changed from "${_config.themeId}" to "$themeId"');
     final newConfig = _config.copyWith(themeId: themeId);
     saveConfig(newConfig);
   }

@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:digital_clock/core/models/theme_definition.dart';
+import 'package:digital_clock/core/services/log_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:path/path.dart' as p;
@@ -17,13 +18,15 @@ class ThemeService extends ChangeNotifier {
           id: ThemeDefinition.defaultThemeId,
           name: 'Frosted Glass',
           kind: ThemeKind.blur,
-          borderRadius: 16,
-          paddingHorizontal: 16,
-          paddingVertical: 8,
+          borderRadius: 12,
+          paddingHorizontal: 12,
+          paddingVertical: 6,
           blurSigmaX: 16,
           blurSigmaY: 16,
           tintColor: Color(0xFF9E9E9E),
           tintOpacityMultiplier: 0.15,
+          digitGifPath: 'assets/gif', // 使用应用内置的数字图片资源
+          digitImageFormat: 'gif', // 默认使用 GIF 格式
         ),
       ];
 
@@ -73,6 +76,7 @@ class ThemeService extends ChangeNotifier {
 
   Future<void> _loadCustomThemes(Directory dir) async {
     final entries = dir.listSync();
+    LogService().info('Loading custom themes from: ${dir.path}');
 
     // 1) Theme packages: subdirectory with theme.json
     for (final entry in entries.whereType<Directory>()) {
@@ -84,8 +88,12 @@ class ThemeService extends ChangeNotifier {
           var theme = ThemeDefinition.fromJson(data)
               .copyWith(assetsBasePath: entry.path);
           _themes[theme.id] = theme;
-        } catch (e) {
-          debugPrint('Failed to load theme package ${entry.path}: $e');
+          LogService().info('Loaded theme package: ${theme.name} (${theme.id}) from ${entry.path}');
+          LogService().debug('  - digitGifPath: ${theme.digitGifPath}');
+          LogService().debug('  - digitImageFormat: ${theme.digitImageFormat}');
+          LogService().debug('  - assetsBasePath: ${theme.assetsBasePath}');
+        } catch (e, stackTrace) {
+          LogService().error('Failed to load theme package ${entry.path}', error: e, stackTrace: stackTrace);
         }
       }
     }
@@ -101,33 +109,42 @@ class ThemeService extends ChangeNotifier {
         var theme = ThemeDefinition.fromJson(data)
             .copyWith(assetsBasePath: file.parent.path);
         _themes[theme.id] = theme;
-      } catch (e) {
-        debugPrint('Failed to load theme ${file.path}: $e');
+        LogService().info('Loaded legacy theme: ${theme.name} (${theme.id}) from ${file.path}');
+      } catch (e, stackTrace) {
+        LogService().error('Failed to load theme ${file.path}', error: e, stackTrace: stackTrace);
       }
     }
+    
+    LogService().info('Total themes loaded: ${_themes.length}');
   }
 
   Future<void> ensureFontsLoaded(ThemeDefinition theme) async {
     if (theme.fontFamily == null || theme.fontFiles == null || theme.fontFiles!.isEmpty) return;
     final cacheKey = '${theme.id}:${theme.fontFamily}';
-    if (_fontLoadedForTheme.contains(cacheKey)) return;
+    if (_fontLoadedForTheme.contains(cacheKey)) {
+      LogService().debug('Font already loaded for theme: ${theme.id}');
+      return;
+    }
     if (theme.assetsBasePath == null) return;
 
+    LogService().info('Loading fonts for theme: ${theme.name} (${theme.id})');
     final loader = FontLoader(theme.fontFamily!);
     for (final rel in theme.fontFiles!) {
       try {
         final file = File(p.join(theme.assetsBasePath!, rel));
         final bytes = await file.readAsBytes();
         loader.addFont(Future.value(ByteData.view(bytes.buffer)));
-      } catch (e) {
-        debugPrint('Failed to load font $rel for theme ${theme.id}: $e');
+        LogService().debug('Font file loaded: $rel');
+      } catch (e, stackTrace) {
+        LogService().error('Failed to load font $rel for theme ${theme.id}', error: e, stackTrace: stackTrace);
       }
     }
     try {
       await loader.load();
       _fontLoadedForTheme.add(cacheKey);
-    } catch (e) {
-      debugPrint('FontLoader load failed for theme ${theme.id}: $e');
+      LogService().info('Fonts successfully loaded for theme: ${theme.id}');
+    } catch (e, stackTrace) {
+      LogService().error('FontLoader load failed for theme ${theme.id}', error: e, stackTrace: stackTrace);
     }
   }
 }

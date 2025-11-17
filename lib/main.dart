@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:digital_clock/core/models/clock_config.dart';
 import 'package:digital_clock/core/services/config_service.dart';
 import 'package:digital_clock/core/services/theme_service.dart';
+import 'package:digital_clock/core/services/log_service.dart';
 import 'package:digital_clock/ui/screens/clock_screen.dart';
 import 'package:digital_clock/utils/tray_controller.dart';
 import 'package:flutter/material.dart';
@@ -14,6 +15,11 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  // 初始化日志服务
+  final logService = LogService();
+  await logService.init();
+  await logService.info('Application starting...');
 
   final configService = ConfigService();
   final themeService = ThemeService();
@@ -27,8 +33,19 @@ void main() async {
     }
   }
 
-  await configService.init();
-  await themeService.init();
+  try {
+    await configService.init();
+    await logService.info('ConfigService initialized');
+  } catch (e, stackTrace) {
+    await logService.error('Failed to initialize ConfigService', error: e, stackTrace: stackTrace);
+  }
+
+  try {
+    await themeService.init();
+    await logService.info('ThemeService initialized. Themes loaded: ${themeService.themes.length}');
+  } catch (e, stackTrace) {
+    await logService.error('Failed to initialize ThemeService', error: e, stackTrace: stackTrace);
+  }
 
   if (isDesktop) {
     final Size initialSize =
@@ -94,8 +111,9 @@ class _MyAppState extends State<MyApp> with TrayController<MyApp> {
       Future.delayed(const Duration(seconds: 1), () async {
         try {
           await initTray(widget.configService);
-        } catch (e) {
-          debugPrint('Failed to init tray COMPLETELY: $e');
+          await LogService().info('System tray initialized');
+        } catch (e, stackTrace) {
+          await LogService().error('Failed to init tray', error: e, stackTrace: stackTrace);
         }
       });
     }

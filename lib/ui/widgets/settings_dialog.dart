@@ -1,8 +1,11 @@
+import 'dart:io';
 import 'dart:ui';
 
 import 'package:digital_clock/core/models/theme_definition.dart';
 import 'package:digital_clock/core/services/config_service.dart';
+import 'package:digital_clock/core/services/log_service.dart';
 import 'package:digital_clock/core/services/theme_service.dart';
+import 'package:digital_clock/ui/widgets/log_viewer_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:digital_clock/l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
@@ -109,12 +112,39 @@ class SettingsDialog extends StatelessWidget {
                       value: config.showSeconds,
                       onChanged: (_) => configService.toggleShowSeconds(),
                     ),
+                  ],
+                ),
+                const SizedBox(height: 16),
+                Row(
+                  children: [
+                    TextButton.icon(
+                      onPressed: () {
+                        showDialog(
+                          context: context,
+                          builder: (context) => const LogViewerDialog(),
+                        );
+                      },
+                      icon: const Icon(Icons.description),
+                      label: const Text('查看日志'),
+                    ),
+                    const SizedBox(width: 8),
+                    TextButton.icon(
+                      onPressed: () async {
+                        final logService = LogService();
+                        final logsDir = await logService.getLogsDirectory();
+                        if (logsDir != null) {
+                          Process.run('open', [logsDir.path]);
+                        }
+                      },
+                      icon: const Icon(Icons.folder_open),
+                      label: const Text('打开日志文件夹'),
+                    ),
                     const Spacer(),
                     TextButton(
                       onPressed: () => Navigator.of(context).pop(),
                       child: Text(l10n.close),
                     ),
-                  ],
+                  ),
                 )
               ],
             ),

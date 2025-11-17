@@ -4,8 +4,8 @@
   "version": "1.0.0",
   "apiVersion": 1,
   "kind": "solid",
-  "borderRadius": 16,
-  "padding": { "preset": "cozy", "horizontal": 16, "vertical": 8 },
+  "borderRadius": 12,
+  "padding": { "preset": "compact", "horizontal": 8, "vertical": 4 },
   "layout": { "alignment": "center" },
   "backgroundColor": "#101218",
   "backgroundOpacityMultiplier": 0.6,
@@ -14,7 +14,8 @@
   "blur": { "sigmaX": 12, "sigmaY": 12 },
   "backgroundImage": "assets/bg.jpg",
   "overlayImage": "assets/overlay.png",
+  "overlayOpacityMultiplier": 0.2,
   "fontFamily": "ExampleModFont",
   "fonts": [ "assets/ExampleModFont.ttf" ],
-  "digit": { "spacing": 8 }
+  "digit": { "spacing": 2, "gifPath": "gif", "format": "gif" }
 }
