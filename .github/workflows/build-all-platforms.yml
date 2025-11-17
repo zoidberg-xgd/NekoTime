@@ -34,7 +34,9 @@ jobs:
           cache: true
       
       - name: Enable macOS desktop
-        run: flutter config --enable-macos-desktop
+        run: |
+          flutter config --enable-macos-desktop
+          flutter create --platforms=macos .
       
       - name: Install dependencies
         run: flutter pub get
@@ -100,7 +102,9 @@ jobs:
           cache: true
       
       - name: Enable Windows desktop
-        run: flutter config --enable-windows-desktop
+        run: |
+          flutter config --enable-windows-desktop
+          flutter create --platforms=windows .
       
       - name: Install dependencies
         run: flutter pub get
@@ -202,7 +206,9 @@ jobs:
           cache: true
       
       - name: Enable Linux desktop
-        run: flutter config --enable-linux-desktop
+        run: |
+          flutter config --enable-linux-desktop
+          flutter create --platforms=linux .
       
       - name: Install dependencies
         run: flutter pub get
