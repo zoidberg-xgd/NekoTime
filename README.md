@@ -6,6 +6,10 @@
 [![Flutter](https://img.shields.io/badge/Flutter-3.24-02569B?logo=flutter)](https://flutter.dev)
 [![License](https://img.shields.io/badge/license-MIT-green)](LICENSE)
 
+<div align="center">
+  <img src="docs/screenshots/demo.gif" alt="NekoTime Demo" width="600">
+</div>
+
 **NekoTime** 是一款专为桌面平台设计的跨平台悬浮时钟，采用 Flutter 开发，支持 macOS、Windows 和 Linux。具备完全自定义的主题系统，你可以像安装游戏 MOD 一样轻松定制属于自己的时钟样式。
 
 > 📱 **注意**：本项目专注于桌面体验，不支持移动端（Android/iOS）。
