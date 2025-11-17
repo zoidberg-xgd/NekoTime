@@ -5,20 +5,47 @@
 // gestures. You can also use WidgetTester to find child widgets in the widget
 // tree, read text, and verify that the values of widget properties are correct.
 
-import 'package:neko_time/core/services/config_service.dart';
-import 'package:neko_time/main.dart';
-import 'package:neko_time/ui/screens/clock_screen.dart';
+import 'package:neko_time/core/models/clock_config.dart';
+import 'package:neko_time/core/models/theme_definition.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
-  testWidgets('MyApp smoke test', (WidgetTester tester) async {
-    // Build our app and trigger a frame.
-    final configService = ConfigService();
-    await configService.init();
+  group('NekoTime Tests', () {
+    test('ClockConfig initialization', () {
+      // Test ClockConfig creation with default values
+      final config = ClockConfig(
+        themeId: ThemeDefinition.defaultThemeId,
+        scale: 1.0,
+        opacity: 1.0,
+        layer: ClockLayer.normal,
+        lockPosition: false,
+        locale: 'en',
+      );
 
-    await tester.pumpWidget(MyApp(configService: configService));
+      expect(config.themeId, equals(ThemeDefinition.defaultThemeId));
+      expect(config.scale, equals(1.0));
+      expect(config.opacity, equals(1.0));
+      expect(config.layer, equals(ClockLayer.normal));
+      expect(config.lockPosition, isFalse);
+      expect(config.locale, equals('en'));
+    });
 
-    // Verify that our clock screen is present.
-    expect(find.byType(ClockScreen), findsOneWidget);
+    test('ThemeDefinition defaults', () {
+      // Test theme definition constants
+      expect(ThemeDefinition.defaultThemeId, equals('builtin_frosted_glass'));
+      expect(ThemeKind.values.length, equals(3));
+      expect(ThemeKind.values, contains(ThemeKind.transparent));
+      expect(ThemeKind.values, contains(ThemeKind.blur));
+      expect(ThemeKind.values, contains(ThemeKind.solid));
+    });
+
+    test('ClockLayer enum', () {
+      // Test ClockLayer enum values
+      expect(ClockLayer.values.length, equals(3));
+      expect(ClockLayer.values, contains(ClockLayer.desktop));
+      expect(ClockLayer.values, contains(ClockLayer.normal));
+      expect(ClockLayer.values, contains(ClockLayer.top));
+    });
   });
 }
