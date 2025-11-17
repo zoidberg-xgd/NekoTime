@@ -57,10 +57,17 @@ jobs:
       - name: Run tests
         run: flutter test
           
+      - name: Verify macOS project before build
+        run: |
+          echo "Checking for required macOS files..."
+          test -f macos/Runner.xcodeproj/project.pbxproj || (echo "ERROR: project.pbxproj not found" && exit 1)
+          test -f macos/Podfile || (echo "ERROR: Podfile not found" && exit 1)
+          echo "Installing CocoaPods dependencies..."
+          cd macos && pod install && cd ..
+          
       - name: Build macOS app
         run: |
           echo "Attempting to build macOS app..."
-          flutter doctor -v
           flutter build macos --release -v
       
       - name: Create DMG
