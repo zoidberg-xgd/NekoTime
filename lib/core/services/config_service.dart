@@ -42,38 +42,39 @@ class ConfigService extends ChangeNotifier {
     if (Platform.isMacOS || Platform.isWindows || Platform.isLinux) {
       bool isAlwaysOnTop = _config.layer == ClockLayer.top;
       windowManager.setAlwaysOnTop(isAlwaysOnTop);
+      windowManager.setOpacity(_config.opacity);
     }
   }
 
   // Methods to update specific config values
-  void setScale(double scale) {
+  Future<void> setScale(double scale) async {
     final newConfig = _config.copyWith(scale: scale);
-    saveConfig(newConfig);
+    await saveConfig(newConfig);
   }
 
-  void setOpacity(double opacity) {
+  Future<void> setOpacity(double opacity) async {
     final newConfig = _config.copyWith(opacity: opacity);
-    saveConfig(newConfig);
+    await saveConfig(newConfig);
   }
 
-  void setTheme(String themeId) {
+  Future<void> setTheme(String themeId) async {
     LogService().info('Theme changed from "${_config.themeId}" to "$themeId"');
     final newConfig = _config.copyWith(themeId: themeId);
-    saveConfig(newConfig);
+    await saveConfig(newConfig);
   }
 
-  void setLayer(ClockLayer layer) {
+  Future<void> setLayer(ClockLayer layer) async {
     final newConfig = _config.copyWith(layer: layer);
-    saveConfig(newConfig);
+    await saveConfig(newConfig);
   }
 
-  void toggleLockPosition() {
+  Future<void> toggleLockPosition() async {
     final newConfig = _config.copyWith(lockPosition: !_config.lockPosition);
-    saveConfig(newConfig);
+    await saveConfig(newConfig);
   }
 
-  void setLocale(String locale) {
+  Future<void> setLocale(String locale) async {
     final newConfig = _config.copyWith(locale: locale);
-    saveConfig(newConfig);
+    await saveConfig(newConfig);
   }
 }

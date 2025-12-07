@@ -166,4 +166,10 @@ class LogService {
     if (!_initialized) await init();
     return _logFile?.parent;
   }
+
+  @visibleForTesting
+  void reset() {
+    _initialized = false;
+    _logFile = null;
+  }
 }

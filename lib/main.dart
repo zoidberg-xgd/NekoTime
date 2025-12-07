@@ -135,6 +135,9 @@ void main() async {
       await windowManager.show();
       await windowManager.focus();
       
+      // 确保应用保存的透明度设置 (防止 show() 重置透明度)
+      await windowManager.setOpacity(configService.config.opacity);
+      
       // Linux 最后确认：再次设置大小
       if (Platform.isLinux) {
         await Future.delayed(const Duration(milliseconds: 200));
