@@ -112,9 +112,10 @@ void main() {
       // spacing = 2 * 1.0 = 2, 2 spacers = 4
       // baseW = 4 * 46.4 + 20.88 + 4 = 210.48
       // padH = 12 * 2 = 24, padV = 8 * 2 = 16
-      // total: ~234.48 x 96
-      expect(size.width, closeTo(234.48, 0.5));
-      expect(size.height, closeTo(96.0, 0.1));
+      // total: ~234.48 x 96, then ceil + 1 for safety margin
+      // Result: 236 x 97
+      expect(size.width, closeTo(236.0, 1.0));
+      expect(size.height, closeTo(97.0, 1.0));
     });
 
     test('scales correctly with scale factor', () {
@@ -124,19 +125,19 @@ void main() {
       final size1 = calculateWindowSizeFromConfig(config1);
       final size2 = calculateWindowSizeFromConfig(config2);
 
-      // Size should scale linearly
-      expect(size2.width, closeTo(size1.width * 2, 0.1));
-      expect(size2.height, closeTo(size1.height * 2, 0.1));
+      // Size should scale approximately linearly (with ceil + 1 margin)
+      expect(size2.width, closeTo(size1.width * 2, 5.0));
+      expect(size2.height, closeTo(size1.height * 2, 5.0));
     });
 
     test('handles small scale factor', () {
       final config = ClockConfig(scale: 0.75);
       final size = calculateWindowSizeFromConfig(config);
 
-      // Should be 75% of default size
+      // Should be approximately 75% of default size (with ceil + 1 margin)
       final defaultSize = calculateWindowSizeFromConfig(ClockConfig(scale: 1.0));
-      expect(size.width, closeTo(defaultSize.width * 0.75, 0.1));
-      expect(size.height, closeTo(defaultSize.height * 0.75, 0.1));
+      expect(size.width, closeTo(defaultSize.width * 0.75, 5.0));
+      expect(size.height, closeTo(defaultSize.height * 0.75, 5.0));
     });
 
     test('respects custom digitSpacing', () {
@@ -178,9 +179,9 @@ void main() {
       final size = calculateWindowSizeFromConfig(config);
       final defaultSize = calculateWindowSizeFromConfig(ClockConfig(scale: 1.0));
 
-      // Should be 3x the default
-      expect(size.width, closeTo(defaultSize.width * 3, 0.5));
-      expect(size.height, closeTo(defaultSize.height * 3, 0.5));
+      // Should be approximately 3x the default (with ceil + 1 margin)
+      expect(size.width, closeTo(defaultSize.width * 3, 10.0));
+      expect(size.height, closeTo(defaultSize.height * 3, 10.0));
     });
 
     // === 边界测试 ===
