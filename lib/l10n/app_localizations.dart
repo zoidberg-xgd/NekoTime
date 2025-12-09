@@ -200,6 +200,12 @@ abstract class AppLocalizations {
   /// **'Close'**
   String get close;
 
+  /// No description provided for @openThemeFolder.
+  ///
+  /// In en, this message translates to:
+  /// **'Open Theme Folder'**
+  String get openThemeFolder;
+
   /// No description provided for @exit.
   ///
   /// In en, this message translates to:

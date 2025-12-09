@@ -296,11 +296,16 @@ build/linux/x64/release/bundle/neko_time
 
 ## 📦 主题目录位置
 
+**建议从设置对话框底部复制完整路径。**
+
 | 平台 | 主题目录 |
 |------|----------|
-| macOS | `~/Library/Application Support/NekoTime/themes/` |
-| Windows | `%APPDATA%\NekoTime\themes\` |
-| Linux | `~/.local/share/NekoTime/themes/` |
+| macOS (Sandbox) | `~/Library/Containers/com.nekotime.app/Data/Library/Application Support/com.nekotime.app/themes/` |
+| macOS (非 Sandbox) | `~/Library/Application Support/NekoTime/themes/` |
+| Windows | `%APPDATA%\com.nekotime.app\themes\` |
+| Linux | `~/.local/share/com.nekotime.app/themes/` |
+
+> **注意**：从 DMG 或 App Store 安装的 macOS 版本使用 Sandbox 模式。
 
 ---
 

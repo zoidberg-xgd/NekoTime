@@ -33,18 +33,22 @@ example_mod/
 
 ### 1. 定位主题目录
 
-打开应用设置对话框，在底部找到 `themes/` 目录路径：
-- **macOS**: `~/Library/Application Support/NekoTime/themes/`
-- **Windows**: `%APPDATA%\NekoTime\themes\`
-- **Linux**: `~/.local/share/NekoTime/themes/`
+打开应用设置对话框，在底部找到 `themes/` 目录的完整路径。
+
+| 平台 | 路径 |
+|------|------|
+| **macOS (Sandbox)** | `~/Library/Containers/com.nekotime.app/Data/Library/Application Support/com.nekotime.app/themes/` |
+| **macOS (非 Sandbox)** | `~/Library/Application Support/NekoTime/themes/` |
+| **Windows** | `%APPDATA%\com.nekotime.app\themes\` |
+| **Linux** | `~/.local/share/com.nekotime.app/themes/` |
 
 ### 2. 安装主题
 
 将整个 `example_mod` 文件夹复制到主题目录：
 
 ```bash
-# macOS 示例
-cp -r example_mod ~/Library/Application\ Support/NekoTime/themes/
+# macOS (Sandbox 模式)
+cp -r example_mod ~/Library/Containers/com.nekotime.app/Data/Library/Application\ Support/com.nekotime.app/themes/
 ```
 
 ### 3. 准备资源（可选）

@@ -4,13 +4,16 @@
 
 ## 目录位置
 
-主题目录位于应用支持目录下：
+主题目录位于应用支持目录下。**最简单的方法**：打开设置对话框，底部会显示完整路径。
 
-- **macOS**: `~/Library/Application Support/NekoTime/themes/`
-- **Windows**: `%APPDATA%\NekoTime\themes\`
-- **Linux**: `~/.local/share/NekoTime/themes/`
+| 平台 | 路径 |
+|------|------|
+| **macOS (Sandbox)** | `~/Library/Containers/com.nekotime.app/Data/Library/Application Support/com.nekotime.app/themes/` |
+| **macOS (非 Sandbox)** | `~/Library/Application Support/NekoTime/themes/` |
+| **Windows** | `%APPDATA%\com.nekotime.app\themes\` |
+| **Linux** | `~/.local/share/com.nekotime.app/themes/` |
 
-**提示**：可在应用设置对话框底部查看完整路径。
+> **注意**：从 DMG 或 App Store 安装的 macOS 版本使用 Sandbox 模式。
 
 ## 主题结构
 
@@ -81,11 +84,14 @@ themes/
 ### 1. 创建主题文件夹
 
 ```bash
-# macOS/Linux
-mkdir -p ~/Library/Application\ Support/NekoTime/themes/my_theme
+# macOS (Sandbox 模式，从设置对话框获取实际路径)
+mkdir -p ~/Library/Containers/com.nekotime.app/Data/Library/Application\ Support/com.nekotime.app/themes/my_theme
 
 # Windows
-mkdir %APPDATA%\NekoTime\themes\my_theme
+mkdir %APPDATA%\com.nekotime.app\themes\my_theme
+
+# Linux
+mkdir -p ~/.local/share/com.nekotime.app/themes/my_theme
 ```
 
 ### 2. 创建配置文件

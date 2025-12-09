@@ -62,5 +62,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get close => 'Close';
 
   @override
+  String get openThemeFolder => 'Open Theme Folder';
+
+  @override
   String get exit => 'Exit';
 }

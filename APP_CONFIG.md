@@ -166,12 +166,16 @@ Type=Application
 
 ### Q: 为什么数据目录路径变了？
 
-**A**: 重命名后，应用数据目录从旧路径迁移到新路径：
-- **macOS**: `~/Library/Application Support/digital_clock/` → `~/Library/Application Support/NekoTime/`
-- **Windows**: `%APPDATA%\digital_clock\` → `%APPDATA%\NekoTime\`
-- **Linux**: `~/.local/share/digital_clock/` → `~/.local/share/NekoTime/`
+**A**: 重命名后，应用数据目录使用新的 Bundle ID。实际路径取决于安装方式：
 
-首次运行新版本时，需要手动迁移主题和配置文件。
+| 平台 | 路径 |
+|------|------|
+| macOS (Sandbox) | `~/Library/Containers/com.nekotime.app/Data/Library/Application Support/com.nekotime.app/` |
+| macOS (非 Sandbox) | `~/Library/Application Support/NekoTime/` |
+| Windows | `%APPDATA%\com.nekotime.app\` |
+| Linux | `~/.local/share/com.nekotime.app/` |
+
+**建议从设置对话框底部复制完整路径。** 首次运行新版本时，需要手动迁移主题和配置文件。
 
 ---
 

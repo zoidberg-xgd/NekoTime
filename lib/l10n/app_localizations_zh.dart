@@ -62,5 +62,8 @@ class AppLocalizationsZh extends AppLocalizations {
   String get close => '关闭';
 
   @override
+  String get openThemeFolder => '打开主题文件夹';
+
+  @override
   String get exit => '退出';
 }

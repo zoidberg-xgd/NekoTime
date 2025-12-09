@@ -203,6 +203,26 @@ mixin TrayController<T extends StatefulWidget> on State<T> {
       ]),
       MenuSeparator(),
       MenuItemLabel(
+        label: l10n.themeReload,
+        onClicked: (_) => themeService.reload(),
+      ),
+      MenuItemLabel(
+        label: l10n.openThemeFolder,
+        onClicked: (_) {
+          final themesPath = themeService.themesDirectoryPath;
+          if (themesPath != null) {
+            if (Platform.isMacOS) {
+              Process.run('open', [themesPath]);
+            } else if (Platform.isWindows) {
+              Process.run('explorer', [themesPath]);
+            } else if (Platform.isLinux) {
+              Process.run('xdg-open', [themesPath]);
+            }
+          }
+        },
+      ),
+      MenuSeparator(),
+      MenuItemLabel(
         label: l10n.exit,
         onClicked: (_) async {
           await _tray.destroy();

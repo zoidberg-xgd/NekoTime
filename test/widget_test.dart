@@ -32,7 +32,7 @@ void main() {
 
     test('ThemeDefinition defaults', () {
       // Test theme definition constants
-      expect(ThemeDefinition.defaultThemeId, equals('builtin_frosted_glass'));
+      expect(ThemeDefinition.defaultThemeId, equals('frosted_glass'));
       expect(ThemeKind.values.length, equals(3));
       expect(ThemeKind.values, contains(ThemeKind.transparent));
       expect(ThemeKind.values, contains(ThemeKind.blur));

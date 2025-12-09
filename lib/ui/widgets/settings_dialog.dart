@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'dart:ui';
 
+import 'package:flutter/services.dart';
 import 'package:neko_time/core/models/theme_definition.dart';
 import 'package:neko_time/core/services/config_service.dart';
 import 'package:neko_time/core/services/log_service.dart';
@@ -63,14 +64,50 @@ class SettingsDialog extends StatelessWidget {
                 ),
                 if (themeService.themesDirectoryPath != null) ...[
                   const SizedBox(height: 8),
-                  Text(
-                    l10n.themeFolderHint(
-                      themeService.themesDirectoryPath!,
-                    ),
-                    style: Theme.of(context)
-                        .textTheme
-                        .bodySmall
-                        ?.copyWith(color: Colors.white70),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Text(
+                          l10n.themeFolderHint(
+                            themeService.themesDirectoryPath!,
+                          ),
+                          style: Theme.of(context)
+                              .textTheme
+                              .bodySmall
+                              ?.copyWith(color: Colors.white70),
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      IconButton(
+                        icon: const Icon(Icons.copy, size: 16),
+                        tooltip: '复制路径',
+                        onPressed: () {
+                          Clipboard.setData(ClipboardData(
+                            text: themeService.themesDirectoryPath!,
+                          ));
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text('路径已复制'),
+                              duration: Duration(seconds: 2),
+                            ),
+                          );
+                        },
+                        padding: EdgeInsets.zero,
+                        constraints: const BoxConstraints(),
+                        color: Colors.white70,
+                      ),
+                      const SizedBox(width: 8),
+                      IconButton(
+                        icon: const Icon(Icons.folder_open, size: 16),
+                        tooltip: '打开文件夹',
+                        onPressed: () {
+                          Process.run('open', [themeService.themesDirectoryPath!]);
+                        },
+                        padding: EdgeInsets.zero,
+                        constraints: const BoxConstraints(),
+                        color: Colors.white70,
+                      ),
+                    ],
                   ),
                 ],
                 const SizedBox(height: 12),

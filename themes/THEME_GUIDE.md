@@ -418,11 +418,42 @@ my_theme/
 
 ---
 
+## 主题目录位置
+
+主题存储在应用支持目录的 `themes/` 文件夹中。
+
+### 查找主题目录
+
+**最简单的方法**：打开设置对话框，底部会显示完整的主题目录路径。
+
+### 各平台路径
+
+| 平台 | 路径 |
+|------|------|
+| **macOS (Sandbox)** | `~/Library/Containers/com.nekotime.app/Data/Library/Application Support/com.nekotime.app/themes/` |
+| **macOS (非 Sandbox)** | `~/Library/Application Support/NekoTime/themes/` |
+| **Windows** | `%APPDATA%\com.nekotime.app\themes\` |
+| **Linux** | `~/.local/share/com.nekotime.app/themes/` |
+
+> **注意**：从 DMG 或 App Store 安装的 macOS 版本使用 Sandbox 模式，路径较长。建议直接从设置对话框复制路径。
+
+### 快速打开主题目录 (macOS)
+
+```bash
+# Sandbox 模式（DMG/App Store 安装）
+open ~/Library/Containers/com.nekotime.app/Data/Library/Application\ Support/com.nekotime.app/themes
+
+# 非 Sandbox 模式（开发版本）
+open ~/Library/Application\ Support/NekoTime/themes
+```
+
+---
+
 ## 测试与调试
 
 ### 本地测试
 
-1. 将主题文件夹复制到 themes 目录
+1. 将主题文件夹复制到 themes 目录（见上方路径说明）
 2. 打开托盘菜单 → **Reload Themes**
 3. 选择你的主题查看效果
 
@@ -498,5 +529,5 @@ https://jsonlint.com
 
 ---
 
-**最后更新**: 2025-11-18  
-**文档版本**: 2.0
+**最后更新**: 2025-12-09  
+**文档版本**: 2.1

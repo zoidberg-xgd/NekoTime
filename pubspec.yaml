@@ -39,7 +39,6 @@ flutter:
     - themes/builtin/frosted_glass/
     - themes/builtin/frosted_glass/digits/
     - themes/example_mod/
-    - themes/example_mod/digits/
 
 flutter_launcher_icons:
   # 桌面平台图标生成配置

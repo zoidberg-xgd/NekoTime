@@ -17,77 +17,124 @@ class ThemeService extends ChangeNotifier {
   Future<void> init() async {
     _themes.clear();
 
-    // 首先添加内置主题（硬编码，确保始终可用）
-    _themes[ThemeDefinition.defaultThemeId] = await _createBuiltinTheme();
-    LogService().info('Loaded builtin theme: Frosted Glass');
-
-    // 然后从应用支持目录加载用户主题
+    // 从应用支持目录加载主题
     final dir = await _ensureThemesDirectory();
 
-    // 首次启动时，复制示例主题到应用支持目录
-    await _installExampleThemesIfNeeded(dir);
+    // 首次启动时，复制内置主题和示例主题到应用支持目录
+    await _installBuiltinThemesIfNeeded(dir);
 
     await _loadCustomThemes(dir);
+
+    // 如果没有加载到任何主题，创建一个 fallback
+    if (_themes.isEmpty) {
+      LogService().warning('No themes found, creating fallback theme');
+      _themes['fallback'] = _createFallbackTheme();
+    }
 
     LogService().info('Total themes loaded: ${_themes.length}');
     notifyListeners();
   }
 
-  Future<void> _installExampleThemesIfNeeded(Directory themesDir) async {
-    // 检查是否已安装示例主题（通过检查标记文件）
-    final markerFile = File(p.join(themesDir.path, '.examples_installed_v2'));
+  /// 安装内置主题到用户目录（首次启动时）
+  Future<void> _installBuiltinThemesIfNeeded(Directory themesDir) async {
+    // 检查是否已安装（通过检查标记文件，v3 表示包含内置主题）
+    final markerFile = File(p.join(themesDir.path, '.themes_installed_v3'));
     if (await markerFile.exists()) {
-      LogService().debug('Example themes already installed');
+      LogService().debug('Builtin themes already installed');
       return;
     }
 
-    LogService().info('Installing example themes from assets...');
+    LogService().info('Installing builtin themes to user directory...');
     
     try {
-      // 复制 example_mod 主题
-      final exampleModDir = Directory(p.join(themesDir.path, 'example_mod'));
-      if (!await exampleModDir.exists()) {
-        await exampleModDir.create(recursive: true);
-      }
+      // 1. 安装 frosted_glass（默认内置主题）
+      await _installThemeFromAssets(
+        themesDir: themesDir,
+        themeId: 'frosted_glass',
+        assetPath: 'themes/builtin/frosted_glass',
+      );
       
-      // 复制主题配置文件
-      final themeJsonAsset = await rootBundle.loadString('themes/example_mod/theme.json');
-      await File(p.join(exampleModDir.path, 'theme.json')).writeAsString(themeJsonAsset);
-      
-      // 复制数字 GIF
-      final digitsDir = Directory(p.join(exampleModDir.path, 'digits'));
-      if (!await digitsDir.exists()) {
-        await digitsDir.create(recursive: true);
-      }
-      
-      for (int i = 0; i <= 9; i++) {
-        final assetPath = 'themes/example_mod/digits/$i.gif';
-        final digitBytes = await rootBundle.load(assetPath);
-        await File(p.join(digitsDir.path, '$i.gif'))
-            .writeAsBytes(digitBytes.buffer.asUint8List());
-      }
-      
-      LogService().info('Example theme installed successfully: example_mod');
+      // 2. 安装 example_mod（示例主题）
+      await _installThemeFromAssets(
+        themesDir: themesDir,
+        themeId: 'example_mod',
+        assetPath: 'themes/example_mod',
+      );
       
       // 创建标记文件
-      await markerFile.writeAsString('v2');
-      LogService().info('Example themes installation completed');
+      await markerFile.writeAsString('v3');
+      LogService().info('Builtin themes installation completed');
     } catch (e, stackTrace) {
-      LogService().error('Failed to install example themes', 
+      LogService().error('Failed to install builtin themes', 
           error: e, stackTrace: stackTrace);
     }
+  }
+
+  /// 从 assets 安装单个主题到用户目录
+  Future<void> _installThemeFromAssets({
+    required Directory themesDir,
+    required String themeId,
+    required String assetPath,
+  }) async {
+    final themeDir = Directory(p.join(themesDir.path, themeId));
+    if (await themeDir.exists()) {
+      LogService().debug('Theme $themeId already exists, skipping');
+      return;
+    }
+    
+    await themeDir.create(recursive: true);
+    
+    // 复制 theme.json
+    try {
+      final themeJson = await rootBundle.loadString('$assetPath/theme.json');
+      await File(p.join(themeDir.path, 'theme.json')).writeAsString(themeJson);
+    } catch (e) {
+      LogService().warning('No theme.json found for $themeId, creating default');
+      // 如果没有 theme.json，创建一个默认的
+      final defaultJson = '''{
+  "id": "$themeId",
+  "name": "${themeId.replaceAll('_', ' ').split(' ').map((w) => w[0].toUpperCase() + w.substring(1)).join(' ')}",
+  "kind": "blur",
+  "borderRadius": 16,
+  "padding": { "preset": "cozy" },
+  "blur": { "sigmaX": 16, "sigmaY": 16 },
+  "backgroundOpacityMultiplier": 0.3,
+  "tintColor": "#9E9E9E",
+  "tintOpacityMultiplier": 0.15,
+  "digit": { "spacing": 2, "gifPath": "digits", "format": "gif" }
+}''';
+      await File(p.join(themeDir.path, 'theme.json')).writeAsString(defaultJson);
+    }
+    
+    // 复制数字图片
+    final digitsDir = Directory(p.join(themeDir.path, 'digits'));
+    await digitsDir.create(recursive: true);
+    
+    for (int i = 0; i <= 9; i++) {
+      try {
+        final digitBytes = await rootBundle.load('$assetPath/digits/$i.gif');
+        await File(p.join(digitsDir.path, '$i.gif'))
+            .writeAsBytes(digitBytes.buffer.asUint8List());
+      } catch (e) {
+        LogService().warning('Failed to copy digit $i for theme $themeId: $e');
+      }
+    }
+    
+    LogService().info('Theme installed: $themeId');
   }
 
   Future<void> reload() async {
     _themes.clear();
 
-    // 重新加载内置主题
-    _themes[ThemeDefinition.defaultThemeId] = await _createBuiltinTheme();
-    LogService().info('Reloaded builtin theme: Frosted Glass');
-
-    // 加载用户主题
+    // 从用户目录加载所有主题
     final dir = await _ensureThemesDirectory();
     await _loadCustomThemes(dir);
+
+    // 如果没有加载到任何主题，创建一个 fallback
+    if (_themes.isEmpty) {
+      LogService().warning('No themes found after reload, creating fallback theme');
+      _themes['fallback'] = _createFallbackTheme();
+    }
 
     LogService().info('Total themes after reload: ${_themes.length}');
     notifyListeners();
@@ -114,32 +161,6 @@ class ThemeService extends ChangeNotifier {
     return _themes[themeId] ??
         _themes[ThemeDefinition.defaultThemeId] ??
         _themes.values.first;
-  }
-
-  Future<ThemeDefinition> _createBuiltinTheme() async {
-    const theme = ThemeDefinition(
-      id: ThemeDefinition.defaultThemeId,
-      name: 'Frosted Glass',
-      kind: ThemeKind.blur,
-      borderRadius: 16,
-      paddingHorizontal: 12,
-      paddingVertical: 8,
-      blurSigmaX: 16,
-      blurSigmaY: 16,
-      tintColor: Color(0xFF9E9E9E),
-      backgroundOpacityMultiplier: 0.3,
-      tintOpacityMultiplier: 0.15,
-      digitGifPath: 'themes/builtin/frosted_glass/digits',
-      digitImageFormat: 'gif',
-      digitSpacing: 2,
-    );
-    // Auto-detect dimensions from first digit image (builtin theme has no manual override)
-    final dimensions = await _detectDigitDimensions(theme);
-    if (dimensions != null) {
-      final (aspectRatio, baseHeight) = dimensions;
-      return theme.copyWith(digitAspectRatio: aspectRatio, digitBaseHeight: baseHeight);
-    }
-    return theme;
   }
 
   /// Ensure theme has digitAspectRatio and digitBaseHeight set.

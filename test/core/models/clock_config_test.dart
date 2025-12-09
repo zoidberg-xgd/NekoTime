@@ -98,7 +98,7 @@ void main() {
 
   group('ThemeDefinition', () {
     test('defaults are correct', () {
-      expect(ThemeDefinition.defaultThemeId, equals('builtin_frosted_glass'));
+      expect(ThemeDefinition.defaultThemeId, equals('frosted_glass'));
     });
   });
 
