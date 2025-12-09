@@ -19,7 +19,7 @@ permissions:
 
 env:
   APP_NAME: NekoTime
-  APP_VERSION: 2.2.4
+  APP_VERSION: "2.2.5"
 
 jobs:
   build-macos:
