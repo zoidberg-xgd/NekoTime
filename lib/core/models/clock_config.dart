@@ -21,6 +21,10 @@ class ClockConfig {
   bool lockPosition;
   // 语言环境
   String locale;
+  // 窗口位置 X 坐标
+  double? positionX;
+  // 窗口位置 Y 坐标
+  double? positionY;
 
   ClockConfig({
     this.scale = 1.0,
@@ -29,6 +33,8 @@ class ClockConfig {
     this.layer = ClockLayer.top,
     this.lockPosition = false,
     this.locale = 'en',
+    this.positionX,
+    this.positionY,
   }) : themeId = themeId ?? ThemeDefinition.defaultThemeId;
 
   // 从 JSON 创建配置
@@ -50,6 +56,8 @@ class ClockConfig {
       layer: ClockLayer.values[layerIndex],
       lockPosition: json['lockPosition'] ?? false,
       locale: json['locale'] ?? 'en',
+      positionX: json['positionX'] as double?,
+      positionY: json['positionY'] as double?,
     );
   }
 
@@ -62,6 +70,8 @@ class ClockConfig {
       'layerIndex': layer.index,
       'lockPosition': lockPosition,
       'locale': locale,
+      'positionX': positionX,
+      'positionY': positionY,
     };
   }
 
@@ -73,6 +83,8 @@ class ClockConfig {
     ClockLayer? layer,
     bool? lockPosition,
     String? locale,
+    double? positionX,
+    double? positionY,
   }) {
     return ClockConfig(
       scale: scale ?? this.scale,
@@ -81,6 +93,8 @@ class ClockConfig {
       layer: layer ?? this.layer,
       lockPosition: lockPosition ?? this.lockPosition,
       locale: locale ?? this.locale,
+      positionX: positionX ?? this.positionX,
+      positionY: positionY ?? this.positionY,
     );
   }
 }

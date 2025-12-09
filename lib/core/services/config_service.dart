@@ -77,4 +77,17 @@ class ConfigService extends ChangeNotifier {
     final newConfig = _config.copyWith(locale: locale);
     await saveConfig(newConfig);
   }
+
+  Future<void> savePosition(Offset position) async {
+    final newConfig = _config.copyWith(
+      positionX: position.dx,
+      positionY: position.dy,
+    );
+    // Don't call saveConfig because it calls notifyListeners() and _applyWindowSettings
+    // which might cause loops or unnecessary updates during drag
+    _config = newConfig;
+    final String configJson = jsonEncode(_config.toJson());
+    await _prefs.setString('clock_config', configJson);
+    // No notifyListeners needed for position updates as they are local to the window
+  }
 }

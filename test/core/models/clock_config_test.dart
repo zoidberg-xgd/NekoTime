@@ -24,6 +24,8 @@ void main() {
         layer: ClockLayer.desktop,
         lockPosition: true,
         locale: 'zh',
+        positionX: 100.0,
+        positionY: 200.0,
       );
 
       expect(config.themeId, equals('custom_theme'));
@@ -32,6 +34,8 @@ void main() {
       expect(config.layer, equals(ClockLayer.desktop));
       expect(config.lockPosition, isTrue);
       expect(config.locale, equals('zh'));
+      expect(config.positionX, equals(100.0));
+      expect(config.positionY, equals(200.0));
     });
 
     test('fromJson handles valid JSON', () {
@@ -42,6 +46,8 @@ void main() {
         'layerIndex': 1, // ClockLayer.top
         'lockPosition': true,
         'locale': 'ja',
+        'positionX': 150.0,
+        'positionY': 250.0,
       };
 
       final config = ClockConfig.fromJson(json);
@@ -51,6 +57,8 @@ void main() {
       expect(config.layer, equals(ClockLayer.top));
       expect(config.lockPosition, isTrue);
       expect(config.locale, equals('ja'));
+      expect(config.positionX, equals(150.0));
+      expect(config.positionY, equals(250.0));
     });
 
     test('fromJson handles legacy layer index', () {
@@ -70,6 +78,8 @@ void main() {
         layer: ClockLayer.desktop,
         lockPosition: true,
         locale: 'fr',
+        positionX: 300.0,
+        positionY: 400.0,
       );
 
       final json = config.toJson();
@@ -79,20 +89,28 @@ void main() {
       expect(json['layerIndex'], equals(0)); // desktop
       expect(json['lockPosition'], isTrue);
       expect(json['locale'], equals('fr'));
+      expect(json['positionX'], equals(300.0));
+      expect(json['positionY'], equals(400.0));
     });
 
     test('copyWith creates new instance with updated values', () {
-      final config = ClockConfig();
+      final config = ClockConfig(
+        positionX: 10.0,
+        positionY: 20.0,
+      );
       final newConfig = config.copyWith(
         scale: 2.0,
         themeId: 'new_theme',
+        positionX: 50.0,
       );
 
       expect(newConfig.scale, equals(2.0));
       expect(newConfig.themeId, equals('new_theme'));
+      expect(newConfig.positionX, equals(50.0));
       // Should keep old values
       expect(newConfig.opacity, equals(config.opacity));
       expect(newConfig.layer, equals(config.layer));
+      expect(newConfig.positionY, equals(20.0));
     });
   });
 

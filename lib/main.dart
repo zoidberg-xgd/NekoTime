@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:async';
 
 import 'package:neko_time/core/models/clock_config.dart';
 import 'package:neko_time/core/services/config_service.dart';
@@ -74,10 +75,14 @@ void main() async {
     // 根据配置决定是否置顶
     bool shouldAlwaysOnTop = configService.config.layer == ClockLayer.top;
 
+    // 检查是否有保存的位置
+    bool hasSavedPosition = configService.config.positionX != null &&
+        configService.config.positionY != null;
+
     WindowOptions windowOptions = WindowOptions(
       size: initialSize,
       minimumSize: const Size(200, 80),
-      center: true,
+      center: !hasSavedPosition, // 如果有保存的位置，则不居中
       backgroundColor: Colors.transparent,
       skipTaskbar: true,
       titleBarStyle: TitleBarStyle.hidden,
@@ -88,6 +93,14 @@ void main() async {
     windowManager.waitUntilReadyToShow(windowOptions, () async {
       // 确保窗口大小正确（防止闪烁）
       await windowManager.setSize(initialSize);
+
+      // 恢复位置
+      if (hasSavedPosition) {
+        await windowManager.setPosition(Offset(
+          configService.config.positionX!,
+          configService.config.positionY!,
+        ));
+      }
       
       // 平台特定配置
       if (Platform.isMacOS) {
@@ -192,8 +205,9 @@ class MyApp extends StatefulWidget {
   State<MyApp> createState() => _MyAppState();
 }
 
-class _MyAppState extends State<MyApp> with TrayController<MyApp> {
+class _MyAppState extends State<MyApp> with TrayController<MyApp>, WindowListener {
   final GlobalKey<NavigatorState> _navigatorKey = GlobalKey<NavigatorState>();
+  Timer? _savePositionTimer;
 
   @override
   BuildContext get trayContext => _navigatorKey.currentContext ?? context;
@@ -201,6 +215,8 @@ class _MyAppState extends State<MyApp> with TrayController<MyApp> {
   @override
   void initState() {
     super.initState();
+    windowManager.addListener(this);
+    
     // 延迟并安全地初始化托盘
     if (Platform.isMacOS || Platform.isWindows || Platform.isLinux) {
       Future.delayed(const Duration(seconds: 1), () async {
@@ -217,10 +233,29 @@ class _MyAppState extends State<MyApp> with TrayController<MyApp> {
 
   @override
   void dispose() {
+    windowManager.removeListener(this);
+    _savePositionTimer?.cancel();
     if (Platform.isMacOS || Platform.isWindows || Platform.isLinux) {
       disposeTray(widget.configService);
     }
     super.dispose();
+  }
+
+  @override
+  void onWindowMove() {
+    _debounceSavePosition();
+  }
+
+  void _debounceSavePosition() {
+    if (_savePositionTimer?.isActive ?? false) _savePositionTimer!.cancel();
+    _savePositionTimer = Timer(const Duration(milliseconds: 500), () async {
+      try {
+        final position = await windowManager.getPosition();
+        await widget.configService.savePosition(position);
+      } catch (e) {
+        // Ignore errors during window drag/move
+      }
+    });
   }
 
   @override

@@ -37,14 +37,18 @@ class ThemeService extends ChangeNotifier {
 
   /// 安装内置主题到用户目录（首次启动时）
   Future<void> _installBuiltinThemesIfNeeded(Directory themesDir) async {
-    // 检查是否已安装（通过检查标记文件，v3 表示包含内置主题）
-    final markerFile = File(p.join(themesDir.path, '.themes_installed_v3'));
-    if (await markerFile.exists()) {
-      LogService().debug('Builtin themes already installed');
+    // 检查是否已安装（通过检查标记文件，v4 表示包含修复后的 example_mod）
+    final markerFile = File(p.join(themesDir.path, '.themes_installed_v4'));
+    // 同时也检查核心主题目录是否存在
+    final frostedGlassDir = Directory(p.join(themesDir.path, 'frosted_glass'));
+    
+    // 只有当标记文件存在，且核心主题(frosted_glass)也存在时，才认为已完全安装
+    if (await markerFile.exists() && await frostedGlassDir.exists()) {
+      LogService().debug('Builtin themes already installed (v4)');
       return;
     }
 
-    LogService().info('Installing builtin themes to user directory...');
+    LogService().info('Installing builtin themes to user directory (v4)...');
     
     try {
       // 1. 安装 frosted_glass（默认内置主题）
@@ -52,6 +56,7 @@ class ThemeService extends ChangeNotifier {
         themesDir: themesDir,
         themeId: 'frosted_glass',
         assetPath: 'themes/builtin/frosted_glass',
+        forceUpdateConfig: true, // 强制更新配置以确保最新
       );
       
       // 2. 安装 example_mod（示例主题）
@@ -59,10 +64,19 @@ class ThemeService extends ChangeNotifier {
         themesDir: themesDir,
         themeId: 'example_mod',
         assetPath: 'themes/example_mod',
+        forceUpdateConfig: true, // 强制更新配置以修复旧版本的 GIF 问题
       );
       
       // 创建标记文件
-      await markerFile.writeAsString('v3');
+      await markerFile.writeAsString('v4');
+      
+      // 清理旧版本的标记文件
+      final oldMarkers = ['v1', 'v2', 'v3'];
+      for (final v in oldMarkers) {
+        final f = File(p.join(themesDir.path, '.themes_installed_$v'));
+        if (await f.exists()) await f.delete();
+      }
+      
       LogService().info('Builtin themes installation completed');
     } catch (e, stackTrace) {
       LogService().error('Failed to install builtin themes', 
@@ -75,23 +89,27 @@ class ThemeService extends ChangeNotifier {
     required Directory themesDir,
     required String themeId,
     required String assetPath,
+    bool forceUpdateConfig = false,
   }) async {
     final themeDir = Directory(p.join(themesDir.path, themeId));
-    if (await themeDir.exists()) {
+    final bool exists = await themeDir.exists();
+    
+    if (!exists) {
+      await themeDir.create(recursive: true);
+    } else if (!forceUpdateConfig) {
       LogService().debug('Theme $themeId already exists, skipping');
       return;
     }
     
-    await themeDir.create(recursive: true);
-    
-    // 复制 theme.json
+    // 复制/更新 theme.json
     try {
       final themeJson = await rootBundle.loadString('$assetPath/theme.json');
       await File(p.join(themeDir.path, 'theme.json')).writeAsString(themeJson);
+      LogService().debug('Updated theme.json for $themeId');
     } catch (e) {
-      LogService().warning('No theme.json found for $themeId, creating default');
-      // 如果没有 theme.json，创建一个默认的
-      final defaultJson = '''{
+      if (!exists) { // 只有在新安装且失败时才创建默认配置
+        LogService().warning('No theme.json found for $themeId, creating default');
+        final defaultJson = '''{
   "id": "$themeId",
   "name": "${themeId.replaceAll('_', ' ').split(' ').map((w) => w[0].toUpperCase() + w.substring(1)).join(' ')}",
   "kind": "blur",
@@ -103,24 +121,34 @@ class ThemeService extends ChangeNotifier {
   "tintOpacityMultiplier": 0.15,
   "digit": { "spacing": 2, "gifPath": "digits", "format": "gif" }
 }''';
-      await File(p.join(themeDir.path, 'theme.json')).writeAsString(defaultJson);
-    }
-    
-    // 复制数字图片
-    final digitsDir = Directory(p.join(themeDir.path, 'digits'));
-    await digitsDir.create(recursive: true);
-    
-    for (int i = 0; i <= 9; i++) {
-      try {
-        final digitBytes = await rootBundle.load('$assetPath/digits/$i.gif');
-        await File(p.join(digitsDir.path, '$i.gif'))
-            .writeAsBytes(digitBytes.buffer.asUint8List());
-      } catch (e) {
-        LogService().warning('Failed to copy digit $i for theme $themeId: $e');
+        await File(p.join(themeDir.path, 'theme.json')).writeAsString(defaultJson);
       }
     }
     
-    LogService().info('Theme installed: $themeId');
+    // 复制数字图片 (仅当目标目录不存在时，或者这是一个全新安装)
+    // 注意：我们不强制覆盖用户的图片，只更新 json 配置
+    final digitsDir = Directory(p.join(themeDir.path, 'digits'));
+    if (!await digitsDir.exists()) {
+       await digitsDir.create(recursive: true);
+       
+       // 尝试复制 digits
+       try {
+         // ... (existing logic)
+         for (int i = 0; i <= 9; i++) {
+           try {
+             final digitBytes = await rootBundle.load('$assetPath/digits/$i.gif');
+             await File(p.join(digitsDir.path, '$i.gif'))
+                 .writeAsBytes(digitBytes.buffer.asUint8List());
+           } catch (e) {
+             // ignore
+           }
+         }
+       } catch (e) {
+         LogService().warning('Error copying digits for $themeId: $e');
+       }
+    }
+    
+    LogService().info('Theme installed/updated: $themeId');
   }
 
   Future<void> reload() async {

@@ -12,10 +12,6 @@
   "tintColor": "#3D5AFE",
   "tintOpacityMultiplier": 0.08,
   "blur": { "sigmaX": 12, "sigmaY": 12 },
-  "backgroundImage": "assets/bg.jpg",
-  "overlayImage": "assets/overlay.png",
   "overlayOpacityMultiplier": 0.2,
-  "fontFamily": "ExampleModFont",
-  "fonts": [ "assets/ExampleModFont.ttf" ],
   "digit": { "spacing": 4 }
 }

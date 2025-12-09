@@ -1,3 +1,4 @@
+import 'dart:ui';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:neko_time/core/models/clock_config.dart';
@@ -107,6 +108,24 @@ void main() {
       
       await configService.toggleLockPosition();
       expect(configService.config.lockPosition, isFalse);
+    });
+
+    test('savePosition updates position and persists it without notifying listeners', () async {
+      await configService.init();
+      bool notified = false;
+      configService.addListener(() => notified = true);
+
+      await configService.savePosition(const Offset(123.0, 456.0));
+
+      expect(configService.config.positionX, equals(123.0));
+      expect(configService.config.positionY, equals(456.0));
+      expect(notified, isFalse); // Should NOT notify listeners
+
+      // Verify persistence
+      final prefs = await SharedPreferences.getInstance();
+      final savedJson = prefs.getString('clock_config');
+      expect(savedJson, contains('"positionX":123.0'));
+      expect(savedJson, contains('"positionY":456.0'));
     });
   });
 }
