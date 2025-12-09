@@ -7,6 +7,14 @@ NekoTime 的所有重要变更都将记录在此文件中。
 
 ## [未发布]
 
+## [2.2.4] - 2025-12-09
+
+### 改进
+- **单元测试**：为核心服务和配置添加全面的单元测试
+
+### 修复
+- **窗口透明度**：修复启动和配置变更时透明度未正确持久化的问题
+
 ## [2.2.3] - 2025-11-18
 
 ### 修复
@@ -203,7 +211,8 @@ themes/
 
 **项目仓库**：https://github.com/zoidberg-xgd/NekoTime
 
-[未发布]: https://github.com/zoidberg-xgd/NekoTime/compare/v2.2.3...HEAD
+[未发布]: https://github.com/zoidberg-xgd/NekoTime/compare/v2.2.4...HEAD
+[2.2.4]: https://github.com/zoidberg-xgd/NekoTime/compare/v2.2.3...v2.2.4
 [2.2.3]: https://github.com/zoidberg-xgd/NekoTime/compare/v2.2.2...v2.2.3
 [2.2.2]: https://github.com/zoidberg-xgd/NekoTime/compare/v2.2.1...v2.2.2
 [2.2.1]: https://github.com/zoidberg-xgd/NekoTime/compare/v2.2.0...v2.2.1

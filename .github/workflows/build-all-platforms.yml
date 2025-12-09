@@ -19,7 +19,7 @@ permissions:
 
 env:
   APP_NAME: NekoTime
-  APP_VERSION: 2.2.3
+  APP_VERSION: 2.2.4
 
 jobs:
   build-macos:
@@ -370,70 +370,41 @@ jobs:
           # List files
           ls -lh release-assets/
       
-      - name: Create release notes
-        run: |
-          cat > release-assets/RELEASE_NOTES.md << 'EOF'
-          # NekoTime v${{ env.APP_VERSION }} 发布说明
-          
-          ## 📦 下载
-          
-          ### macOS
-          - **DMG 安装包** (推荐): `NekoTime-macOS-v${{ env.APP_VERSION }}.dmg`
-          - **ZIP 便携版**: `NekoTime-macOS-v${{ env.APP_VERSION }}.zip`
-          - 系统要求: macOS 10.14+
-          
-          ### Windows
-          - **ZIP 便携版**: `NekoTime-Windows-v${{ env.APP_VERSION }}.zip`
-          - 系统要求: Windows 10 1903+
-          
-          ### Linux
-          - **TAR.GZ 压缩包**: `NekoTime-Linux-x64-v${{ env.APP_VERSION }}.tar.gz`
-          - 系统要求: Ubuntu 20.04+, Fedora 35+, Arch Linux
-          
-          ## ✨ 主要特性
-          
-          - 🎨 透明毛玻璃效果
-          - 🖱️ 自由拖动和多层级显示
-          - 🎭 可自定义 GIF 主题系统
-          - 📊 系统托盘集成
-          - 🌐 多语言支持 (中文/English)
-          - ⚡ 低资源占用，高性能
-          
-          ## 🔐 安全验证
-          
-          下载后请验证 SHA256 校验和:
-          ```bash
-          sha256sum -c SHA256SUMS.txt
-          ```
-          
-          ## 📚 文档
-          
-          - [安装指南](https://github.com/zoidberg-xgd/NekoTime#-quick-start)
-          - [主题开发](https://github.com/zoidberg-xgd/NekoTime/blob/main/themes/THEME_GUIDE.md)
-          - [构建指南](https://github.com/zoidberg-xgd/NekoTime/blob/main/BUILD_GUIDE.md)
-          
-          ## 🐛 问题反馈
-          
-          https://github.com/zoidberg-xgd/NekoTime/issues
-          
-          ---
-          
-          **完整更新日志**: [CHANGELOG.md](https://github.com/zoidberg-xgd/NekoTime/blob/main/CHANGELOG.md)
-          EOF
-      
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v1
         with:
           files: release-assets/*
-          body_path: release-assets/RELEASE_NOTES.md
+          body: |
+            ## macOS
+            - **DMG 安装包** (推荐): `NekoTime-macOS-v${{ env.APP_VERSION }}.dmg`
+            - **ZIP 便携版**: `NekoTime-macOS-v${{ env.APP_VERSION }}.zip`
+            - 系统要求: macOS 10.14+
+
+            ## Windows
+            - **ZIP 便携版**: `NekoTime-Windows-v${{ env.APP_VERSION }}.zip`
+            - 系统要求: Windows 10 1903+
+
+            ## Linux
+            - **TAR.GZ 压缩包**: `NekoTime-Linux-x64-v${{ env.APP_VERSION }}.tar.gz`
+            - 系统要求: Ubuntu 20.04+, Fedora 35+, Arch Linux
+
+            ## 🔐 安全验证
+            下载后请验证 SHA256 校验和:
+            ```bash
+            sha256sum -c SHA256SUMS.txt
+            ```
+
+            ## 📚 文档
+            - [安装指南](https://github.com/zoidberg-xgd/NekoTime#-quick-start)
+            - [主题开发](https://github.com/zoidberg-xgd/NekoTime/blob/main/themes/THEME_GUIDE.md)
+            - [构建指南](https://github.com/zoidberg-xgd/NekoTime/blob/main/BUILD_GUIDE.md)
+
+            ## 🐛 问题反馈
+            https://github.com/zoidberg-xgd/NekoTime/issues
+
+            ---
+            **完整更新日志**: [CHANGELOG.md](https://github.com/zoidberg-xgd/NekoTime/blob/main/CHANGELOG.md)
           draft: false
           prerelease: false
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      
-      - name: Upload release info
-        uses: actions/upload-artifact@v4
-        with:
-          name: release-info
-          path: release-assets/RELEASE_NOTES.md
-          retention-days: 90
