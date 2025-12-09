@@ -19,7 +19,7 @@ permissions:
 
 env:
   APP_NAME: NekoTime
-  APP_VERSION: "2.2.5"
+  APP_VERSION: "2.3.1"
 
 jobs:
   build-macos:
@@ -29,6 +29,10 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
+      
+      - name: Set APP_VERSION from tag
+        if: startsWith(github.ref, 'refs/tags/v')
+        run: echo "APP_VERSION=${GITHUB_REF#refs/tags/v}" >> $GITHUB_ENV
       
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
@@ -120,6 +124,11 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
+      
+      - name: Set APP_VERSION from tag
+        if: startsWith(github.ref, 'refs/tags/v')
+        shell: bash
+        run: echo "APP_VERSION=${GITHUB_REF#refs/tags/v}" >> $GITHUB_ENV
       
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
@@ -217,6 +226,10 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
+      
+      - name: Set APP_VERSION from tag
+        if: startsWith(github.ref, 'refs/tags/v')
+        run: echo "APP_VERSION=${GITHUB_REF#refs/tags/v}" >> $GITHUB_ENV
       
       - name: Install dependencies
         run: |
