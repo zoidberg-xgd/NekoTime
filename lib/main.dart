@@ -60,8 +60,16 @@ void main() async {
   }
 
   if (isDesktop) {
-    final Size initialSize =
-        calculateWindowSizeFromConfig(configService.config);
+    // 获取当前主题以计算正确的窗口大小
+    final theme = themeService.resolve(configService.config.themeId);
+    final Size initialSize = calculateWindowSizeFromConfig(
+      configService.config,
+      digitAspectRatio: theme.digitAspectRatio,
+      digitBaseHeight: theme.digitBaseHeight,
+      digitSpacing: theme.digitSpacing ?? 2.0,
+      paddingHorizontal: theme.paddingHorizontal,
+      paddingVertical: theme.paddingVertical,
+    );
 
     // 根据配置决定是否置顶
     bool shouldAlwaysOnTop = configService.config.layer == ClockLayer.top;
@@ -78,6 +86,9 @@ void main() async {
 
     // 先配置窗口属性，再显示
     windowManager.waitUntilReadyToShow(windowOptions, () async {
+      // 确保窗口大小正确（防止闪烁）
+      await windowManager.setSize(initialSize);
+      
       // 平台特定配置
       if (Platform.isMacOS) {
         // macOS: 使用 Acrylic 实现毛玻璃效果
@@ -88,6 +99,8 @@ void main() async {
           effect: flutter_acrylic.WindowEffect.sidebar,
           color: Colors.transparent,
         );
+        // 再次设置大小，因为 acrylic 设置可能影响窗口
+        await windowManager.setSize(initialSize);
       } else if (Platform.isWindows) {
         // Windows: 使用 Acrylic 效果
         await flutter_acrylic.Window.setEffect(
@@ -131,12 +144,20 @@ void main() async {
         await windowManager.setHasShadow(true);
       }
 
+      // 先设置透明度，再显示窗口
+      final savedOpacity = configService.config.opacity.clamp(0.1, 1.0);
+      await windowManager.setOpacity(savedOpacity);
+      
       // 显示和聚焦窗口
       await windowManager.show();
       await windowManager.focus();
       
-      // 确保应用保存的透明度设置 (防止 show() 重置透明度)
-      await windowManager.setOpacity(configService.config.opacity);
+      // macOS 需要在 show() 后再次设置透明度，因为 show() 可能会重置它
+      if (Platform.isMacOS) {
+        await Future.delayed(const Duration(milliseconds: 100));
+        await windowManager.setOpacity(savedOpacity);
+      }
+      await logService.info('Applied saved opacity: $savedOpacity');
       
       // Linux 最后确认：再次设置大小
       if (Platform.isLinux) {

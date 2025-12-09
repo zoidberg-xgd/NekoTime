@@ -85,24 +85,45 @@ class ClockConfig {
   }
 }
 
-Size calculateWindowSizeFromConfig(ClockConfig config) {
-  final double digitHeight = 80 * config.scale;
-  final double digitWidth = digitHeight * 0.58; // 数字宽度
-  final double colonWidth = digitHeight * 0.25; // 冒号宽度
-  final double digitSpacing = 2 * config.scale; // 数字间距也随scale缩放
+/// Calculate window size based on config and theme properties.
+/// [digitAspectRatio] is the width/height ratio of digit images (detected from theme).
+/// [digitBaseHeight] is the original height of digit images in pixels (detected from theme).
+/// [digitSpacing] is the spacing between digits.
+/// [paddingHorizontal] is the horizontal padding from theme (default 12).
+/// [paddingVertical] is the vertical padding from theme (default 8).
+Size calculateWindowSizeFromConfig(
+  ClockConfig config, {
+  double? digitAspectRatio,
+  double? digitBaseHeight,
+  double digitSpacing = 2.0,
+  double paddingHorizontal = 12.0,
+  double paddingVertical = 8.0,
+}) {
+  // Use detected base height, or fallback to default 80
+  final double baseHeight = digitBaseHeight ?? 80.0;
+  final double digitHeight = baseHeight * config.scale;
+  // Use detected aspect ratio, or fallback to default 0.58
+  final double aspectRatio = digitAspectRatio ?? 0.58;
+  final double digitWidth = digitHeight * aspectRatio;
+  // Colon width is proportional to digit width
+  final double colonWidth = digitWidth * 0.45;
+  final double spacing = digitSpacing * config.scale;
 
   // 计算实际内容宽度：4个数字 + 1个冒号 (HH:MM) + 数字间距
-  // 间距在数字之间，不包括冒号前后
-  final double baseW =
-      4 * digitWidth + colonWidth + 2 * digitSpacing; // 2个间距（HH之间和MM之间）
+  // 间距在数字之间，不包括冒号前后 (HH之间和MM之间各一个)
+  final double baseW = 4 * digitWidth + colonWidth + 2 * spacing;
 
   final double baseH = digitHeight;
 
-  // padding 也要随着 scale 缩放，保持比例
-  final double padH = 24 * config.scale; // 左右边距 (12*2)
-  final double padV = 16 * config.scale; // 上下边距 (8*2)
+  // padding 使用主题的值，并随 scale 缩放
+  final double padH = paddingHorizontal * 2 * config.scale; // 左右边距
+  final double padV = paddingVertical * 2 * config.scale; // 上下边距
 
-  return Size(baseW + padH, baseH + padV);
+  // 向上取整并添加 1 像素安全边距，防止浮点精度导致的溢出
+  return Size(
+    (baseW + padH).ceilToDouble() + 1,
+    (baseH + padV).ceilToDouble() + 1,
+  );
 }
 
 String _themeIdFromLegacyIndex(int? index) {

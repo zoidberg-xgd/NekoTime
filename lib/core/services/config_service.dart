@@ -24,8 +24,8 @@ class ConfigService extends ChangeNotifier {
     } else {
       _config = ClockConfig();
     }
-    // Apply initial window settings from config
-    _applyWindowSettings();
+    // Note: Do NOT apply window settings here - windowManager may not be ready yet.
+    // Window settings are applied in main.dart after waitUntilReadyToShow().
     notifyListeners();
   }
 
@@ -38,11 +38,11 @@ class ConfigService extends ChangeNotifier {
   }
 
   // Helper to apply window settings based on current config
-  void _applyWindowSettings() {
+  Future<void> _applyWindowSettings() async {
     if (Platform.isMacOS || Platform.isWindows || Platform.isLinux) {
       bool isAlwaysOnTop = _config.layer == ClockLayer.top;
-      windowManager.setAlwaysOnTop(isAlwaysOnTop);
-      windowManager.setOpacity(_config.opacity);
+      await windowManager.setAlwaysOnTop(isAlwaysOnTop);
+      await windowManager.setOpacity(_config.opacity.clamp(0.1, 1.0));
     }
   }
 

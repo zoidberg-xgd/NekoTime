@@ -11,6 +11,8 @@ class DigitGifV2 extends StatefulWidget {
   final String? gifBasePath;
   final String? imageFormat;
   final String? assetsBasePath;
+  final double? digitAspectRatio; // width/height ratio detected from theme
+  final double? digitBaseHeight; // original height of digit image in pixels
 
   const DigitGifV2({
     super.key,
@@ -20,19 +22,20 @@ class DigitGifV2 extends StatefulWidget {
     this.gifBasePath,
     this.imageFormat,
     this.assetsBasePath,
+    this.digitAspectRatio,
+    this.digitBaseHeight,
   });
 
   @override
   State<DigitGifV2> createState() => _DigitGifV2State();
 }
 
-class _DigitGifV2State extends State<DigitGifV2>
-    with AutomaticKeepAliveClientMixin {
-  @override
-  bool get wantKeepAlive => true;
-
+class _DigitGifV2State extends State<DigitGifV2> {
   bool _assetExists = false;
   bool _isCheckingAsset = true;
+  
+  // 静态缓存，避免重复检查资源是否存在
+  static final Map<String, bool> _assetExistsCache = {};
 
   @override
   void initState() {
@@ -52,10 +55,12 @@ class _DigitGifV2State extends State<DigitGifV2>
 
   Future<void> _checkAssetExists() async {
     if (widget.digit == ':') {
-      setState(() {
-        _isCheckingAsset = false;
-        _assetExists = false; // 冒号不需要图片
-      });
+      if (mounted) {
+        setState(() {
+          _isCheckingAsset = false;
+          _assetExists = false; // 冒号不需要图片
+        });
+      }
       return;
     }
 
@@ -64,37 +69,60 @@ class _DigitGifV2State extends State<DigitGifV2>
     final format = widget.imageFormat ?? 'gif';
     final assetPath = '$imagePath/${widget.digit}.$format';
 
+    // 先检查缓存
+    if (_assetExistsCache.containsKey(assetPath)) {
+      if (mounted) {
+        setState(() {
+          _assetExists = _assetExistsCache[assetPath]!;
+          _isCheckingAsset = false;
+        });
+      }
+      return;
+    }
+
     // 检查是否在AssetBundle中（内置资源和打包的主题）
     if (imagePath.startsWith('assets/') || imagePath.startsWith('themes/')) {
       try {
+        // 只检查资源是否存在，不加载整个文件
         await rootBundle.load(assetPath);
-        setState(() {
-          _assetExists = true;
-          _isCheckingAsset = false;
-        });
+        _assetExistsCache[assetPath] = true;
+        if (mounted) {
+          setState(() {
+            _assetExists = true;
+            _isCheckingAsset = false;
+          });
+        }
       } catch (e) {
-        LogService().error('Asset NOT found: $assetPath', error: e);
+        _assetExistsCache[assetPath] = false;
+        if (mounted) {
+          setState(() {
+            _assetExists = false;
+            _isCheckingAsset = false;
+          });
+        }
+      }
+    } else {
+      // 外部文件
+      _assetExistsCache[assetPath] = false;
+      if (mounted) {
         setState(() {
           _assetExists = false;
           _isCheckingAsset = false;
         });
       }
-    } else {
-      // 外部文件
-      setState(() {
-        _assetExists = false;
-        _isCheckingAsset = false;
-      });
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    super.build(context);
-
-    final double height = 80 * widget.scale;
-    final double digitWidth = height * 0.58;
-    final double colonWidth = height * 0.25;
+    // Use detected base height, or fallback to default 80
+    final double baseHeight = widget.digitBaseHeight ?? 80.0;
+    final double height = baseHeight * widget.scale;
+    // Use detected aspect ratio, or fallback to default 0.58
+    final double aspectRatio = widget.digitAspectRatio ?? 0.58;
+    final double digitWidth = height * aspectRatio;
+    // Colon width is proportional to digit width
+    final double colonWidth = digitWidth * 0.45;
 
     // 冒号用文本显示，添加强阴影确保在任何透明度下都可见
     if (widget.digit == ':') {

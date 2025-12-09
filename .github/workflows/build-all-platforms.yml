@@ -72,7 +72,7 @@ jobs:
       - name: Build macOS app
         run: |
           echo "Attempting to build macOS app..."
-          flutter build macos --release -v
+          flutter build macos --release --split-debug-info=build/debug-info --obfuscate -v
       
       - name: Create DMG
         run: |
@@ -141,7 +141,7 @@ jobs:
         run: flutter test
       
       - name: Build Windows app
-        run: flutter build windows --release
+        run: flutter build windows --release --split-debug-info=build/debug-info --obfuscate
       
       - name: Create portable package
         shell: powershell
@@ -246,7 +246,7 @@ jobs:
         run: flutter test
       
       - name: Build Linux app
-        run: flutter build linux --release
+        run: flutter build linux --release --split-debug-info=build/debug-info --obfuscate
       
       - name: Create portable package
         run: |

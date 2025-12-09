@@ -32,6 +32,8 @@ class ThemeDefinition {
   final String?
       digitImageFormat; // Image format: 'gif', 'png', 'jpg', 'webp', or null for auto-detect
   final String? assetsBasePath; // runtime-only; not serialized
+  final double? digitAspectRatio; // runtime-only; width/height ratio detected from first digit image
+  final double? digitBaseHeight; // runtime-only; original height of digit image in pixels
 
   const ThemeDefinition({
     required this.id,
@@ -57,6 +59,8 @@ class ThemeDefinition {
     this.digitGifPath,
     this.digitImageFormat,
     this.assetsBasePath,
+    this.digitAspectRatio,
+    this.digitBaseHeight,
   });
 
   factory ThemeDefinition.fromJson(Map<String, dynamic> json) {
@@ -92,6 +96,9 @@ class ThemeDefinition {
       digitSpacing: (json['digit']?['spacing'] ?? json['digitSpacing']) == null
           ? null
           : (json['digit']?['spacing'] ?? json['digitSpacing']).toDouble(),
+      digitAspectRatio: (json['digit']?['aspectRatio'] ?? json['digitAspectRatio']) == null
+          ? null
+          : (json['digit']?['aspectRatio'] ?? json['digitAspectRatio']).toDouble(),
       fontFamily: json['fontFamily'] as String?,
       fontFiles: (json['fonts'] as List?)
           ?.map((e) {
@@ -159,6 +166,8 @@ class ThemeDefinition {
     String? digitGifPath,
     String? digitImageFormat,
     String? assetsBasePath,
+    double? digitAspectRatio,
+    double? digitBaseHeight,
   }) {
     return ThemeDefinition(
       id: id ?? this.id,
@@ -187,6 +196,8 @@ class ThemeDefinition {
       digitGifPath: digitGifPath ?? this.digitGifPath,
       digitImageFormat: digitImageFormat ?? this.digitImageFormat,
       assetsBasePath: assetsBasePath ?? this.assetsBasePath,
+      digitAspectRatio: digitAspectRatio ?? this.digitAspectRatio,
+      digitBaseHeight: digitBaseHeight ?? this.digitBaseHeight,
     );
   }
 

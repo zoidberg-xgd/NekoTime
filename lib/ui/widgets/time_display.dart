@@ -9,6 +9,8 @@ class TimeDisplay extends StatelessWidget {
   final String? gifBasePath;
   final String? imageFormat;
   final String? assetsBasePath;
+  final double? digitAspectRatio;
+  final double? digitBaseHeight;
 
   const TimeDisplay({
     super.key,
@@ -19,6 +21,8 @@ class TimeDisplay extends StatelessWidget {
     this.gifBasePath,
     this.imageFormat,
     this.assetsBasePath,
+    this.digitAspectRatio,
+    this.digitBaseHeight,
   });
 
   @override
@@ -41,6 +45,8 @@ class TimeDisplay extends StatelessWidget {
           gifBasePath: gifBasePath,
           imageFormat: imageFormat,
           assetsBasePath: assetsBasePath,
+          digitAspectRatio: digitAspectRatio,
+          digitBaseHeight: digitBaseHeight,
         ),
       );
     }

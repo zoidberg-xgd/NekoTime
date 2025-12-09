@@ -27,6 +27,7 @@ class _ClockScreenState extends State<ClockScreen> with WindowListener {
   String? _lastConfigThemeId;
   double? _lastScale;
   double? _lastOpacity;
+  bool _isFirstBuild = true;
 
   @override
   void initState() {
@@ -73,9 +74,10 @@ class _ClockScreenState extends State<ClockScreen> with WindowListener {
         padding = const EdgeInsets.symmetric(horizontal: 24, vertical: 12);
         break;
       default:
+        // 使用主题的 padding，并根据 scale 缩放
         padding = EdgeInsets.symmetric(
-          horizontal: theme.paddingHorizontal,
-          vertical: theme.paddingVertical,
+          horizontal: theme.paddingHorizontal * config.scale,
+          vertical: theme.paddingVertical * config.scale,
         );
     }
 
@@ -190,9 +192,17 @@ class _ClockScreenState extends State<ClockScreen> with WindowListener {
     }
   }
 
-  void _updateWindow(ConfigService configService) {
+  void _updateWindow(ConfigService configService, ThemeService themeService) {
     final config = configService.config;
-    final Size desiredSize = calculateWindowSizeFromConfig(config);
+    final theme = themeService.resolve(config.themeId);
+    final Size desiredSize = calculateWindowSizeFromConfig(
+      config,
+      digitAspectRatio: theme.digitAspectRatio,
+      digitBaseHeight: theme.digitBaseHeight,
+      digitSpacing: theme.digitSpacing ?? 2.0,
+      paddingHorizontal: theme.paddingHorizontal,
+      paddingVertical: theme.paddingVertical,
+    );
 
     // Fit window to content size
     windowManager.setSize(desiredSize);
@@ -211,13 +221,17 @@ class _ClockScreenState extends State<ClockScreen> with WindowListener {
             _lastConfigThemeId == null) {  // 首次构建
           _lastConfigThemeId = config.themeId;
           _lastScale = config.scale;
+          // 直接更新窗口大小，不需要额外的回调
           WidgetsBinding.instance.addPostFrameCallback((_) {
-            _updateWindow(configService);
+            _updateWindow(configService, themeService);
           });
         }
 
-        // 只在透明度改变时才更新
-        if (_lastOpacity != config.opacity) {
+        // 只在透明度改变时才更新（跳过首次构建，由 main.dart 处理初始透明度）
+        if (_isFirstBuild) {
+          _isFirstBuild = false;
+          _lastOpacity = config.opacity;
+        } else if (_lastOpacity != config.opacity) {
           _lastOpacity = config.opacity;
           WidgetsBinding.instance.addPostFrameCallback((_) {
             windowManager.setOpacity(config.opacity.clamp(0.1, 1.0));
@@ -245,6 +259,8 @@ class _ClockScreenState extends State<ClockScreen> with WindowListener {
               gifBasePath: theme.digitGifPath,
               imageFormat: theme.digitImageFormat,
               assetsBasePath: theme.assetsBasePath,
+              digitAspectRatio: theme.digitAspectRatio,
+              digitBaseHeight: theme.digitBaseHeight,
             );
           },
         );
@@ -270,11 +286,14 @@ class _ClockScreenState extends State<ClockScreen> with WindowListener {
                 LogService().info('Window hidden (opacity=0) by double-tap');
                 // 用户可以通过托盘菜单恢复显示
               },
-              child: _buildThemeWrapper(
-                context,
-                clock,
-                configService.config,
-                theme,
+              // 直接渲染内容，使用 Center 确保居中
+              child: Center(
+                child: _buildThemeWrapper(
+                  context,
+                  clock,
+                  configService.config,
+                  theme,
+                ),
               ),
             ),
           ),

@@ -10,19 +10,12 @@ version:
 project_type: app
 
 # Tracks metadata for the flutter migrate command
-# Desktop-only project: macOS, Windows, Linux
 migration:
   platforms:
     - platform: root
       create_revision: b45fa18946ecc2d9b4009952c636ba7e2ffbb787
       base_revision: b45fa18946ecc2d9b4009952c636ba7e2ffbb787
-    - platform: linux
-      create_revision: b45fa18946ecc2d9b4009952c636ba7e2ffbb787
-      base_revision: b45fa18946ecc2d9b4009952c636ba7e2ffbb787
     - platform: macos
-      create_revision: b45fa18946ecc2d9b4009952c636ba7e2ffbb787
-      base_revision: b45fa18946ecc2d9b4009952c636ba7e2ffbb787
-    - platform: windows
       create_revision: b45fa18946ecc2d9b4009952c636ba7e2ffbb787
       base_revision: b45fa18946ecc2d9b4009952c636ba7e2ffbb787
 

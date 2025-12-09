@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
+import 'dart:ui' as ui;
 
 import 'package:neko_time/core/models/theme_definition.dart';
 import 'package:neko_time/core/services/log_service.dart';
@@ -17,7 +18,7 @@ class ThemeService extends ChangeNotifier {
     _themes.clear();
 
     // 首先添加内置主题（硬编码，确保始终可用）
-    _themes[ThemeDefinition.defaultThemeId] = _createBuiltinTheme();
+    _themes[ThemeDefinition.defaultThemeId] = await _createBuiltinTheme();
     LogService().info('Loaded builtin theme: Frosted Glass');
 
     // 然后从应用支持目录加载用户主题
@@ -81,7 +82,7 @@ class ThemeService extends ChangeNotifier {
     _themes.clear();
 
     // 重新加载内置主题
-    _themes[ThemeDefinition.defaultThemeId] = _createBuiltinTheme();
+    _themes[ThemeDefinition.defaultThemeId] = await _createBuiltinTheme();
     LogService().info('Reloaded builtin theme: Frosted Glass');
 
     // 加载用户主题
@@ -115,8 +116,8 @@ class ThemeService extends ChangeNotifier {
         _themes.values.first;
   }
 
-  ThemeDefinition _createBuiltinTheme() {
-    return const ThemeDefinition(
+  Future<ThemeDefinition> _createBuiltinTheme() async {
+    const theme = ThemeDefinition(
       id: ThemeDefinition.defaultThemeId,
       name: 'Frosted Glass',
       kind: ThemeKind.blur,
@@ -132,6 +133,95 @@ class ThemeService extends ChangeNotifier {
       digitImageFormat: 'gif',
       digitSpacing: 2,
     );
+    // Auto-detect dimensions from first digit image (builtin theme has no manual override)
+    final dimensions = await _detectDigitDimensions(theme);
+    if (dimensions != null) {
+      final (aspectRatio, baseHeight) = dimensions;
+      return theme.copyWith(digitAspectRatio: aspectRatio, digitBaseHeight: baseHeight);
+    }
+    return theme;
+  }
+
+  /// Ensure theme has digitAspectRatio and digitBaseHeight set.
+  /// If manually specified in theme.json, use that value.
+  /// Otherwise, auto-detect from first digit image.
+  Future<ThemeDefinition> _ensureDigitDimensions(ThemeDefinition theme) async {
+    if (theme.digitAspectRatio != null && theme.digitBaseHeight != null) {
+      // Both manually specified - use as-is
+      LogService().debug('Using manual digit dimensions for ${theme.id}: '
+          'aspectRatio=${theme.digitAspectRatio}, baseHeight=${theme.digitBaseHeight}');
+      return theme;
+    }
+    // Auto-detect from first digit image
+    final dimensions = await _detectDigitDimensions(theme);
+    if (dimensions != null) {
+      final (aspectRatio, baseHeight) = dimensions;
+      LogService().debug('Auto-detected digit dimensions for ${theme.id}: '
+          'aspectRatio=$aspectRatio, baseHeight=$baseHeight');
+      return theme.copyWith(
+        digitAspectRatio: theme.digitAspectRatio ?? aspectRatio,
+        digitBaseHeight: theme.digitBaseHeight ?? baseHeight,
+      );
+    }
+    return theme;
+  }
+
+  /// Detect digit dimensions from the first digit image (0.gif/png/etc)
+  /// Returns (aspectRatio, baseHeight) or null if detection fails
+  Future<(double, double)?> _detectDigitDimensions(ThemeDefinition theme) async {
+    try {
+      final gifPath = theme.digitGifPath;
+      final format = theme.digitImageFormat ?? 'gif';
+      
+      if (gifPath == null) return null;
+      
+      Uint8List? imageBytes;
+      
+      // Check if it's a bundled asset or external file
+      if (gifPath.startsWith('themes/') || gifPath.startsWith('assets/')) {
+        // Bundled asset
+        final assetPath = '$gifPath/0.$format';
+        try {
+          final data = await rootBundle.load(assetPath);
+          imageBytes = data.buffer.asUint8List();
+        } catch (e) {
+          LogService().debug('Could not load bundled asset: $assetPath');
+          return null;
+        }
+      } else if (theme.assetsBasePath != null) {
+        // External file
+        final filePath = p.join(theme.assetsBasePath!, gifPath, '0.$format');
+        final file = File(filePath);
+        if (await file.exists()) {
+          imageBytes = await file.readAsBytes();
+        } else {
+          LogService().debug('Digit image not found: $filePath');
+          return null;
+        }
+      }
+      
+      if (imageBytes == null) return null;
+      
+      // Decode image to get dimensions
+      final codec = await ui.instantiateImageCodec(imageBytes);
+      final frame = await codec.getNextFrame();
+      final image = frame.image;
+      
+      final width = image.width.toDouble();
+      final height = image.height.toDouble();
+      
+      if (height <= 0) return null;
+      
+      final aspectRatio = width / height;
+      LogService().debug('Detected digit dimensions for ${theme.id}: '
+          'aspectRatio=$aspectRatio (${width.toInt()}x${height.toInt()})');
+      
+      return (aspectRatio, height);
+    } catch (e, stackTrace) {
+      LogService().error('Failed to detect digit dimensions for ${theme.id}',
+          error: e, stackTrace: stackTrace);
+      return null;
+    }
   }
 
   ThemeDefinition _createFallbackTheme() {
@@ -176,12 +266,15 @@ class ThemeService extends ChangeNotifier {
           final data = jsonDecode(content) as Map<String, dynamic>;
           var theme = ThemeDefinition.fromJson(data)
               .copyWith(assetsBasePath: entry.path);
+          // Use manual dimensions from JSON, or auto-detect from image
+          theme = await _ensureDigitDimensions(theme);
           _themes[theme.id] = theme;
           LogService().info(
               'Loaded theme package: ${theme.name} (${theme.id}) from ${entry.path}');
           LogService().debug('  - digitGifPath: ${theme.digitGifPath}');
           LogService().debug('  - digitImageFormat: ${theme.digitImageFormat}');
           LogService().debug('  - assetsBasePath: ${theme.assetsBasePath}');
+          LogService().debug('  - digitAspectRatio: ${theme.digitAspectRatio}');
         } catch (e, stackTrace) {
           LogService().error('Failed to load theme package ${entry.path}',
               error: e, stackTrace: stackTrace);
@@ -199,6 +292,8 @@ class ThemeService extends ChangeNotifier {
         final data = jsonDecode(content) as Map<String, dynamic>;
         var theme = ThemeDefinition.fromJson(data)
             .copyWith(assetsBasePath: file.parent.path);
+        // Use manual dimensions from JSON, or auto-detect from image
+        theme = await _ensureDigitDimensions(theme);
         _themes[theme.id] = theme;
         LogService().info(
             'Loaded legacy theme: ${theme.name} (${theme.id}) from ${file.path}');
